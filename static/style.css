@@ -1,0 +1,107 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #1d1d1d;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    min-height: 100vh;
+    color: #ffffed;
+}
+
+
+.login-button {
+    position: fixed;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 70px;
+    width: 200px;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    font-weight: bold;
+    transition: 1.5s ease;
+    border-radius: 20px;
+    border: solid;
+    border-color: #f1a179;
+    background: #1d1d1d;
+    color: #ffffed;
+}
+
+.login-button:hover {
+    transform: scale(1.2);
+    border: none;
+    color: #1d1d1d;
+    background: linear-gradient(to right, #f1a179, #beb9ff);
+}
+
+.login-button a {
+    text-decoration: none;
+    color: #ffffed;
+}
+
+.adding-form {
+    background: linear-gradient(145deg, #2a2a2a, #1c1c1c);
+    border-radius: 18px;
+    padding: 30px;
+    width: 400px;
+    box-shadow: 0 0 13px #beb9ff;
+
+    color: #ffffed;
+}
+.adding-form h2 {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.adding-form input, .adding-form textarea {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: none;
+    border-radius: 10px;
+    background-color: #1a1a1a;
+    color: #ffffed;
+    transition: 0.3s ease;
+}
+
+.adding-form input:hover {
+    transform: scale(1.1);
+}
+
+.adding-form button {
+    width: 100%;
+    padding: 15px;
+    border: none;
+    border-radius: 10px;
+    background-color: #2e2e2e;
+    color: #f1a179;
+    text-decoration: solid;
+    font-weight: bold;
+    font-size: large;
+    transition: 0.5s ease;
+}
+
+.adding-form button:hover {
+    transform: scale(1.05);
+    background: linear-gradient(135deg, #2e2e2e, #1c1c1c);
+}
+
+.regiter-undertext {
+    display: flex;
+    position: relative;
+    align-content: center;
+    margin-left: 15px;
+    color: #ffffed;
+}
+
+.regiter-undertext a {
+    color: #ffffed;
+    text-decoration: none;
+    text-align: center;
+}
