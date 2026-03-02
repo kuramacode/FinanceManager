@@ -17,11 +17,7 @@ def login():
         cur.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT)')
         cur.execute("SELECT * FROM users WHERE username=? AND password=?", (username, password))
         user = cur.fetchall()
-        if user and user[0][1] == username:
-            if user[0][2] == password:
-                return f"Welcome back, {username}!"
-        else:
-            return "Invalid username or password."
+        
     return render_template('login.html')
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -34,9 +30,16 @@ def register():
         conn = sqlite3.connect('users.db')
         cur = conn.cursor()
         cur.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT)')
-        cur.execute('SELECT * FROM users WHERE username=? AND password=? AND password_repeate=? AND email=?', (username, password, password_repeate, email))
-        user = cur.fetchall()
-
+        columns = [row[1] for row in cur.execute('PRAGMA table_info(users)')]
+        if 'email' not in columns:
+            cur.execute('ALTER TABLE users ADD COLUMN email TEXT')
+        cur.execute('INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
+                    (username, password, email))
+        cur.execute('SELECT * FROM users')
+        conn.commit()
+        conn.close()
+        if password == password_repeate:
+            return f"{username}, Successul adding!"
 
     return render_template('register.html')
 
