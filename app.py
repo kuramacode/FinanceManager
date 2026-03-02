@@ -28,7 +28,7 @@ def register():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
-        password_repeate = request.form['password_repeate']
+        password_repeate = request.form['password_repeat']
         email = request.form['email']
 
         conn = sqlite3.connect('users.db')
@@ -36,7 +36,7 @@ def register():
         cur.execute('CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT, password TEXT, email TEXT)')
         cur.execute('SELECT * FROM users WHERE username=? AND password=? AND password_repeate=? AND email=?', (username, password, password_repeate, email))
         user = cur.fetchall()
-        
+
 
     return render_template('register.html')
 
