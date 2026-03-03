@@ -4,6 +4,7 @@ __pycache__/
 *$py.class
 
 .env
+instace/
 __pycache__/
 *.db
 env/
