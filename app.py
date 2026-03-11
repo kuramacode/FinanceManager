@@ -9,7 +9,6 @@ from werkzeug.security import generate_password_hash, check_password_hash
 import os
 import dotenv
 
-
 # Ініціалізація Flask додатка з назвою поточного модуля (__name__)
 app = Flask(__name__)
 
@@ -93,6 +92,10 @@ def logout():
 @app.route('/dashboard') # Декоратор встановлює маршрут '/dashboard' для доступу до панелі керування
 def dashboard(): # Функція-обробник для відображення панелі керування користувача
     return render_template('dashboard.html')# Відображає шаблон 'dashboard.html' для користувача
+
+@app.route('/transactions') # Декоратор встановлює маршрут '/transactions' для доступу до сторінки транзакцій
+def transactions(): # Функція-обробник для відображення сторінки транзакцій користувача
+    return render_template('transactions.html')# Відображає шаблон 'transactions.html' для користувача
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ledger — Dashboard</title>
+  <title>Ledger — Transactions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
@@ -18,11 +18,11 @@
 
     <nav>
       <div class="nav-label">Menu</div>
-      <a href="dashboard.html" class="active">
+      <a href="{{ url_for('dashboard') }}">
         <svg viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor" opacity=".5"/><rect x="8.5" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="1" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor" opacity=".5"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor" opacity=".5"/></svg>
         Dashboard
       </a>
-      <a href="{{ url_for('transactions') }}">
+      <a href="{{ url_for('transactions') }}" class="active">
         <svg viewBox="0 0 15 15" fill="none"><path d="M1.5 4h12M1.5 7.5h9M1.5 11h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         Transactions
       </a>
@@ -40,50 +40,17 @@
   </aside>
 
   <main>
-    <h1 class="page-title">Good <em>morning</em></h1>
+    <h1 class="page-title"><em>All</em> transactions</h1>
     <p class="page-sub" id="pageDate"></p>
 
-    <div class="stat-cards">
-      <div class="card green">
-        <div class="card-label">Income</div>
-        <div class="card-value" id="statIncome">$0.00</div>
-        <div class="card-sub" id="incomeCount">— transactions</div>
-      </div>
-      <div class="card red">
-        <div class="card-label">Expenses</div>
-        <div class="card-value" id="statExpense">$0.00</div>
-        <div class="card-sub" id="expenseCount">— transactions</div>
-      </div>
-      <div class="card neutral">
-        <div class="card-label">Balance</div>
-        <div class="card-value" id="statBalance">$0.00</div>
-        <div class="card-sub">this month</div>
-      </div>
-    </div>
-
-    <div class="section-title">Recent transactions</div>
     <ul class="tx-list" id="txList"></ul>
   </main>
 
   <script src="{{ url_for('static', filename='scripts/data.js') }}"></script>
   <script>
-    // Stats
-    const income  = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-    const expense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-    const balance = income - expense;
-
-    document.getElementById('statIncome').textContent  = fmt(income);
-    document.getElementById('statExpense').textContent = fmt(expense);
-    document.getElementById('incomeCount').textContent  = transactions.filter(t => t.type === 'income').length + ' transactions';
-    document.getElementById('expenseCount').textContent = transactions.filter(t => t.type === 'expense').length + ' transactions';
-
-    const balEl = document.getElementById('statBalance');
-    balEl.textContent = fmt(balance);
-    balEl.style.color = balance >= 0 ? 'var(--income)' : 'var(--expense)';
-
-    // Recent 5
-    const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
+    const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
     const list = document.getElementById('txList');
+
     list.innerHTML = sorted.map((t, i) => `
       <li class="tx-item" style="animation-delay:${i * 35}ms">
         <div class="tx-icon">${ICONS[t.cat] || '📦'}</div>
@@ -101,7 +68,7 @@
     `).join('');
 
     document.getElementById('pageDate').textContent =
-      new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+      new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
   </script>
 </body>
 </html>
