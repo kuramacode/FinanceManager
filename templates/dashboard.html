@@ -1,15 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "base.html" %}
+
+{% block head %}
+
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ledger — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
-</head>
-<body>
 
+{% endblock %}
+
+{% block body %}
+  
   <aside>
     <div class="sidebar-logo">
       <div class="logo-mark">𝐋</div>
@@ -18,7 +21,7 @@
 
     <nav>
       <div class="nav-label">Menu</div>
-      <a href="dashboard.html" class="active">
+      <a href="{{ url_for('dashboard') }}" class="active">
         <svg viewBox="0 0 15 15" fill="none"><rect x="1" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor" opacity=".5"/><rect x="8.5" y="1" width="5.5" height="5.5" rx="1.2" fill="currentColor"/><rect x="1" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor" opacity=".5"/><rect x="8.5" y="8.5" width="5.5" height="5.5" rx="1.2" fill="currentColor" opacity=".5"/></svg>
         Dashboard
       </a>
@@ -103,5 +106,4 @@
     document.getElementById('pageDate').textContent =
       new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   </script>
-</body>
-</html>
+{% endblock %}

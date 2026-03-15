@@ -1,3 +1,19 @@
+import sqlite from 'sqlite';
+
+function returnTransactionList(userID){
+  return new Promise((resolve, reject) => {
+    const db = sqlite.Database.open('users.db');
+    db.all('SELECT * FROM transactions WHERE user_id = ?', [userID], (err, rows) => {
+      if (err) {
+        reject(err);
+      } else {
+        resolve(rows);
+      }
+    });
+    db.close();
+  });
+}
+
 const ICONS = {
   Food: '🍜', Housing: '🏠', Transport: '🚇', Health: '💊',
   Shopping: '🛍️', Entertainment: '🎬', Salary: '💰', Other: '📦'
@@ -27,3 +43,4 @@ function fmtDate(str) {
     month: 'short', day: 'numeric'
   });
 }
+

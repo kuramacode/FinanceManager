@@ -92,7 +92,7 @@ body {
     background: linear-gradient(135deg, #2e2e2e, #1c1c1c);
 }
 
-.regiter-undertext {
+.register-undertext {
     display: flex;
     position: relative;
     align-content: center;
@@ -100,7 +100,7 @@ body {
     color: #ffffed;
 }
 
-.regiter-undertext a {
+.register-undertext a {
     color: #ffffed;
     text-decoration: none;
     text-align: center;

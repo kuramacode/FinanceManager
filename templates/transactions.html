@@ -1,15 +1,15 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
+{% extends "base.html" %}
+
+{% block head %} 
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ledger — Transactions</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
-</head>
-<body>
+{% endblock %}
 
+{% block body %}
   <aside>
     <div class="sidebar-logo">
       <div class="logo-mark">𝐋</div>
@@ -43,32 +43,20 @@
     <h1 class="page-title"><em>All</em> transactions</h1>
     <p class="page-sub" id="pageDate"></p>
 
-    <ul class="tx-list" id="txList"></ul>
-  </main>
-
-  <script src="{{ url_for('static', filename='scripts/data.js') }}"></script>
-  <script>
-    const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date));
-    const list = document.getElementById('txList');
-
-    list.innerHTML = sorted.map((t, i) => `
-      <li class="tx-item" style="animation-delay:${i * 35}ms">
-        <div class="tx-icon">${ICONS[t.cat] || '📦'}</div>
+    <ul class="tx-list" id="txList">
+      {% for transaction in transactions %}
+      <li class="tx-item" style="animation-delay: 50ms">
+        <div class="tx-icon">📦</div>
         <div class="tx-body">
-          <div class="tx-name">${t.desc}</div>
+          <div class="tx-name">{{ transaction.description or  '—' }}</div>
           <div class="tx-meta">
-            <span class="tx-date">${fmtDate(t.date)}</span>
-            <span class="tx-cat">${t.cat}</span>
+            <span class="tx-date">{{ transaction.date or '—' }}</span>
+            <span class="tx-cat">Category</span>
           </div>
         </div>
-        <div class="tx-amount ${t.type === 'income' ? 'pos' : 'neg'}">
-          ${t.type === 'income' ? '+' : '−'}${fmt(t.amount)}
-        </div>
+        <div class="tx-amount pos">{{ '%.2f'|format(transaction.amount|float) }}</div>
       </li>
-    `).join('');
-
-    document.getElementById('pageDate').textContent =
-      new Date().toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-  </script>
-</body>
-</html>
+      {% endfor %}
+    </ul>
+  </main>
+{% endblock %}
