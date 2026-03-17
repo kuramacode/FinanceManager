@@ -32,7 +32,7 @@
       <div class="user">
         <div class="user-avatar">AL</div>
         <div>
-          <div class="user-name">Alex Lane</div>
+          <div class="user-name">{{ username }}</div>
           <div class="user-role">Personal</div>
         </div>
       </div>
@@ -46,15 +46,21 @@
     <ul class="tx-list" id="txList">
       {% for transaction in transactions %}
       <li class="tx-item" style="animation-delay: 50ms">
-        <div class="tx-icon">📦</div>
+        <div class="tx-icon">{{ transaction.category_id | category_emoji(userID) }}</div>
         <div class="tx-body">
           <div class="tx-name">{{ transaction.description or  '—' }}</div>
           <div class="tx-meta">
-            <span class="tx-date">{{ transaction.date or '—' }}</span>
-            <span class="tx-cat">Category</span>
+            <span class="tx-date">{{ transaction.date | format_date }}</span>
+            <span class="tx-cat">{{ transaction.category_id | category_name(userID) }}</span>
           </div>
         </div>
-        <div class="tx-amount pos">{{ '%.2f'|format(transaction.amount|float) }}</div>
+        <div class="tx-amount {{ transaction.amount | color }}">  
+        {% if transaction.amount >= 0 %} 
+          +${{ '%.2f' | format(transaction.amount)}}
+        {% else %}  
+          -${{ '%.2f' | format(-transaction.amount)}}
+        {% endif %}
+        </div>
       </li>
       {% endfor %}
     </ul>

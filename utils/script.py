@@ -1,4 +1,11 @@
 import sqlite3
+import sys 
+import os
+
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+from config import Config  # Тепер це спрацює!
+
 
 def create_table_users():
     db = sqlite3.connect('instance/users.db')
@@ -17,6 +24,19 @@ def create_table_transactions():
     db.close()
     return "Table created successfully"
 
+def create_table_categories():
+    db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+    cur = db.cursor()
+
+    cur.execute('''CREATE TABLE IF NOT EXISTS categories(id INTEGER PRIMARY KEY, name TEXT,
+                user_id INTEGER NOT NULL, FOREIGN KEY (user_id) REFERENCES users(id))''')
+    
+db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+cur = db.cursor()
+
+create_table_categories()
+
+
 def insert_transaction(amount, date, description, user_id, category_id, type):
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
@@ -32,14 +52,16 @@ def insert_user(username, email, password):
     db.close()
     return "User inserted successfully"
 
+def insert_categories(name, userId, emoji):
+    db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+    cur = db.cursor()
+    cur.execute('''INSERT INTO categories(name, user_id, emoji) VALUES(?, ?, ?)''', (name, userId, emoji))
+    db.commit()
+    db.close()
+    return "Success"
 
-db = sqlite3.connect('instance/users.db')
+db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
 cur = db.cursor()
-
-
-
-create_table_users()
-create_table_transactions()
 
 users = [
     {"username": 'Alex', "email": 'takase00143@1smail.top', 'password': 'password123' },
@@ -55,10 +77,37 @@ transactions = [
     {"amount": 500.00, "date": "2026-03-05 10:00:00", "description": "Freelance project", "user_id": 5, "category_id": 1, "type": "income"},
 ]
 
-for i in range(len(transactions)):
-    amount, date, description, user_id, category_id, type = transactions[i].values()
-    insert_transaction(amount, date, description, user_id, category_id, type)
-cur.execute('SELECT * FROM users')
-print(cur.fetchall())
-cur.execute('SELECT * FROM transactions')
-print(cur.fetchall())
+categor = [
+    {"name": "Food", "user_id": 5},
+    {"name": "Transport", "user_id": 5},
+    {"name": "Entertainment", "user_id": 5},
+    {"name": "Health", "user_id": 5},
+    {"name": "Shopping", "user_id": 5},
+    {"name": "Bills", "user_id": 5},
+    {"name": "Other", "user_id": 5}
+]
+
+categorie = {
+    1: "Salary / Freelance",    # income-type activities
+    2: "Groceries / Doctor",    # food and health
+    3: "Entertainment",         # cinema tickets
+    4: "Dining / Coffee",       # restaurant & coffee
+    5: "Education",             # online courses
+    6: "Electronics",           # gadgets purchase
+    7: "Books"                  # books
+}
+
+categories = [
+    {"name": "Salary", "user_id": "5", "emoji": "💸"},
+    {"name": "Groceries / Doctor", "user_id": "5", "emoji": "💊"},
+    {"name": "Entertainment", "user_id": "5", "emoji": "🎉"},
+    {"name": "Dining / Coffee", "user_id": "5", "emoji": "🍵"},
+    {"name": "Education", "user_id": "5", "emoji": "🏫"},
+    {"name": "Electronics", "user_id": "5", "emoji": "💻"},
+    {"name": "Books", "user_id": "5", "emoji": "📖"},
+]
+
+for i in range(len(categories)):
+    name, user_id, emoji = categories[i].values()
+    insert_categories(name, user_id, emoji)
+print("!!!")

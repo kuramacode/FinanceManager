@@ -269,6 +269,7 @@ main {
 }
 .tx-amount.pos { color: var(--income); }
 .tx-amount.neg { color: var(--expense); }
+.tx-amount {color: grey;}
 
 /* ── SCROLLBAR ── */
 ::-webkit-scrollbar { width: 5px; }

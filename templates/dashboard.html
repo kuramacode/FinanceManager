@@ -35,7 +35,7 @@
       <div class="user">
         <div class="user-avatar">AL</div>
         <div>
-          <div class="user-name">Alex Lane</div>
+          <div class="user-name">{{ username }}</div>
           <div class="user-role">Personal</div>
         </div>
       </div>
@@ -49,60 +49,46 @@
     <div class="stat-cards">
       <div class="card green">
         <div class="card-label">Income</div>
-        <div class="card-value" id="statIncome">$0.00</div>
+        <div class="card-value" id="statIncome">${{ income_sum }}</div>
         <div class="card-sub" id="incomeCount">— transactions</div>
       </div>
       <div class="card red">
         <div class="card-label">Expenses</div>
-        <div class="card-value" id="statExpense">$0.00</div>
+        <div class="card-value" id="statExpense">${{ expense_sum }}</div>
         <div class="card-sub" id="expenseCount">— transactions</div>
       </div>
       <div class="card neutral">
         <div class="card-label">Balance</div>
-        <div class="card-value" id="statBalance">$0.00</div>
+        <div class="card-value" id="statBalance">${{ balance }}</div>
         <div class="card-sub">this month</div>
       </div>
     </div>
 
-    <div class="section-title">Recent transactions</div>
-    <ul class="tx-list" id="txList"></ul>
+<ul class="tx-list" id="txList">
+      {% for transaction in transactions %}
+      <li class="tx-item" style="animation-delay: 50ms">
+        <div class="tx-icon">{{ transaction.category_id | category_emoji(userID) }}</div>
+        <div class="tx-body">
+          <div class="tx-name">{{ transaction.description or  '—' }}</div>
+          <div class="tx-meta">
+            <span class="tx-date">{{ transaction.date | format_date }}</span>
+            <span class="tx-cat">{{ transaction.category_id | category_name(userID) }}</span>
+          </div>
+        </div>
+        <div class="tx-amount {{ transaction.amount | color }}">  
+        {% if transaction.amount >= 0 %} 
+          +${{ '%.2f' | format(transaction.amount)}}
+        {% else %}  
+          -${{ '%.2f' | format(-transaction.amount)}}
+        {% endif %}
+        </div>
+      </li>
+      {% endfor %}
+    </ul>
   </main>
 
   <script src="{{ url_for('static', filename='scripts/data.js') }}"></script>
   <script>
-    // Stats
-    const income  = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
-    const expense = transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0);
-    const balance = income - expense;
-
-    document.getElementById('statIncome').textContent  = fmt(income);
-    document.getElementById('statExpense').textContent = fmt(expense);
-    document.getElementById('incomeCount').textContent  = transactions.filter(t => t.type === 'income').length + ' transactions';
-    document.getElementById('expenseCount').textContent = transactions.filter(t => t.type === 'expense').length + ' transactions';
-
-    const balEl = document.getElementById('statBalance');
-    balEl.textContent = fmt(balance);
-    balEl.style.color = balance >= 0 ? 'var(--income)' : 'var(--expense)';
-
-    // Recent 5
-    const sorted = [...transactions].sort((a, b) => new Date(b.date) - new Date(a.date)).slice(0, 5);
-    const list = document.getElementById('txList');
-    list.innerHTML = sorted.map((t, i) => `
-      <li class="tx-item" style="animation-delay:${i * 35}ms">
-        <div class="tx-icon">${ICONS[t.cat] || '📦'}</div>
-        <div class="tx-body">
-          <div class="tx-name">${t.desc}</div>
-          <div class="tx-meta">
-            <span class="tx-date">${fmtDate(t.date)}</span>
-            <span class="tx-cat">${t.cat}</span>
-          </div>
-        </div>
-        <div class="tx-amount ${t.type === 'income' ? 'pos' : 'neg'}">
-          ${t.type === 'income' ? '+' : '−'}${fmt(t.amount)}
-        </div>
-      </li>
-    `).join('');
-
     document.getElementById('pageDate').textContent =
       new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
   </script>
