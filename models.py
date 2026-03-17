@@ -20,12 +20,14 @@ class Transactions(db.Model):
     date = db.Column(db.DateTime, nullable=False) # Визначення стовпця date як даты та времени, который не допускает null
     description = db.Column(db.String(255)) # Визначення стовпця description як рядка, который может быть null
 
+
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False) # Визначення стовпця user_id як целого числа, который является внешним ключом, ссылающимся на id в таблице users, и не допускает null
     category_id = db.Column(db.Integer, db.ForeignKey('categories.id'), nullable=False) # Визначення стовпця category_id як целого числа, который является внешним ключом, ссылающимся на id в таблице categories, и не допускает null
-
+    type = db.Column(db.String(100), nullable=False)
 class Categories(db.Model):
     __tablename__ = "categories"
     id = db.Column(db.Integer, primary_key=True) # Визначення стовпця id як цілого числа, який є первинним ключем
     name = db.Column(db.String(100), unique=True, nullable=False) # Визначення стовпця name як рядка с ограничением уникальности и не допускающего null
     
     user_id = db.Column(db.Integer, db.ForeignKey('users.id') ,nullable=False)
+    emoji = db.Column(db.String(8), default='📦')
