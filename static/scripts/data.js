@@ -1,30 +1,88 @@
-const ICONS = {
-  Food: '🍜', Housing: '🏠', Transport: '🚇', Health: '💊',
-  Shopping: '🛍️', Entertainment: '🎬', Salary: '💰', Other: '📦'
-};
+function searchTransactions() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const items = document.querySelectorAll('.tx-item');
 
-const transactions = [
-  { id: 1, desc: 'Monthly Salary',      amount: 4850,   type: 'income',  cat: 'Salary',        date: '2026-03-01' },
-  { id: 2, desc: 'Apartment Rent',      amount: 1200,   type: 'expense', cat: 'Housing',       date: '2026-03-02' },
-  { id: 3, desc: 'Whole Foods Market',  amount: 134.50, type: 'expense', cat: 'Food',          date: '2026-03-03' },
-  { id: 4, desc: 'Metro Monthly Pass',  amount: 85,     type: 'expense', cat: 'Transport',     date: '2026-03-04' },
-  { id: 5, desc: 'Freelance Project',   amount: 920,    type: 'income',  cat: 'Salary',        date: '2026-03-05' },
-  { id: 6, desc: 'Netflix',             amount: 17.99,  type: 'expense', cat: 'Entertainment', date: '2026-03-06' },
-  { id: 7, desc: 'ZARA – Jacket',       amount: 79.90,  type: 'expense', cat: 'Shopping',      date: '2026-03-07' },
-  { id: 8, desc: 'Dentist Visit',       amount: 95,     type: 'expense', cat: 'Health',        date: '2026-03-08' },
-  { id: 9, desc: 'Pharmacy',            amount: 28.50,  type: 'expense', cat: 'Health',        date: '2026-03-09' },
-  { id: 10,desc: 'Uber rides',          amount: 43.20,  type: 'expense', cat: 'Transport',     date: '2026-03-10' },
-  { id: 11, desc: 'Doctor visit',       amount: 100,    type: 'expense', cat: 'Health',        date: '2026-03-11'}
-];
+  items.forEach(item => {
+    const name = item.querySelector('.tx-name').textContent.toLowerCase();
+    const cat  = item.querySelector('.tx-cat').textContent.toLowerCase();
+    const date = item.querySelector('.tx-date').textContent.toLowerCase();
 
-function fmt(n) {
-  return '$' + Math.abs(n).toLocaleString('en-US', {
-    minimumFractionDigits: 2, maximumFractionDigits: 2
+    const match = name.includes(query) || cat.includes(query) || date.includes(query);
+    item.style.display = match ? '' : 'none';
   });
 }
 
-function fmtDate(str) {
-  return new Date(str + 'T00:00:00').toLocaleDateString('en-US', {
-    month: 'short', day: 'numeric'
+const PER_PAGE = 7;
+let currentPage = 1;
+
+function getVisibleItems() {
+  const query = document.getElementById('searchInput').value.toLowerCase();
+  const items = Array.from(document.querySelectorAll('.tx-item'));
+
+  return items.filter(item => {
+    const name = item.querySelector('.tx-name').textContent.toLowerCase();
+    const cat  = item.querySelector('.tx-cat').textContent.toLowerCase();
+    const date = item.querySelector('.tx-date').textContent.toLowerCase();
+    return name.includes(query) || cat.includes(query) || date.includes(query);
   });
 }
+
+function renderPage(page) {
+  currentPage = page;
+  const visible = getVisibleItems();
+  const totalPages = Math.ceil(visible.length / PER_PAGE);
+
+  // ховаємо всі
+  document.querySelectorAll('.tx-item').forEach(item => item.style.display = 'none');
+
+  // показуємо тільки поточну сторінку
+  const start = (page - 1) * PER_PAGE;
+  const end   = start + PER_PAGE;
+  visible.slice(start, end).forEach(item => item.style.display = '');
+
+  // page-info: "1–7 of 23"
+  const from = visible.length === 0 ? 0 : start + 1;
+  const to   = Math.min(end, visible.length);
+  document.getElementById('pageInfo').textContent =
+    visible.length === 0 ? 'No results' : `${from}–${to} of ${visible.length}`;
+
+  renderPagination(totalPages);
+}
+
+function renderPagination(totalPages) {
+  const container = document.getElementById('pageBtns');
+  container.innerHTML = '';
+
+  if (totalPages <= 1) return;
+
+  // кнопка "назад"
+  const prev = document.createElement('button');
+  prev.className = 'page-btn';
+  prev.textContent = '←';
+  prev.disabled = currentPage === 1;
+  prev.onclick = () => renderPage(currentPage - 1);
+  container.appendChild(prev);
+
+  // номери сторінок
+  for (let i = 1; i <= totalPages; i++) {
+    const btn = document.createElement('button');
+    btn.className = 'page-btn' + (i === currentPage ? ' active' : '');
+    btn.textContent = i;
+    btn.onclick = () => renderPage(i);
+    container.appendChild(btn);
+  }
+
+  // кнопка "вперед"
+  const next = document.createElement('button');
+  next.className = 'page-btn';
+  next.textContent = '→';
+  next.disabled = currentPage === totalPages;
+  next.onclick = () => renderPage(currentPage + 1);
+  container.appendChild(next);
+}
+
+function searchTransactions() {
+  renderPage(1);
+}
+
+document.addEventListener('DOMContentLoaded', () => renderPage(1));

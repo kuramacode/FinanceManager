@@ -106,8 +106,6 @@ categories = [
     {"name": "Electronics", "user_id": "5", "emoji": "💻"},
     {"name": "Books", "user_id": "5", "emoji": "📖"},
 ]
-
-for i in range(len(categories)):
-    name, user_id, emoji = categories[i].values()
-    insert_categories(name, user_id, emoji)
-print("!!!")
+user_id = '6'
+cur.execute('''SELECT * FROM transactions WHERE user_id = ? LIMIT 5''', (user_id))
+print(cur.fetchall())

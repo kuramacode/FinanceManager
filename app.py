@@ -19,6 +19,7 @@ app.jinja_env.filters['color'] = color_change
 app.jinja_env.filters['format_date'] = format_date
 app.jinja_env.filters['category_name'] = category_name
 app.jinja_env.filters['category_emoji'] = category_emoji
+app.jinja_env.filters['lenght'] = len
 # Ініціалізація об'єкта бази даних SQLAlchemy з додатком Flask
 db.init_app(app)
 
@@ -77,11 +78,15 @@ def get_sum_income(userId):
     cur = database.cursor()
     type = 'income'
 
-    cur.execute('''SELECT SUM(amount) FROM transactions
-                WHERE user_id = ? AND type = ?''', (userId, type,))
-    sum = cur.fetchall()
+    cur.execute('''SELECT * FROM transactions WHERE user_id = ?''', (userId,))
+    list = cur.fetchall()
+    if len(list) > 0:
+        cur.execute('''SELECT SUM(amount) FROM transactions
+                    WHERE user_id = ? AND type = ?''', (userId, type,))
+        sum = cur.fetchall()
 
-    return abs(sum[0][0])
+        return abs(sum[0][0])
+    return 0
 
 def get_sum_expense(userId):
     database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
@@ -89,11 +94,31 @@ def get_sum_expense(userId):
     cur = database.cursor()
     type = 'expense'
 
-    cur.execute('''SELECT SUM(amount) FROM transactions
-                WHERE user_id = ? AND type = ?''', (userId, type,))
-    sum = cur.fetchall()
+    cur.execute('''SELECT * FROM transactions WHERE user_id = ?''', (userId,))
+    list = cur.fetchall()
+    if len(list) > 0:
+        cur.execute('''SELECT SUM(amount) FROM transactions
+                    WHERE user_id = ? AND type = ?''', (userId, type,))
+        sum = cur.fetchall()
+        return abs(sum[0][0])
+    return 0
 
-    return abs(sum[0][0])
+def filter_transactions(user_id, type):
+    database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
+    database.row_factory = sqlite3.Row
+    cur = database.cursor()
+
+    if type == 'all':
+        cur.execute('''SELECT * FROM transactions WHERE user_id=?''', (user_id,))
+        filtered = cur.fetchall()
+    else:
+        cur.execute('''SELECT * FROM transactions
+                    WHERE user_id = ? AND type = ?''', (user_id, type,))
+        filtered = cur.fetchall()
+    database.close()
+
+    return filtered
+
 # Контекст додатка необхідний для роботи з базою даних поза межами обробки запитів
 with app.app_context():
     db.create_all() # Створює всі таблиці моделей бази даних (якщо вони ще не існують у БД)
@@ -174,7 +199,11 @@ def dashboard(): # Функція-обробник для відображенн
 def transactions(): # Функція-обробник для відображення сторінки транзакцій користувача
     userId = get_userid() # Отримує ID поточного користувача за допомогою функції get_userid()
     transactions = get_transactions(userId) # Отримує список транзакцій для поточного користувача за допомогою функції get_transactions()
-    return render_template('transactions.html', transactions=transactions,
+    filter = request.args.get('filter', 'all')
+    
+    filtered = filter_transactions(userId, filter)
+    return render_template('transactions.html', transactions=filtered,
+                           filter = filter,
                            username=get_username(), userID=userId)# Відображає шаблон 'transactions.html' для користувача
 
 if __name__ == '__main__':
