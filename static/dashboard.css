@@ -275,3 +275,99 @@ main {
 ::-webkit-scrollbar { width: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
 ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 4px; }
+
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  margin-left: 79%;
+  position: relative;
+  bottom: 65px;
+
+  gap: 7px;
+  padding: 12px 16px;
+  border-radius: 9px;
+  background: var(--sidebar);
+  color: #fdfaf4;
+  font-family: 'Epilogue', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.4s, transform 0.4s;
+}
+.btn-add:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-add svg   { width: 12px; height: 12px; }
+
+.list-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 14px;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+.section-title {
+  font-size: 0.67rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--muted);
+  font-weight: 600;
+}
+
+.list-controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Filter tabs */
+.filter-tabs {
+  display: flex;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  gap: 2px;
+}
+
+.filter-tab {
+  padding: 4px 11px;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  cursor: pointer;
+  color: var(--muted);
+  transition: all 0.14s;
+  border: none;
+  background: none;
+  font-family: 'Epilogue', sans-serif;
+}
+.filter-tab.active          { background: var(--sidebar); color: #fdfaf4; }
+.filter-tab:hover:not(.active) { color: var(--text); background: var(--tag-bg); }
+
+/* Search */
+.search-wrap {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--paper);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 11px;
+  transition: border-color 0.14s;
+}
+.search-wrap:focus-within { border-color: var(--muted); }
+.search-wrap svg { width: 13px; height: 13px; color: var(--muted); flex-shrink: 0; }
+.search-wrap input {
+  border: none;
+  background: none;
+  outline: none;
+  font-size: 0.78rem;
+  font-family: 'Epilogue', sans-serif;
+  color: var(--text);
+  width: 130px;
+}
+.search-wrap input::placeholder { color: var(--muted); }
