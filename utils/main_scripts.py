@@ -1,6 +1,6 @@
 
 from flask_login import current_user
-from flask import abort
+from flask import abort, request
 import sqlite3
 import sys 
 import os
@@ -32,6 +32,18 @@ def get_transactions(userId):
     database.close()
 
     return transactions
+
+def get_categories(userId):
+    db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+    db.row_factory = sqlite3.Row
+    cur = db.cursor()
+
+    cur.execute('''SELECT * FROM categories WHERE user_id = ?''', (userId,))
+
+    categories = cur.fetchall()
+    db.close()
+
+    return categories
 
 def get_last_transactions(userId):
     database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
@@ -94,3 +106,40 @@ def filter_transactions(user_id, type):
     database.close()
 
     return filtered
+
+def add_transaction(user_id, amount, date, description, category_id, type):
+    database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
+    database.row_factory = sqlite3.Row
+    cur = database.cursor()
+
+    cur.execute('''INSERT INTO transactions(amount, date, description, user_id, category_id, type)
+                VALUES(?, ?, ?, ?, ?, ?)''', 
+                (amount, date, description, user_id, category_id, type))
+    
+    database.commit()
+    database.close()
+    
+    return "Success"
+
+def get_data_for_register(): # отримуєм данні для реєстрації
+    username = request.form.get('username')
+    email = request.form.get('email')
+    password = request.form.get('password')
+    password_repeat = request.form.get('password_repeat')
+    
+    return username, email, password, password_repeat
+
+def get_data_for_login(): # отримуєм данні для входу
+    username = request.form.get('username')
+    password = request.form.get('password')
+
+    return username, password
+
+def get_data_for_tx(): # отримуєм данні для додавання транзакцій
+    amount = request.form.get('f_amount')
+    name = request.form.get('f_name')
+    date = request.form.get('f_date')
+    category = request.form.get('f_category')
+    type = request.form.get('f_type')
+
+    return amount, name, date, category, type

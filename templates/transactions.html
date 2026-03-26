@@ -43,7 +43,7 @@
     <h1 class="page-title"><em>All</em> transactions</h1>
     <p class="page-sub" id="pageDate"></p>
 
-    <button class="btn-add" onclick="openModal()">
+    <button class="btn-add" id="addBtn" onclick="openModal()">
         <svg viewBox="0 0 15 15" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
         Add Transaction
     </button>
@@ -98,5 +98,57 @@
       <span class="page-info" id="pageInfo"></span>
       <div class="page-btns" id="pageBtns"></div>
     </div>
+
+      <!-- ── MODAL ── -->
+  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">New <em>Transaction</em></div>
+        <button class="modal-close" onclick="closeModal()">
+          <svg viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </button>
+      </div>
+      <p class="modal-sub">Record income or expense entry</p>
+      <form action="{{ url_for('transactions') }}" method="post">
+      <div class="field">
+        <label>Description</label>
+        <input type="text" id="f_name" placeholder="e.g. Grocery run, Freelance payment…">
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Amount ($)</label>
+          <input type="number" id="f_amount" placeholder="0.00" step="0.01" min="0">
+        </div>
+        <div class="field">
+          <label>Type</label>
+          <select id="f_type">
+            <option value="expense">Expense</option>
+            <option value="income">Income</option>
+          </select>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label>Category</label>
+          <select id="f_category">
+          {% for cat in  categories %}
+            <option value="{{ cat.name }}">{{ cat.name }}</option>
+          {% endfor %}
+          </select>
+        </div>
+        <div class="field">
+          <label>Date</label>
+          <input type="date" id="f_date">
+        </div>
+      </div>
+      </form>
+      <div class="modal-actions">
+        <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+        <button class="btn-submit" type="submit" >Add Entry</button>
+      </div>
+    </div>
+  </div>
+ 
+  <script src="{{ url_for('static', filename='scripts/addButton.js') }}"></script>
   </main>
 {% endblock %}

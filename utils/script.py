@@ -60,6 +60,16 @@ def insert_categories(name, userId, emoji):
     db.close()
     return "Success"
 
+def get_categories(user_id):
+    db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+    cur = db.cursor()
+
+    cur.execute('''SELECT * FROM categories WHERE user_id = ?''', (user_id))
+
+    categories = cur.fetchall()
+
+    return categories
+
 db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
 cur = db.cursor()
 
@@ -106,6 +116,9 @@ categories = [
     {"name": "Electronics", "user_id": "5", "emoji": "💻"},
     {"name": "Books", "user_id": "5", "emoji": "📖"},
 ]
-user_id = '6'
-cur.execute('''SELECT * FROM transactions WHERE user_id = ? LIMIT 5''', (user_id))
-print(cur.fetchall())
+
+
+cats = get_cat('5')
+
+for cat in cats: 
+    print(cat[1])
