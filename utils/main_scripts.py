@@ -82,11 +82,13 @@ def get_sum_expense(userId):
     cur = database.cursor()
     type = 'expense'
 
-    cur.execute('''SELECT * FROM transactions WHERE user_id = ?''', (userId,))
+    cur.execute('''SELECT * FROM transactions WHERE user_id = ?
+                ORDER BY date DESC''', (userId,))
     list = cur.fetchall()
     if len(list) > 0:
         cur.execute('''SELECT SUM(amount) FROM transactions
-                    WHERE user_id = ? AND type = ?''', (userId, type,))
+                    WHERE user_id = ? AND type = ?
+                    ORDER BY date DESC''', (userId, type,))
         sum = cur.fetchall()
         return abs(sum[0][0])
     return 0

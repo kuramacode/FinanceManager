@@ -8,6 +8,7 @@ from utils.main_scripts import *
 from flask_login import LoginManager, login_user, logout_user, login_required, current_user
 # Імпорт функцій для безпечного хешування та перевірки паролів
 from werkzeug.security import generate_password_hash, check_password_hash
+from datetime import datetime
 import os
 import dotenv
 import sqlite3
@@ -70,9 +71,7 @@ def login(): # Функція-обробник для входу користу�
     if request.method == 'POST':
         # Запит до бази даних: пошук першого користувача з таким ім'ям користувача
         username, password = get_data_for_login()
-        print(f"DEBUG: {username}, {password}, {generate_password_hash(password)}")
         user = User.query.filter_by(username=username).first()
-        print(check_password_hash(generate_password_hash(password), user.password))
         # Перевіряє, чи користувач існує (user != None) ТА чи пароль правильний
         # check_password_hash() порівнює хешований пароль з БД з введеним паролем
         if user and check_password_hash(user.password, password):
@@ -115,7 +114,21 @@ def transactions(): # Функція-обробник для відображе�
     if request.method == 'POST':
         amount, name, date, category, type = get_data_for_tx()
 
-        tx = Transactions(amount=amount, date=date, description=name, user_id=userId, category_id=category, type=type)
+        
+        amount = float(amount)
+        category = int(category)
+        timestamp = datetime.fromisoformat(date)
+        normalized_amount = amount if type == 'income' else -amount
+
+        tx = Transactions(
+            amount=normalized_amount,
+            date=timestamp,
+            description=name,
+            user_id=userId,
+            category_id=category,
+            type=type,
+        )
+
         db.session.add(tx)
         db.session.commit()
 
