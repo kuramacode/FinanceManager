@@ -17,7 +17,7 @@ def color_change(value: int) -> str:
     else:
         return "neutral"
 
-def format_date(date: str) -> str:
+def format_date_for_website(date: str) -> str:
     subdates = date.split(' ')
     date_part, time_part = subdates[0], subdates[1]
 
@@ -26,6 +26,8 @@ def format_date(date: str) -> str:
     if int(year) != CURRENT_YEAR:
         return f"{month} {day} {year} {time}"
     return f"{month} {day} {time}"
+
+
 
 def category_name(category_id: int, user_id: int) -> str:
     db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))

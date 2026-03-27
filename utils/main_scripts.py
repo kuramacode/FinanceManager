@@ -1,9 +1,10 @@
-
+import datetime
 from flask_login import current_user
 from flask import abort, request
 import sqlite3
 import sys 
 import os
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -141,7 +142,30 @@ def get_data_for_tx(): # отримуєм данні для додавання �
     amount = request.form.get('f_amount')
     name = request.form.get('f_name')
     date = request.form.get('f_date')
+    time = request.form.get('f_time')
     category = request.form.get('f_category')
     type = request.form.get('f_type')
 
-    return amount, name, date, category, type
+    return amount, name, date, time, category, type
+
+def normalized_date(date: str, time: str):
+    year, month, day = format_date_for_DB(date)
+    hours, minutes = format_time(time)
+    normalized_date = datetime.datetime(year, month, day, hours, minutes, 0)
+
+    return normalized_date
+
+def format_date_for_DB(date):
+
+    year, month, day = date.split('-')
+
+    return  int(year), int(month), int(day)
+
+
+def format_time(time: str):
+    if not time or time == "None":
+        hours, minutes = 0, 0
+        return hours, minutes
+    hours, minutes = time.split(':')
+
+    return int(hours), int(minutes)

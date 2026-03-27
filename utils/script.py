@@ -1,6 +1,7 @@
 import sqlite3
 import sys 
 import os
+import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -118,7 +119,11 @@ categories = [
 ]
 
 
-cats = get_cat('5')
+date = '25-01-2001'
+time = '15:32'
 
-for cat in cats: 
-    print(cat[1])
+
+
+date_n = datetime.datetime("2026", "12", "11", "15", "30", "0")
+
+print(date_n)
