@@ -67,12 +67,12 @@
     <ul class="tx-list" id="txList">
       {% for transaction in transactions %}
       <li class="tx-item" style="animation-delay: 50ms">
-        <div class="tx-icon">{{ transaction.category_id | category_emoji(userID) }}</div>
-        <div class="tx-body">
+        <div class="tx-icon">{{ categories_lookup.get(transaction.category_id, {}).get('emoji', '📦') }}</div> <!-- Виводимо емодзі категорії або "📦", якщо категорія не знайдена -->
+          <div class="tx-body">
           <div class="tx-name">{{ transaction.description or  '—' }}</div>
           <div class="tx-meta">
             <span class="tx-date">{{ transaction.date | format_date }}</span>
-            <span class="tx-cat">{{ transaction.category_id | category_name(userID) }}</span>
+            <span class="tx-cat">{{ categories_lookup.get(transaction.category_id, {}).get('name', 'Unknown') }}</span> <!-- Виводимо назву категорії або "Unknown", якщо категорія не знайдена -->
           </div>
         </div>
         <div class="tx-amount {{ transaction.amount | color }}">  

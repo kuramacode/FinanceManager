@@ -19,110 +19,110 @@ def get_userid(): # Функція для отримання ID поточног
 def get_username():
     return current_user.username
 
+def _db_path() -> str: 
+    return Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')
+
+def get_categories_lookup(userId):
+    categories = get_categories(userId) # Отримання списку категорій для конкретного користувача
+    return { # Створення словника, де ключами є ID категорій, а значеннями є словники з назвою та емодзі категорії
+        category['id']: {  # Використання ID категорії як ключа словника
+            'name': category['name'], # Використання назви категорії як значення для ключа 'name' у внутрішньому словнику
+            'emoji': category['emoji'], # Використання емодзі категорії як значення для ключа 'emoji' у внутрішньому словнику
+        }
+        for category in categories # Ітерування по списку категорій, отриманих для конкретного користувача, для заповнення словника
+    }
+
 def get_transactions(userId):
     database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
-    database.row_factory = sqlite3.Row
-    cur = database.cursor()
+    
+    with sqlite3.connect(_db_path()) as database:
+        database.row_factory = sqlite3.Row
+        cur = database.cursor()
 
-    cur.execute('''SELECT * FROM transactions
-                WHERE user_id = ?
-                ORDER BY date DESC
-                ''' , (userId,))
+        cur.execute('''SELECT * FROM transactions
+                    WHERE user_id = ?
+                    ORDER BY date DESC
+                    ''' , (userId,))
 
-    transactions = cur.fetchall()
-    database.close()
-
-    return transactions
+        return cur.fetchall()
 
 def get_categories(userId):
-    db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
-    db.row_factory = sqlite3.Row
-    cur = db.cursor()
+    with sqlite3.connect(_db_path()) as database:
+        database.row_factory = sqlite3.Row
+        cur = database.cursor()
+        cur.execute('''SELECT * FROM categories WHERE user_id = ?''', (userId,))
+        return cur.fetchall()
 
-    cur.execute('''SELECT * FROM categories WHERE user_id = ?''', (userId,))
-
-    categories = cur.fetchall()
-    db.close()
-
-    return categories
 
 def get_last_transactions(userId):
-    database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
-    database.row_factory = sqlite3.Row
-    cur = database.cursor()
+    with sqlite3.connect(_db_path()) as database:
+        database.row_factory = sqlite3.Row
+        cur = database.cursor()
+        cur.execute(
+            '''SELECT * FROM transactions
+               WHERE user_id = ?
+               ORDER BY date DESC
+               LIMIT 5''',
+            (userId,),
+        )
+        return cur.fetchall()
 
-    cur.execute('''SELECT * FROM transactions
-                WHERE user_id = ?
-                ORDER BY date DESC
-                LIMIT 5
-                ''', (userId,))
-    transactions = cur.fetchall()
-    database.close()
-
-    return transactions
 
 def get_sum_income(userId):
-    database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
-    database.row_factory = sqlite3.Row
-    cur = database.cursor()
-    type = 'income'
+    with sqlite3.connect(_db_path()) as database: 
+        cur = database.cursor()
+        cur.execute( # Виконання SQL-запиту для отримання суми доходів (типу 'income') для конкретного користувача, використовуючи COALESCE для обробки випадків, коли сума може бути NULL
+            '''SELECT COALESCE(SUM(amount), 0) FROM transactions
+               WHERE user_id = ? AND type = ?''',
+            (userId, 'income'),
+        )
+        return abs(cur.fetchone()[0]) # Повертає абсолютне значення суми доходів, отриманої з бази даних, щоб забезпечити позитивне значення навіть якщо сума була від'ємною (хоча для доходів це не повинно бути так)
 
-    cur.execute('''SELECT * FROM transactions WHERE user_id = ?''', (userId,))
-    list = cur.fetchall()
-    if len(list) > 0:
-        cur.execute('''SELECT SUM(amount) FROM transactions
-                    WHERE user_id = ? AND type = ?''', (userId, type,))
-        sum = cur.fetchall()
-
-        return abs(sum[0][0])
-    return 0
 
 def get_sum_expense(userId):
-    database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
-    database.row_factory = sqlite3.Row
-    cur = database.cursor()
-    type = 'expense'
+    with sqlite3.connect(_db_path()) as database:
+        cur = database.cursor()
+        cur.execute(
+            '''SELECT COALESCE(SUM(amount), 0) FROM transactions
+               WHERE user_id = ? AND type = ?''',
+            (userId, 'expense'),
+        )
+        return abs(cur.fetchone()[0])
 
-    cur.execute('''SELECT * FROM transactions WHERE user_id = ?
-                ORDER BY date DESC''', (userId,))
-    list = cur.fetchall()
-    if len(list) > 0:
-        cur.execute('''SELECT SUM(amount) FROM transactions
-                    WHERE user_id = ? AND type = ?
-                    ORDER BY date DESC''', (userId, type,))
-        sum = cur.fetchall()
-        return abs(sum[0][0])
-    return 0
 
 def filter_transactions(user_id, type):
-    database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
-    database.row_factory = sqlite3.Row
-    cur = database.cursor()
+    with sqlite3.connect(_db_path()) as database:
+        database.row_factory = sqlite3.Row
+        cur = database.cursor()
 
-    if type == 'all':
-        cur.execute('''SELECT * FROM transactions WHERE user_id=?''', (user_id,))
-        filtered = cur.fetchall()
-    else:
-        cur.execute('''SELECT * FROM transactions
-                    WHERE user_id = ? AND type = ?''', (user_id, type,))
-        filtered = cur.fetchall()
-    database.close()
+        if type == 'all':
+            cur.execute(
+                '''SELECT * FROM transactions
+                   WHERE user_id = ?
+                   ORDER BY date DESC''',
+                (user_id,),
+            )
+        else:
+            cur.execute(
+                '''SELECT * FROM transactions
+                   WHERE user_id = ? AND type = ?
+                   ORDER BY date DESC''',
+                (user_id, type),
+            )
 
-    return filtered
+        return cur.fetchall()
+
 
 def add_transaction(user_id, amount, date, description, category_id, type):
-    database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
-    database.row_factory = sqlite3.Row
-    cur = database.cursor()
+    with sqlite3.connect(_db_path()) as database:
+        cur = database.cursor()
+        cur.execute(
+            '''INSERT INTO transactions(amount, date, description, user_id, category_id, type)
+               VALUES(?, ?, ?, ?, ?, ?)''',
+            (amount, date, description, user_id, category_id, type),
+        )
+        database.commit()
 
-    cur.execute('''INSERT INTO transactions(amount, date, description, user_id, category_id, type)
-                VALUES(?, ?, ?, ?, ?, ?)''', 
-                (amount, date, description, user_id, category_id, type))
-    
-    database.commit()
-    database.close()
-    
-    return "Success"
 
 def get_data_for_register(): # отримуєм данні для реєстрації
     username = request.form.get('username')
@@ -159,7 +159,7 @@ def format_date_for_DB(date):
 
     year, month, day = date.split('-')
 
-    return  int(year), int(month), int(day)
+    return int(year), int(month), int(day)
 
 
 def format_time(time: str):

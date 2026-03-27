@@ -127,3 +127,9 @@ time = '15:32'
 date_n = datetime.datetime("2026", "12", "11", "15", "30", "0")
 
 print(date_n)
+
+nasm = {
+    categorie['id']: {
+        
+    }
+}
