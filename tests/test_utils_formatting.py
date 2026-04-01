@@ -1,15 +1,17 @@
 import sys
+import os
 import types
 import unittest
-
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+from utils.formatting import format_day, format_month, format_time
+from utils.jinja_filters import color_change, format_date_for_website, CURRENT_YEAR
 # `utils.jinja_filters` imports `config`, which requires `dotenv`.
 # Provide a lightweight stub so tests can run without optional dependency.
 dotenv_stub = types.ModuleType("dotenv")
 dotenv_stub.load_dotenv = lambda *args, **kwargs: None
 sys.modules.setdefault("dotenv", dotenv_stub)
 
-from utils.formatting import format_day, format_month, format_time
-from utils.jinja_filters import color_change, format_date, CURRENT_YEAR
+
 
 
 class TestFormattingUtils(unittest.TestCase):
@@ -39,12 +41,12 @@ class TestJinjaFilters(unittest.TestCase):
         self.assertEqual(color_change(0), "neutral")
 
     def test_format_date_omits_year_for_current_year(self):
-        rendered = format_date(f"{CURRENT_YEAR}-03-05 09:10:11")
+        rendered = format_date_for_website(f"{CURRENT_YEAR}-03-05 09:10:11")
         self.assertEqual(rendered, "Mar 5 09:10")
 
     def test_format_date_includes_year_for_non_current_year(self):
         not_current_year = CURRENT_YEAR - 1 if CURRENT_YEAR > 1 else CURRENT_YEAR + 1
-        rendered = format_date(f"{not_current_year}-03-05 09:10:11")
+        rendered = format_date_for_website(f"{not_current_year}-03-05 09:10:11")
         self.assertEqual(rendered, f"Mar 5 {not_current_year} 09:10")
 
 

@@ -51,10 +51,10 @@ def index(): # Функція-обробник для запитів на дом
 def register(): # Функція-обробник для реєстрації нових користувачів
     # Перевіряє, чи це POST-запит (відправлення заповненої форми реєстрації)
     if request.method == 'POST':
-        username, email, password = get_data_for_register()
+        username, email, password, password_repeat = get_data_for_register()
         hash_password = generate_password_hash(password)# Хешує перший введений пароль для безпечного зберігання у БД
         
-        if request.form['password'] != request.form['password_repeat']:
+        if password != password_repeat:
                 return 'Passwords do not match'# Повертає повідомлення про помилку, якщо паролі не збігаються
         else:
             user = User(username=username, email=email, password=hash_password)# Створює новий об'єкт користувача з введеними даними
