@@ -1,0 +1,85 @@
+{% extends "base.html" %} 
+
+{% block head %}
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ledger — Exchange Rates</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='exchange.css') }}">
+{% endblock head %}
+
+{% block body %}
+  <!-- ── MAIN ── -->
+  <main>
+    <div class="page-header">
+      <div>
+        <h1 class="page-title">Ex<em>change</em></h1>
+        <p class="page-sub" id="pageDate"></p>
+      </div>
+      <div class="header-right">
+        <div class="last-updated">
+          <svg viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.3"/><path d="M7 4v3l2 2" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
+          <span id="lastUpdated">Rates as of — (template)</span>
+        </div>
+        <button class="btn-refresh" id="refreshBtn" onclick="simulateRefresh()">
+          <svg id="refreshIcon" viewBox="0 0 14 14" fill="none"><path d="M12 7A5 5 0 1 1 7 2a5 5 0 0 1 3.54 1.46L13 6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M13 3v3h-3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Refresh
+        </button>
+      </div>
+    </div>
+
+    <!-- BASE CURRENCY CARD -->
+    <div class="base-card">
+      <div class="base-card-label">Base currency</div>
+      <div class="base-card-currency">
+        <span class="base-flag">🇺🇦</span>
+        <div>
+          <div class="base-name">Ukrainian Hryvnia</div>
+          <div class="base-code">UAH</div>
+        </div>
+      </div>
+      <div class="base-note">All rates shown are per 1 UAH equivalent</div>
+    </div>
+
+    <!-- CURRENCY FILTER CHIPS -->
+    <div class="list-header" style="margin-bottom: 16px;">
+      <span class="section-title">Currencies</span>
+      <div class="chip-wrap" id="chipWrap"></div>
+    </div>
+
+    <!-- CONVERTER STRIP -->
+    <div class="converter-strip">
+      <div class="converter-label">
+        <svg viewBox="0 0 14 14" fill="none"><path d="M2 5h10M9 2l3 3-3 3M12 9H2M5 6l-3 3 3 3" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Quick converter
+      </div>
+      <div class="converter-fields">
+        <div class="conv-field">
+          <span class="conv-prefix">UAH</span>
+          <input type="number" id="convUAH" placeholder="1000" value="1000" oninput="convertFrom('uah')">
+        </div>
+        <div class="conv-arrow">
+          <svg viewBox="0 0 16 8" fill="none"><path d="M0 4h14M11 1l3 3-3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div class="conv-field">
+          <select id="convCurrency" onchange="convertFrom('uah')">
+            <!-- filled by JS -->
+          </select>
+          <input type="number" id="convResult" placeholder="—" oninput="convertFrom('foreign')">
+        </div>
+      </div>
+    </div>
+
+    <!-- RATES GRID -->
+    <div class="rates-grid" id="ratesGrid"></div>
+
+    <!-- EMPTY STATE -->
+    <div class="empty-state" id="emptyRates" style="display:none;">
+      <svg viewBox="0 0 36 36" fill="none"><circle cx="18" cy="18" r="14" stroke="currentColor" stroke-width="1.4"/><path d="M13 18h10M18 13v10" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <p>No currencies match your filter</p>
+    </div>
+  </main>
+
+{% endblock body %}

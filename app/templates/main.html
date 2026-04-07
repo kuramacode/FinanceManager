@@ -1,14 +1,15 @@
-{% extends "base.html" %}
-
-{% block head %} 
+<!DOCTYPE html>
+<html>
+<head> 
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <title>Finance Manager</title>
-{% endblock %}
+</head>
 
-{% block body %}
+<body>
     <div class="login-button">
         <a href="{{ url_for('auth.login') }}">Login</a>
     </div>
-{% endblock %}
+</body>
+</html>

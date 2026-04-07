@@ -18,6 +18,6 @@ def register(): # Функція-обробник для реєстрації н
             user = User(username=username, email=email, password=hash_password)# Створює новий об'єкт користувача з введеними даними
             db.session.add(user) # Додає користувача до сесії бази даних (поки не збережено у БД)
             db.session.commit() # Фіксує зміни та зберігає користувача у базу даних
-            return redirect(url_for('login'))# Перенаправляє користувача на сторінку входу після успішної реєстрації
+            return redirect(url_for('auth.login'))# Перенаправляє користувача на сторінку входу після успішної реєстрації
         
     return render_template('register.html')

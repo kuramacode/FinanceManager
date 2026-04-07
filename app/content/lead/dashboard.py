@@ -1,6 +1,7 @@
 from flask import Blueprint, render_template
 from flask_login import login_required
-from utils.main_scripts import get_userid, get_last_transactions, get_sum_expense, get_sum_income, get_username, get_categories_lookup
+from app.content.lead.dashboard_service import get_last_transactions, get_sum_expense, get_sum_income
+from app.utils.main_scripts import get_userid, get_categories_lookup, get_username
 
 _dashboard = Blueprint('dashboard', __name__)
 

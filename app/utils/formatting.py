@@ -14,3 +14,9 @@ def format_time(time):
         hours, minutes = parts[0], parts[1]
         return f"{hours}:{minutes}"
     return time
+
+def format_date_for_DB(date):
+
+    year, month, day = date.split('-')
+
+    return int(year), int(month), int(day)

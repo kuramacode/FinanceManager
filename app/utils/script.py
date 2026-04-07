@@ -84,7 +84,7 @@ transactions = [
     {"amount": 2500.00, "date": "2026-03-01 09:00:00", "description": "Salary payment", "user_id": 5, "category_id": 1, "type": "income"},
     {"amount": -150.75, "date": "2026-03-02 13:20:00", "description": "Grocery shopping", "user_id": 5, "category_id": 2, "type": "expense"},
     {"amount": -80.00, "date": "2026-03-03 18:30:00", "description": "Cinema ticket", "user_id": 5, "category_id": 3, "type": "expense"},
-    {"amount": -300.00, "date": "2026-03-04 20:15:00", "description": "Restaurant dinner", "user_id": 5, "category_id": 4, "type": "expense"},
+    {"amount": -300.00, "date": "   ", "description": "Restaurant dinner", "user_id": 5, "category_id": 4, "type": "expense"},
     {"amount": 500.00, "date": "2026-03-05 10:00:00", "description": "Freelance project", "user_id": 5, "category_id": 1, "type": "income"},
 ]
 
@@ -119,17 +119,23 @@ categories = [
 ]
 
 
-date = '25-01-2001'
-time = '15:32'
+CURRENCIES = [
+  { "code": 'USD', "name": 'US Dollar'        },
+  { "code": 'EUR', "name": 'Euro'             },
+  { "code": 'GBP', "name": 'British Pound'    },
+  { "code": 'CHF', "name": 'Swiss Franc'      },
+  { "code": 'JPY', "name": 'Japanese Yen'     },
+  { "code": 'CNY', "name": 'Chinese Yuan'    },
+  { "code": 'KRW', "name": 'South Korean Won' },
+  { "code": 'PLN', "name": 'Polish Złoty'     },
+  { "code": 'CZK', "name": 'Czech Koruna'     },
+  { "code": 'HUF', "name": 'Hungarian Forint' },
+  { "code": 'NOK', "name": 'Norwegian Krone'  },
+  { "code": 'SEK', "name": 'Swedish Krona'    },
+  { "code": 'CAD', "name": 'Canadian Dollar'  },
+  { "code": 'BRL', "name": 'Brazilian Real'   },
+  { "code": 'TRY', "name": 'Turkish Lira'     },
+  { "code": 'AED', "name": 'UAE Dirham'     },
+];
 
 
-
-date_n = datetime.datetime("2026", "12", "11", "15", "30", "0")
-
-print(date_n)
-
-nasm = {
-    categorie['id']: {
-        
-    }
-}

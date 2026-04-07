@@ -155,11 +155,7 @@ def normalized_date(date: str, time: str):
 
     return normalized_date
 
-def format_date_for_DB(date):
 
-    year, month, day = date.split('-')
-
-    return int(year), int(month), int(day)
 
 
 def format_time(time: str):
