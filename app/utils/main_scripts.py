@@ -33,8 +33,6 @@ def get_categories_lookup(userId):
     }
 
 def get_transactions(userId):
-    database = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')) # Підключення до бази даних SQLite за допомогою шляху, визначеного в конфігурації
-    
     with sqlite3.connect(_db_path()) as database:
         database.row_factory = sqlite3.Row
         cur = database.cursor()
@@ -149,6 +147,7 @@ def get_data_for_tx(): # отримуєм данні для додавання �
     return amount, name, date, time, category, type
 
 def normalized_date(date: str, time: str):
+    from app.utils.formatting import format_date_for_DB
     year, month, day = format_date_for_DB(date)
     hours, minutes = format_time(time)
     normalized_date = datetime.datetime(year, month, day, hours, minutes, 0)

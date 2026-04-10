@@ -1,7 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from app.config import Config
-from app.utils.jinja_filters import color_change, format_date_for_website,category_name, category_emoji
+from app.utils.jinja_filters import color_change, format_date_for_website,category_name, category_emoji, currency_flag, get_difference_percentage, get_difference
 from app.models import db, User
 import os
 
@@ -16,6 +16,10 @@ def create_app():
     app.jinja_env.filters['category_name'] = category_name
     app.jinja_env.filters['category_emoji'] = category_emoji
     app.jinja_env.filters['lenght'] = len
+    app.jinja_env.filters['currency_flag'] = currency_flag
+    
+    app.jinja_env.globals['rate_difference'] = get_difference_percentage
+    app.jinja_env.globals['difference'] = get_difference
     
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'

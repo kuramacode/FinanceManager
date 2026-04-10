@@ -1,10 +1,13 @@
 import sqlite3
 import requests
-import json
+from datetime import datetime
 from app.config import Config
 
 
-url = 'https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json'
+FORMAT = "%d.%m.%Y"
+f_date = datetime.now()
+date = f_date.strftime("%Y%m%d")
+url = f"https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date={date}&json"
 base_code = 'UAH'
 source = 'nbu'
 

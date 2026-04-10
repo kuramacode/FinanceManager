@@ -1,7 +1,7 @@
 import sqlite3
 import sys 
 import os
-import datetime
+from datetime import datetime, time
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -120,22 +120,24 @@ categories = [
 
 
 CURRENCIES = [
-  { "code": 'USD', "name": 'US Dollar'        },
-  { "code": 'EUR', "name": 'Euro'             },
-  { "code": 'GBP', "name": 'British Pound'    },
-  { "code": 'CHF', "name": 'Swiss Franc'      },
-  { "code": 'JPY', "name": 'Japanese Yen'     },
-  { "code": 'CNY', "name": 'Chinese Yuan'    },
-  { "code": 'KRW', "name": 'South Korean Won' },
-  { "code": 'PLN', "name": 'Polish Złoty'     },
-  { "code": 'CZK', "name": 'Czech Koruna'     },
-  { "code": 'HUF', "name": 'Hungarian Forint' },
-  { "code": 'NOK', "name": 'Norwegian Krone'  },
-  { "code": 'SEK', "name": 'Swedish Krona'    },
-  { "code": 'CAD', "name": 'Canadian Dollar'  },
-  { "code": 'BRL', "name": 'Brazilian Real'   },
-  { "code": 'TRY', "name": 'Turkish Lira'     },
-  { "code": 'AED', "name": 'UAE Dirham'     },
+  { "code": 'USD', "name": 'US Dollar', "flag": "🇺🇸"      },
+  { "code": 'EUR', "name": 'Euro', "flag": "🇪🇺"             },
+  { "code": 'GBP', "name": 'British Pound', "flag": "🇬🇧"    },
+  { "code": 'CHF', "name": 'Swiss Franc', "flag": "🇨🇭"      },
+  { "code": 'JPY', "name": 'Japanese Yen', "flag": "🇯🇵"     },
+  { "code": 'CNY', "name": 'Chinese Yuan', "flag": "🇨🇳"    },
+  { "code": 'KRW', "name": 'South Korean Won', "flag": "🇰🇷" },
+  { "code": 'PLN', "name": 'Polish Złoty', "flag": "🇵🇱"     },
+  { "code": 'CZK', "name": 'Czech Koruna', "flag": "🇨🇿"     },
+  { "code": 'HUF', "name": 'Hungarian Forint', "flag": "🇭🇺" },
+  { "code": 'NOK', "name": 'Norwegian Krone', "flag": "🇳🇴"  },
+  { "code": 'SEK', "name": 'Swedish Krona', "flag": "🇸🇪"    },
+  { "code": 'CAD', "name": 'Canadian Dollar', "flag": "🇨🇦"  },
+  { "code": 'BRL', "name": 'Brazilian Real', "flag": "🇧🇷"   },
+  { "code": 'TRY', "name": 'Turkish Lira', "flag": "🇹🇷"     },
+  { "code": 'AED', "name": 'UAE Dirham', "flag": "🇦🇪"     },
 ];
 
+from app.utils.jinja_filters import get_difference_percentage
 
+print(get_difference_percentage('10.04.2026'))

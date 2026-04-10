@@ -152,4 +152,7 @@ FinanceManager/
 - [ ] Income/expense charts
 - [ ] Docker setup
 - [ ] CI (GitHub Actions)
+- [ ] AI integration
+- [ ] Analytics
+- [ ] Categories and Budget systems
 
