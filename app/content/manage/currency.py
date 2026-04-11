@@ -1,6 +1,7 @@
 from flask import Blueprint, request, render_template
 from flask_login import login_required
 from  app.content.manage.currency_service import get_rates, get_nows_date
+from app.utils.consts import MAIN_CURRENCIES
 
 _currency = Blueprint('currency', __name__)
 
@@ -8,7 +9,7 @@ _currency = Blueprint('currency', __name__)
 @login_required
 def currency():
     
-    rates = get_rates(get_nows_date())[0]
+    rates = get_rates(get_nows_date(), MAIN_CURRENCIES)[0]
     
     return render_template('currency.html',
                            rates=rates)

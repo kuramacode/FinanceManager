@@ -65,7 +65,6 @@
         </div>
         <div class="conv-field">
           <select id="convCurrency" onchange="convertFrom('uah')">
-            <!-- filled by JS -->
           </select>
           <input type="number" id="convResult" placeholder="—" oninput="convertFrom('foreign')">
         </div>
@@ -75,7 +74,7 @@
     <!-- RATES GRID -->
     <div class="rates-grid" id="ratesGrid">
     {% for rate in rates %}
-    <div id="card" class="rate-card"  data-value="{{ rate_difference(rate.date, rate.target_code) }}">
+    <div id="card" class="rate-card"  data-value="{{ rate_difference(rate.date, rate.target_code) }}" data-code="{{ rate.target_code }}">
       <div id="stats" class="rate-card-top">
         <div class="rate-flag-wrap">
           <span class="rate-flag">{{ rate.target_code | currency_flag }}</span>

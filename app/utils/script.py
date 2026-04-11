@@ -137,7 +137,26 @@ CURRENCIES = [
   { "code": 'TRY', "name": 'Turkish Lira', "flag": "🇹🇷"     },
   { "code": 'AED', "name": 'UAE Dirham', "flag": "🇦🇪"     },
 ];
+currencies = ['AED', 'BRL',
+             'CAD', 'CHF',
+             'CNY', 'CZK',
+             'EUR', 'GBP',
+             'HUF', 'JPY',
+             'KRW', 'NOK',
+             'PLN', 'SEK',
+             'TRY', 'USD']
 
-from app.utils.jinja_filters import get_difference_percentage
 
-print(get_difference_percentage('10.04.2026'))
+
+placeholders = ",".join(["?"] * len(currencies))
+
+print(placeholders)
+
+query = f"""
+SELECT *
+FROM exchange_rates
+WHERE date = ?
+AND code IN ({placeholders})
+"""
+
+print(query)

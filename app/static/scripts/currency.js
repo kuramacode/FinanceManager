@@ -1,9 +1,11 @@
 const cards = document.querySelectorAll('.rate-card');
+const sel = document.getElementById('convCurrency');
+sel.innerHTML = '';
 
 cards.forEach(card => {
     // 1. Отримуємо число з data-value
     const change = parseFloat(card.dataset.value);
-    
+
     // 2. Визначаємо напрямок та знак
     const changeDir = change > 0 ? 'up' : change < 0 ? 'down' : 'flat';
     const changeSign = change > 0 ? '+' : '';
@@ -25,4 +27,12 @@ cards.forEach(card => {
             <span>${changeSign}${change.toFixed(2)}%</span>
         `;
     }
+    // converter 
+
+    const code = card.dataset.code;
+    // додавання опцій
+    const opt = document.createElement('option');
+    opt.value = code;
+    opt.textContent = code;
+    sel.appendChild(opt);
 });
