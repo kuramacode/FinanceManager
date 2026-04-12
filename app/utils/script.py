@@ -148,15 +148,20 @@ currencies = ['AED', 'BRL',
 
 
 
-placeholders = ",".join(["?"] * len(currencies))
+import requests
 
-print(placeholders)
+url = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json"
 
-query = f"""
-SELECT *
-FROM exchange_rates
-WHERE date = ?
-AND code IN ({placeholders})
-"""
+response = requests.get(url)
 
-print(query)
+response.raise_for_status()
+
+data = response.json()
+rates = {}
+
+for item in data:
+    rates[item["cc"]] = item["rate"]
+    
+rates["UAH"] = 1.0
+
+print(rates)

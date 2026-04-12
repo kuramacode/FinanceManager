@@ -32,7 +32,8 @@ def create_app():
     from app.content.lead.dashboard import _dashboard; blueprints.append(_dashboard)
     from app.content.lead.transactions import _transactions; blueprints.append(_transactions)
     from app.content.manage.currency import _currency; blueprints.append(_currency)
-    
+    from app.api.routes import _api
+    app.register_blueprint(_api, url_prefix="/api")
     for br in blueprints:
         app.register_blueprint(br)
     
