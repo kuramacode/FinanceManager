@@ -1,15 +1,109 @@
 <!DOCTYPE html>
-<html>
-<head> 
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-    <title>Finance Manager</title>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — AI Finance Manager</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename="style.css") }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
-
 <body>
-    <div class="login-button">
-        <a href="{{ url_for('auth.login') }}">Login</a>
+  <aside class="sidebar">
+    <div class="logo">
+      <span class="logo-icon">L</span>
+      <span class="logo-text">Ledger</span>
     </div>
+    <nav class="nav">
+      <a href="#features" class="nav-link">Features</a>
+      <a href="#how" class="nav-link">How it works</a>
+      <a href="#pricing" class="nav-link">Pricing</a>
+    </nav>
+    <div class="sidebar-footer">
+      <a href="{{ url_for('auth.login') }}" class="btn-ghost">Sign in</a>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div class="hero">
+      <p class="eyebrow">AI-Powered Personal Finance · 2026</p>
+      <h1 class="hero-title">
+        Control<br />over your money<br /><em>starts here</em>
+      </h1>
+      <p class="hero-sub">
+        Ledger is a minimalist, AI-driven finance manager. Track wealth, 
+        automate categorisation, and receive predictive insights.
+      </p>
+      <a href="{{ url_for('register.register') }}" class="btn-primary">Get started</a>
+    </div>
+
+    <div class="stats" id="features">
+      <div class="stat">
+        <span class="stat-num">12k+</span>
+        <span class="stat-label">Users</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">$4.2M</span>
+        <span class="stat-label">Transactions tracked</span>
+      </div>
+      <div class="stat">
+        <span class="stat-num">99.9%</span>
+        <span class="stat-label">Uptime</span>
+      </div>
+    </div>
+
+    <section class="features">
+      <div class="feature-card">
+        <div class="feature-icon">◎</div>
+        <h3>Smart Dashboard</h3>
+        <p>Balance, income, and expense overview for any period — all on one screen.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">✦</div>
+        <h3>AI Insights</h3>
+        <p>Predictive forecasting that spots spending trends before they happen and suggests ways to save.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">◈</div>
+        <h3>Transaction History</h3>
+        <p>Full ledger with filters, search, and CSV export.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">◑</div>
+        <h3>Analytics</h3>
+        <p>Spending charts by day, week, month. Spot trends — make decisions.</p>
+      </div>
+    </section>
+
+    <section class="how" id="how">
+      <h2 class="section-title">How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <span class="step-num">01</span>
+          <h4>Create an account</h4>
+          <p>Sign up in 30 seconds — just an email and password.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <span class="step-num">02</span>
+          <h4>AI Smart Sync</h4>
+          <p>Connect your bank and let our neural engine automatically categorize every transaction.</p>
+        </div>
+        <div class="step-arrow">→</div>
+        <div class="step">
+          <span class="step-num">03</span>
+          <h4>Analyse</h4>
+          <p>Monitor your balance and make financial decisions backed by real-time data.</p>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <p>© 2026 Ledger. All rights reserved.</p>
+      <a href="{{ url_for('register.register') }}" class="btn-primary btn-sm">Start for free</a>
+    </footer>
+  </main>
+
+  <script src="{{ url_for('static', filename='/scripts/mainPage.js') }}"></script>
 </body>
 </html>
