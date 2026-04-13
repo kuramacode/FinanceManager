@@ -8,7 +8,10 @@ _currency = Blueprint('currency', __name__)
 @_currency.route('/currency', methods=['GET', 'POST'])
 @login_required
 def currency():
-    rates = get_rates(get_nows_date(), MAIN_CURRENCIES)[0]
+    try:
+        rates = get_rates(get_nows_date(), MAIN_CURRENCIES)[0]
+    except Exception as e:
+        raise MemoryError
     
     return render_template('currency.html',
                            rates=rates)

@@ -1,15 +1,21 @@
 from app.clients.nbu_client import fetch_rates
-import time
 
 class CurrencyConverter():
-    def __init__(self):
+    def __init__(self, cache):
         self._rates = None
-        self._last_update = 0
-        
+        self._cache = cache
+    
     def _load_rates(self):
-        if self._rates is None or time.time() - self._last_update > 3600:
-            self._rates = fetch_rates()
-            self._last_update = time.time()
+        rates = self._cache.get_rates()
+        
+        if rates:
+            self._rates = rates
+            return
+
+        rates = fetch_rates()
+        self._cache.set_rates(rates)
+        
+        self._rates = rates
             
     def convert(self, base_currency: str, target_currency: str, amount: float):
         self._load_rates()

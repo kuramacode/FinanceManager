@@ -1,8 +1,11 @@
 from flask import Blueprint, request, jsonify
 from app.services.converter import CurrencyConverter
+from app.cache.rate import RateCache
 
 _api = Blueprint("api", __name__)
-converter = CurrencyConverter()
+cache = RateCache()
+converter = CurrencyConverter(cache)
+
 
 @_api.route("/convert", methods=['GET'])
 def convert():
@@ -10,6 +13,16 @@ def convert():
         base_code = request.args.get("from")
         target_code = request.args.get("to")
         amount = float(request.args.get("amount"))
+        
+        if not base_code:
+            return jsonify({"error": "Parameter 'from' is required"}), 400
+
+        if not target_code:
+            return jsonify({"error": "Parameter 'to' is required"}), 400
+
+        if not amount:
+            return jsonify({"error": "Parameter 'amount' is required"}), 400
+        
         
         result = converter.convert(base_code, target_code, amount)
         
