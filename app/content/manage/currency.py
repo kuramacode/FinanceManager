@@ -8,7 +8,6 @@ _currency = Blueprint('currency', __name__)
 @_currency.route('/currency', methods=['GET', 'POST'])
 @login_required
 def currency():
-    
     rates = get_rates(get_nows_date(), MAIN_CURRENCIES)[0]
     
     return render_template('currency.html',

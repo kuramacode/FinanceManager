@@ -150,18 +150,17 @@ currencies = ['AED', 'BRL',
 
 import requests
 
-url = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json"
-
+url = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=20260411&json"
+base_code = 'UAH'
+source = 'nbu'
 response = requests.get(url)
-
-response.raise_for_status()
-
 data = response.json()
-rates = {}
+
+db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+cur = db.cursor()
 
 for item in data:
-    rates[item["cc"]] = item["rate"]
-    
-rates["UAH"] = 1.0
-
-print(rates)
+    target_code, rate, date = item.get('cc'), item.get('rate'), item.get('exchangedate')
+    cur.execute('''INSERT INTO exchange_rates(base_code, target_code, rate, date, source) VALUES(?, ?, ?, ?, ?)''', (base_code, target_code, rate, date, source))
+    db.commit()
+db.close()

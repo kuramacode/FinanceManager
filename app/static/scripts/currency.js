@@ -1,7 +1,4 @@
 const cards = document.querySelectorAll('.rate-card');
-const sel = document.getElementById('convCurrency');
-sel.innerHTML = '';
-
 cards.forEach(card => {
     // 1. Отримуємо число з data-value
     const change = parseFloat(card.dataset.value);
@@ -27,12 +24,64 @@ cards.forEach(card => {
             <span>${changeSign}${change.toFixed(2)}%</span>
         `;
     }
-    // converter 
-
     const code = card.dataset.code;
-    // додавання опцій
-    const opt = document.createElement('option');
-    opt.value = code;
-    opt.textContent = code;
-    sel.appendChild(opt);
 });
+
+// ── CONVERTER SELECTS ──
+const CURRENCIES = ['UAH', ...Array.from(cards).map(c => c.dataset.code)];
+
+function populateSelects() {
+    const selFrom = document.getElementById('convFrom');
+    const selTo   = document.getElementById('convTo');
+    selFrom.innerHTML = '';
+    selTo.innerHTML   = '';
+
+    CURRENCIES.forEach(code => {
+        const a = document.createElement('option');
+        a.value = code; a.textContent = code;
+        selFrom.appendChild(a);
+
+        const b = document.createElement('option');
+        b.value = code; b.textContent = code;
+        selTo.appendChild(b);
+    });
+
+    // defaults: UAH → first foreign
+    selFrom.value = 'UAH';
+    selTo.value   = CURRENCIES[1] || 'USD';
+}
+
+populateSelects();
+
+function swapCurrencies() {
+    const selFrom = document.getElementById('convFrom');
+    const selTo   = document.getElementById('convTo');
+    const swapBtn = document.getElementById('swapBtn');
+
+    [selFrom.value, selTo.value] = [selTo.value, selFrom.value];
+
+    swapBtn.classList.add('spinning');
+    setTimeout(() => swapBtn.classList.remove('spinning'), 350);
+
+    convertFrom();
+}
+
+async function convertFrom() {
+    const amount = parseFloat(document.getElementById('convAmount').value);
+    const from   = document.getElementById('convFrom').value;
+    const to     = document.getElementById('convTo').value;
+
+    if (!amount || !from || !to) return;
+    if (from === to) {
+        document.getElementById('convResult').value = amount.toFixed(2);
+        return;
+    }
+
+    try {
+        const res  = await fetch(`/api/convert?from=${from}&to=${to}&amount=${amount}`);
+        const data = await res.json();
+        document.getElementById('convResult').value = data.result ?? data.amount ?? '';
+    } catch (e) {
+        console.error('Conversion failed:', e);
+    }
+}

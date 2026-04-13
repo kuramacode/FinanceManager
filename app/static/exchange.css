@@ -363,3 +363,42 @@
   margin-bottom: 6px;
 }
 @keyframes shimmer { to { background-position: -200% 0; } }
+/* ── SWAP BUTTON ── */
+.conv-swap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  background: var(--paper);
+  color: var(--muted);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.18s;
+}
+.conv-swap:hover { border-color: var(--muted); color: var(--text); background: var(--tag-bg); }
+.conv-swap svg   { width: 13px; height: 13px; display: block; }
+.conv-swap.spinning svg { animation: spin 0.35s ease; }
+
+/* ── CONVERT BUTTON ── */
+.btn-convert {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  border: none;
+  background: var(--sidebar);
+  color: #fdfaf4;
+  font-family: 'Epilogue', sans-serif;
+  font-size: 0.76rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: opacity 0.14s, transform 0.14s;
+}
+.btn-convert:hover { opacity: 0.88; transform: translateY(-1px); }
+.btn-convert svg   { width: 13px; height: 13px; }
