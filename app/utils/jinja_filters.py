@@ -11,10 +11,10 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from config import Config  # Тепер це спрацює!
 
 
-def color_change(value: int) -> str:
-    if value > 0:
+def color_change(type: str) -> str:
+    if type.lower() == "income":
         return "pos"
-    elif value < 0:
+    elif type.lower() == "expense":
         return "neg"
     else:
         return "neutral"

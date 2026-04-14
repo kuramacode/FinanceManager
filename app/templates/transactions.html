@@ -46,11 +46,13 @@
             <span class="tx-cat">{{ categories_lookup.get(transaction.category_id, {}).get('name', 'Unknown') }}</span> <!-- Виводимо назву категорії або "Unknown", якщо категорія не знайдена -->
           </div>
         </div>
-        <div class="tx-amount {{ transaction.amount | color }}">  
-        {% if transaction.amount >= 0 %} 
+        <div class="tx-amount {{ transaction.type | color }}">  
+        {% if transaction.type == "income" %} 
           +${{ '%.2f' | format(transaction.amount)}}
-        {% else %}  
-          -${{ '%.2f' | format(-transaction.amount)}}
+        {% elif transaction.type == "expense" %}  
+          -${{ '%.2f' | format(transaction.amount)}}
+        {% else %}
+           ${{ '%.2f' | format(-transaction.amount)}}
         {% endif %}
         </div>
       </li>
