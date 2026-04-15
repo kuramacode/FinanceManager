@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger — Register</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename="auth.css") }}" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+</head>
+<body>
+  <!-- Left panel -->
+  <div class="panel-left">
+    <a href="{{ url_for('main.main') }}" class="logo">
+      <span class="logo-icon">L</span>
+      <span class="logo-text">Ledger</span>
+    </a>
+    <div class="panel-body">
+      <p class="panel-eyebrow">Getting started</p>
+      <h1 class="panel-title">Create<br /><em>an account</em></h1>
+      <p class="panel-desc">
+        Free. No credit card. Start tracking your finances right now.
+      </p>
+    </div>
+    <div class="panel-quote">
+      <blockquote>"Financial freedom starts with something simple — knowing your number."</blockquote>
+    </div>
+  </div>
+
+  <!-- Right panel -->
+  <div class="panel-right">
+    <div class="form-wrap">
+      <p class="form-eyebrow">Create account</p>
+      <h2 class="form-title">Welcome</h2>
+      <p class="form-sub">
+        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+      </p>
+
+      <form class="form" action="{{ url_for('register.register') }}" method="post">
+        <div class="field-row-double">
+          <div class="field">
+            <label for="firstName">Username </label>
+            <input type="text" name="username" placeholder="Alex" autocomplete="given-name" />
+            <span class="field-error" id="firstNameError"></span>
+          </div>
+
+        <div class="field">
+          <label for="email">Email</label>
+          <input type="email" name="email" placeholder="you@example.com" autocomplete="email" />
+          <span class="field-error" id="emailError"></span>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <input type="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" />
+            <button type="button" class="toggle-pass" id="togglePass" aria-label="Show password">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
+          </div>
+          <span class="field-error" id="passwordError"></span>
+          <!-- Strength bar -->
+          <div class="strength-bar" id="strengthBar">
+            <span class="strength-seg" id="s1"></span>
+            <span class="strength-seg" id="s2"></span>
+            <span class="strength-seg" id="s3"></span>
+            <span class="strength-seg" id="s4"></span>
+          </div>
+          <span class="strength-label" id="strengthLabel"></span>
+        </div>
+
+        <div class="field">
+          <label for="passwordConfirm">Confirm password</label>
+          <div class="input-wrap">
+            <input type="password" name="password_repeat" placeholder="••••••••" autocomplete="new-password" />
+          </div>
+          <span class="field-error" id="confirmError"></span>
+        </div>
+
+        <div class="field-row">
+          <label class="checkbox-label">
+            <input type="checkbox" id="agree" />
+            <span>I agree to the <a href="#">terms of service</a></span>
+          </label>
+        </div>
+        <span class="field-error" id="agreeError"></span>
+
+        <button type="submit" class="btn-submit">
+          <span class="btn-text">Create account</span>
+          <span class="btn-spinner" id="spinner" hidden>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="12" cy="12" r="10" stroke-opacity=".25"/>
+              <path d="M12 2a10 10 0 0 1 10 10" class="spin"/>
+            </svg>
+          </span>
+        </button>
+      </form>
+    </div>
+  </div>
+</body>
+</html>
