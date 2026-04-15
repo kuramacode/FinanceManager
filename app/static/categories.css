@@ -215,7 +215,7 @@ main {
   display: inline-flex;
   align-items: center;
   gap: 7px;
-  padding: 8px 14px;
+  padding: 8px 30px;
   border-radius: 9px;
   background: var(--sidebar);
   color: #fdfaf4;

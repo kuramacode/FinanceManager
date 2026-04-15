@@ -7,8 +7,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
-  <link rel="stylesheet" href="{{ url_for('static', filename='categories.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+  <link rel="stylesheet" href="{{ url_for('static', filename='categories.css') }}">
 </head>
 <body>
 
@@ -101,35 +101,11 @@
       <span class="section-count" id="count-expense">0</span>
       <div class="section-line"></div>
     </div>
-    {% for cat in expense_categories %}
-    <div class="cat-grid" id="grid-expense">
-      <div class="cat-card {{ cat.type }}-card{{ cat.built_in | to_lower }}" style="animation-delay:${i * 0.04}s" data-id="${c.id}">
-      <div class="cat-icon">{{ cat.emoji }}</div>
-      <div class="cat-info">
-        <div class="cat-name-row">
-          <span class="cat-name">{{ cat.name }}</span>
-          {% if cat.built_in == True %}
-          <span class="cat-builtin-badge">built-in</span>
-          {% endif %}
-        </div>
-        <div class="cat-meta">{{ cat.desc }}</div>
-      </div>
-      <span class="cat-badge {{ cat.type }}">{{ cat.type }}</span>
-      <div class="cat-actions">
-        <button class="cat-action-btn edit-btn" title="Edit" data-id="${c.id}">
-          <svg viewBox="0 0 10 10" fill="none"><path d="M1 9l2-1 5.5-5.5-1-1L2 7 1 9z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M6.5 2.5l1 1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
-        </button>
-        <button class="cat-action-btn delete delete-btn" title="Delete" data-id="${c.id}">
-          <svg viewBox="0 0 10 10" fill="none"><path d="M1.5 2.5h7M4 2.5V1.5h2V2.5M3 2.5l.5 6h3l.5-6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
+    <div class="cat-grid" id="grid-expense"></div>
     <div class="empty-state" id="empty-expense">
       <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       <p>No expense categories yet</p>
     </div>
-    {% endfor %}
   </div>
 
   <!-- Income categories -->
@@ -139,36 +115,7 @@
       <span class="section-count" id="count-income">0</span>
       <div class="section-line"></div>
     </div>
-    {% for cat in income_categories %}
-    <div class="cat-grid" id="grid-expense">
-      <div class="cat-card {{ cat.type }}-card{{ cat.built_in | to_lower }}" style="animation-delay:${i * 0.04}s" data-id="${c.id}">
-      <div class="cat-icon">{{ cat.emoji }}</div>
-      <div class="cat-info">
-        <div class="cat-name-row">
-          <span class="cat-name">{{ cat.name }}</span>
-          {% if cat.built_in == True %}
-          <span class="cat-builtin-badge">built-in</span>
-          {% endif %}
-        </div>
-        <div class="cat-meta">{{ cat.desc }}</div>
-      </div>
-      <span class="cat-badge {{ cat.type }}">{{ cat.type }}</span>
-      <div class="cat-actions">
-        <button class="cat-action-btn edit-btn" title="Edit" data-id="${c.id}">
-          <svg viewBox="0 0 10 10" fill="none"><path d="M1 9l2-1 5.5-5.5-1-1L2 7 1 9z" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/><path d="M6.5 2.5l1 1" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg>
-        </button>
-        <button class="cat-action-btn delete delete-btn" title="Delete" data-id="${c.id}">
-          <svg viewBox="0 0 10 10" fill="none"><path d="M1.5 2.5h7M4 2.5V1.5h2V2.5M3 2.5l.5 6h3l.5-6" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></svg>
-        </button>
-      </div>
-    </div>
-  </div>
-    <div class="empty-state" id="empty-expense">
-      <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <p>No expense categories yet</p>
-    </div>
-    {% endfor %}
-  </div>
+    <div class="cat-grid" id="grid-income"></div>
     <div class="empty-state" id="empty-income">
       <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
       <p>No income categories yet</p>
@@ -210,14 +157,6 @@
       </div>
     </div>
 
-    <div class="field">
-      <label>Built-in</label>
-      <div class="builtin-toggle">
-        <button class="builtin-btn" id="builtin-off">No</button>
-        <button class="builtin-btn active" id="builtin-on">Yes</button>
-      </div>
-    </div>
-
     <div class="modal-actions" id="modal-actions">
       <button class="btn-cancel" id="btn-cancel">Cancel</button>
       <button class="btn-submit" id="btn-submit">Create</button>
@@ -225,6 +164,6 @@
   </div>
 </div>
 
-<script src="categories.js"></script>
+<script src="{{ url_for('static', filename='scripts/categories.js') }}"></script>
 </body>
 </html>
