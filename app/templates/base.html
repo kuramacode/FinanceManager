@@ -41,7 +41,7 @@
       </a>
 
       <div class="nav-label">Manage</div>
-      <a href="#">
+      <a href="{{ url_for('category.category') }}">
         <svg viewBox="0 0 15 15" fill="none"><circle cx="4.5" cy="4.5" r="3" stroke="currentColor" stroke-width="1.4"/><circle cx="10.5" cy="10.5" r="3" stroke="currentColor" stroke-width="1.4"/><circle cx="10.5" cy="4.5" r="3" stroke="currentColor" stroke-width="1.4" opacity=".45"/><circle cx="4.5" cy="10.5" r="3" stroke="currentColor" stroke-width="1.4" opacity=".45"/></svg>
         Categories
       </a>
@@ -55,7 +55,7 @@
       <div class="user">
         <div class="user-avatar">AL</div>
         <div>
-          <div class="user-name">Alex Lane</div>
+          <div class="user-name">{{ username }}</div>
           <div class="user-role">Personal</div>
         </div>
       </div>
