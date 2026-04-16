@@ -452,7 +452,9 @@ function openDeleteModal(id) {
 }
 
 async function submitDelete() {
+  const confirmBtn = document.getElementById('btn-delete-confirm');
   try {
+    if (confirmBtn) confirmBtn.disabled = true;
     const id = Number(document.getElementById('delete-id').value);
     await deleteAccount(id);
     accounts = accounts.filter(x => x.id !== id);
@@ -461,6 +463,8 @@ async function submitDelete() {
   } catch (err) {
     console.error('Delete account failed:', err);
     alert(`Delete failed: ${err.message}`);
+  } finally {
+    if (confirmBtn) confirmBtn.disabled = false;
   }
 }
 
@@ -475,7 +479,12 @@ function escapeHtml(value) {
 }
 
 // ── INIT ─────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', async () => {
+let accountsPageInitialized = false;
+
+async function initAccountsPage() {
+  if (accountsPageInitialized) return;
+  accountsPageInitialized = true;
+
   initFilterTabs();
   initSearch();
 
@@ -513,4 +522,10 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   await loadAccounts();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAccountsPage);
+} else {
+  initAccountsPage();
+}
