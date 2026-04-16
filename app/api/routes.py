@@ -2,6 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_login import login_required
 from app.services.converter import CurrencyConverter
 from app.services.category import Category_Service
+from app.services.accounts import AccountService
 from app.cache.rate import RateCache
 from app.utils.main_scripts import get_userid
 
@@ -9,6 +10,7 @@ _api = Blueprint("api", __name__)
 cache = RateCache()
 converter = CurrencyConverter(cache)
 category_service = Category_Service()
+account_service = AccountService()
 
 
 @_api.route("/convert", methods=['GET'])
@@ -28,7 +30,6 @@ def convert():
         if not amount:
             return jsonify({"error": "Parameter 'amount' is required"}), 400
         
-        
         result = converter.convert(base_code, target_code, amount)
         
         return jsonify(result), 200
@@ -41,9 +42,7 @@ def convert():
 def get_category():
     try:
         user_id = get_userid()
-        
         response = category_service.get_categories(user_id)
-        
         return jsonify(response), 200
         
     except Exception as e:
@@ -52,25 +51,26 @@ def get_category():
 @_api.route('/category', methods=['POST'])
 @login_required
 def create_category():
-        try:
-            user_id = get_userid()
-            data = request.get_json()
-            
-            name = (data.get('name') or '').strip()
-            desc = (data.get('desc') or '').strip()
-            emoji = (data.get('emoji') or '🛒').strip()
-            type_ = (data.get('type') or 'expense').strip()
-            
-            if not name:
-                return jsonify({"error": "Name is required"}), 400
-            if type_ not in ('expense', 'income', 'transfer'):
-                return jsonify({"error": "Type must be 'expense', 'income' or 'transfer'"})
+    try:
+        user_id = get_userid()
+        data = request.get_json()
+        
+        name = (data.get('name') or '').strip()
+        desc = (data.get('desc') or '').strip()
+        emoji = (data.get('emoji') or '🛒').strip()
+        type_ = (data.get('type') or 'expense').strip()
+        
+        if not name:
+            return jsonify({"error": "Name is required"}), 400
+        if type_ not in ('expense', 'income', 'transfer'):
+            # FIX: was missing status code 400
+            return jsonify({"error": "Type must be 'expense', 'income' or 'transfer'"}), 400
 
-            category = category_service.create_category(user_id, name, desc, emoji, type_)
-            
-            return jsonify(category), 201
-        except Exception as e:
-            return jsonify({"error": str(e)}), 400 
+        category = category_service.create_category(user_id, name, desc, emoji, type_)
+        return jsonify(category), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400 
         
 @_api.route('/category/<int:category_id>', methods=['PUT'])
 @login_required
@@ -87,7 +87,7 @@ def update_category(category_id):
         if not name:
             return jsonify({"error": "Name is required"}), 400
         if type_ not in ('expense', 'income', 'transfer'):
-            return jsonify({"error": "Type must be 'expense', 'income' or 'transfer'"})
+            return jsonify({"error": "Type must be 'expense', 'income' or 'transfer'"}), 400
         
         category = category_service.update_category(category_id, user_id, name, desc, emoji, type_)
         if category is None:
@@ -97,8 +97,6 @@ def update_category(category_id):
     
     except Exception as e:
         return jsonify({"error": str(e)}), 400
-        
-        
 
 @_api.route('/category/<int:category_id>', methods=['DELETE'])
 @login_required
@@ -113,4 +111,91 @@ def delete_category(category_id):
         return jsonify({"deleted": category_id}), 200
     
     except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+@_api.route('/accounts', methods=['GET'])
+@login_required
+def accounts():
+    try:
+        user_id = get_userid()
+        response = account_service.get_accounts(user_id)
+        return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+    
+@_api.route('/accounts', methods=['POST'])
+@login_required
+def create_account():
+    try:
+        user_id = get_userid()
+        data = request.get_json()
+        
+        name = (data.get('name') or '').strip()
+        balance = float(data.get('balance') or 0)
+        status = (data.get('status') or 'active').strip()
+        currency_code = (data.get('currency_code') or 'UAH').strip()
+        emoji = (data.get('emoji') or '💸').strip()
+        type = (data.get('type') or 'card').strip()
+        subtitle = (data.get('subtitle') or '').strip()
+        note = (data.get('note') or '').strip()
+        
+        if not name:
+            return jsonify({"error": "Name is required"}), 400
+        if status not in ('active', 'frozen', 'closed'):
+            return jsonify({"error": "Status must be 'active', 'frozen' or 'closed'"}), 400
+
+        response = account_service.create_account(user_id, name, balance, status, currency_code, emoji, type, subtitle, note)
+        # FIX: was returning 200 instead of 201
+        return jsonify(response), 201
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@_api.route('/accounts/<int:account_id>', methods=['PUT'])
+@login_required
+def update_account(account_id):
+    try:
+        user_id = get_userid()
+        data = request.get_json()
+        
+        name = (data.get('name') or '').strip()
+        balance = float(data.get('balance') or 0)
+        status = (data.get('status') or 'active').strip()
+        currency_code = (data.get('currency_code') or 'UAH').strip()
+        emoji = (data.get('emoji') or '💸').strip()
+        type = (data.get('type') or 'card').strip()
+        subtitle = (data.get('subtitle') or '').strip()
+        note = (data.get('note') or '').strip()
+        
+        if not name:
+            return jsonify({"error": "Name is required"}), 400
+        if status not in ('active', 'frozen', 'closed'):
+            return jsonify({"error": "Status must be 'active', 'frozen' or 'closed'"}), 400
+
+        response = account_service.update_account(account_id, user_id, name, balance, status, currency_code, emoji, type, subtitle, note)
+
+        # FIX: was missing the None check — always returned 200 even when account not found
+        if response is None:
+            return jsonify({"error": "Account not found or access denied"}), 404
+        
+        return jsonify(response), 200
+
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+@_api.route('/accounts/<int:account_id>', methods=['DELETE'])
+@login_required
+def delete_account(account_id):
+    try:
+        user_id = get_userid()
+        success = account_service.delete_account(account_id, user_id)
+        print(type(success))
+        if not success:
+            return jsonify({"error": "Account not found or access denied"}), 404
+        
+        return jsonify({"deleted": account_id}), 200
+
+    except Exception as e:
+        print(e)
         return jsonify({"error": str(e)}), 400

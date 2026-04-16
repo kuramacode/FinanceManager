@@ -72,6 +72,7 @@ def get_categories(user_id):
     return categories
 
 db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+db.row_factory = sqlite3.Row
 cur = db.cursor()
 
 users = [
@@ -204,23 +205,4 @@ for item in data:
     cur.execute('''INSERT INTO exchange_rates(base_code, target_code, rate, date, source) VALUES(?, ?, ?, ?, ?)''', (base_code, target_code, rate, date, source))
     db.commit()
 db.close()"""
-categories_built_in = cur.execute('''SELECT * FROM categories WHERE built_in="True"''').fetchall()
-categories_user = cur.execute('''SELECT * FROM categories WHERE user_id="3"''').fetchall()
-result = []
-categories = categories_built_in + categories_user
-
-for item in categories:
-    cat = {
-        'id': None,
-        'name': None,
-        'desc': None,
-        'user_id': None,
-        'emoji': None,
-        'built_in': None,
-        'type': None
-    }
-    print(item)
-    cat['id'], cat['name'], cat['desc'],cat['user_id'] , cat['emoji'], cat['built_in'], cat['type'] = item[0], item[1], item[2], item[3], item[4], item[5], item[6]
-    print(cat)
-    result.append(cat)
-print(result)
+cur.execute('''DROP TABLE accounts''')

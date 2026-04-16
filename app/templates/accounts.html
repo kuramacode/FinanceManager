@@ -1,0 +1,358 @@
+{% extends "base.html" %}
+{% block head %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Accounts — Ledger</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='accounts.css') }}" />
+
+  <style>
+    /* ── Emoji strip ── */
+    .emoji-strip {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 8px 0 12px;
+    }
+    .emoji-btn {
+      width: 38px;
+      height: 38px;
+      border: 1.5px solid transparent;
+      border-radius: 8px;
+      background: transparent;
+      font-size: 20px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.15s, border-color 0.15s, transform 0.1s;
+      line-height: 1;
+    }
+    .emoji-btn:hover {
+      background: var(--surface-2, #f5f0e8);
+      border-color: var(--border, #d9cfc0);
+      transform: scale(1.1);
+    }
+    .emoji-btn.selected {
+      background: var(--accent-pale, #f0e8d8);
+      border-color: var(--accent, #c8a96e);
+      box-shadow: 0 0 0 2px var(--accent-pale, #f0e8d8);
+    }
+  </style>
+{% endblock head %}
+{% block body %}
+<!-- ── MAIN ── -->
+<main>
+  <h1 class="page-title">Acc<em>ounts</em></h1>
+  <p class="page-sub">Manage balances across cards, cash, savings and wallets</p>
+
+  <!-- SUMMARY -->
+  <section class="account-summary">
+    <div class="card neutral">
+      <div class="card-label">Net Worth</div>
+      <div class="card-value" id="sum-net-worth">—</div>
+      <div class="card-sub">Across all active accounts</div>
+    </div>
+    <div class="card green">
+      <div class="card-label">Cash &amp; Bank</div>
+      <div class="card-value" id="sum-cash-bank">—</div>
+      <div class="card-sub">Liquid available balance</div>
+    </div>
+    <div class="card red">
+      <div class="card-label">Credit Used</div>
+      <div class="card-value" id="sum-credit">—</div>
+      <div class="card-sub">Outstanding card liability</div>
+    </div>
+    <div class="card neutral">
+      <div class="card-label">Total Accounts</div>
+      <div class="card-value" id="sum-total">—</div>
+      <div class="card-sub" id="sum-detail">—</div>
+    </div>
+  </section>
+
+  <!-- TOOLBAR -->
+  <div class="toolbar">
+    <div class="filter-tabs">
+      <button type="button" class="filter-tab active" data-filter="all">All</button>
+      <button type="button" class="filter-tab" data-filter="cash">Cash</button>
+      <button type="button" class="filter-tab" data-filter="bank">Bank</button>
+      <button type="button" class="filter-tab" data-filter="card">Card</button>
+      <button type="button" class="filter-tab" data-filter="savings">Savings</button>
+    </div>
+
+    <div class="toolbar-right">
+      <div class="search-wrap">
+        <svg viewBox="0 0 15 15" fill="none">
+          <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/>
+          <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
+        </svg>
+        <input type="text" id="search-input" placeholder="Search accounts…" autocomplete="off" />
+      </div>
+
+      <!-- FIX: type="button" prevents accidental form submission -->
+      <button type="button" class="btn-add-account" id="btn-add-account">
+        <svg viewBox="0 0 12 12" fill="none">
+          <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+        Add Account
+      </button>
+    </div>
+  </div>
+
+  <!-- CARDS (rendered by JS) -->
+  <section class="accounts-grid" id="accounts-grid"></section>
+
+  <!-- TABLE (rendered by JS) -->
+  <section class="accounts-list-wrap" id="accounts-list-wrap">
+    <div class="list-title-row">
+      <div class="list-title">Accounts overview</div>
+      <div class="page-info" id="table-count">—</div>
+    </div>
+    <div class="account-row header">
+      <div>Account</div>
+      <div>Type</div>
+      <div>Currency</div>
+      <div>Balance</div>
+      <div>Status</div>
+    </div>
+    <div id="accounts-table-body"></div>
+  </section>
+
+  <!-- EMPTY STATE -->
+  <section class="accounts-empty" id="accounts-empty">
+    <svg viewBox="0 0 24 24" fill="none">
+      <rect x="3.5" y="6" width="17" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
+      <path d="M3.5 10h17" stroke="currentColor" stroke-width="1.4"/>
+      <circle cx="16.5" cy="14" r="1.2" fill="currentColor"/>
+    </svg>
+    <h3>No accounts yet</h3>
+    <p>Add your first account to start tracking balances and transfers.</p>
+  </section>
+</main>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL: ADD ACCOUNT
+═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-add" role="dialog" aria-modal="true" aria-labelledby="add-modal-title">
+  <div class="modal">
+
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="add-modal-title">New Account</div>
+        <div class="modal-subtitle">Add a card, wallet, cash or savings account</div>
+      </div>
+      <!-- FIX: type="button" on all modal close/action buttons -->
+      <button type="button" class="modal-close" data-close="modal-add" aria-label="Close">
+        <svg viewBox="0 0 12 12" fill="none">
+          <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <form class="modal-body" id="add-form" autocomplete="off">
+
+      <div class="modal-section-title">Icon</div>
+      <!-- Populated by JS: renderEmojiStrip('add-emoji-strip', ...) -->
+      <div class="emoji-strip" id="add-emoji-strip"></div>
+
+      <div class="modal-section-title" style="margin-top:4px;">Details</div>
+
+      <div class="form-group">
+        <label class="form-label" for="add-name">Name <span>*</span></label>
+        <input class="form-input" id="add-name" type="text" placeholder="e.g. Monobank Black" required />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="add-type">Type</label>
+          <select class="form-select" id="add-type">
+            <option value="card">Card</option>
+            <option value="savings">Savings</option>
+            <option value="cash">Cash</option>
+            <option value="credit">Credit</option>
+            <option value="wallet">Wallet</option>
+            <option value="bank">Bank</option>
+            <option value="investment">Investment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="add-currency">Currency</label>
+          <select class="form-select" id="add-currency">
+            <option>UAH</option>
+            <option>USD</option>
+            <option>EUR</option>
+            <option>GBP</option>
+            <option>USDT</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="add-balance">Initial Balance</label>
+          <input class="form-input" id="add-balance" type="number" step="0.01" placeholder="0.00" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="add-status">Status</label>
+          <select class="form-select" id="add-status">
+            <option value="active">Active</option>
+            <option value="frozen">Frozen</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="add-subline">Subtitle <span>(optional)</span></label>
+        <input class="form-input" id="add-subline" type="text" placeholder="e.g. **** 1842 • Updated today" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="add-note">Note <span>(optional)</span></label>
+        <input class="form-input" id="add-note" type="text" placeholder="Short description…" />
+      </div>
+
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" data-close="modal-add">Cancel</button>
+      <button type="button" class="btn-submit" id="btn-add-submit">Create Account</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL: EDIT ACCOUNT
+═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-edit" role="dialog" aria-modal="true" aria-labelledby="edit-modal-title">
+  <div class="modal">
+
+    <div class="modal-header">
+      <div>
+        <div class="modal-title" id="edit-modal-title">Edit Account</div>
+        <div class="modal-subtitle">Update the details of this account</div>
+      </div>
+      <button type="button" class="modal-close" data-close="modal-edit" aria-label="Close">
+        <svg viewBox="0 0 12 12" fill="none">
+          <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </button>
+    </div>
+
+    <form class="modal-body" id="edit-form" autocomplete="off">
+      <input type="hidden" id="edit-id" />
+
+      <div class="modal-section-title">Icon</div>
+      <!-- Populated by JS: renderEmojiStrip('edit-emoji-strip', ...) -->
+      <div class="emoji-strip" id="edit-emoji-strip"></div>
+
+      <div class="modal-section-title" style="margin-top:4px;">Details</div>
+
+      <div class="form-group">
+        <label class="form-label" for="edit-name">Name <span>*</span></label>
+        <input class="form-input" id="edit-name" type="text" required />
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="edit-type">Type</label>
+          <select class="form-select" id="edit-type">
+            <option value="card">Card</option>
+            <option value="savings">Savings</option>
+            <option value="cash">Cash</option>
+            <option value="credit">Credit</option>
+            <option value="wallet">Wallet</option>
+            <option value="bank">Bank</option>
+            <option value="investment">Investment</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-currency">Currency</label>
+          <select class="form-select" id="edit-currency">
+            <option>UAH</option>
+            <option>USD</option>
+            <option>EUR</option>
+            <option>GBP</option>
+            <option>USDT</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label" for="edit-balance">Balance</label>
+          <input class="form-input" id="edit-balance" type="number" step="0.01" />
+        </div>
+        <div class="form-group">
+          <label class="form-label" for="edit-status">Status</label>
+          <select class="form-select" id="edit-status">
+            <option value="active">Active</option>
+            <option value="frozen">Frozen</option>
+            <option value="closed">Closed</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="edit-subline">Subtitle</label>
+        <input class="form-input" id="edit-subline" type="text" />
+      </div>
+
+      <div class="form-group">
+        <label class="form-label" for="edit-note">Note</label>
+        <input class="form-input" id="edit-note" type="text" />
+      </div>
+
+    </form>
+
+    <div class="modal-footer">
+      <button type="button" class="btn-cancel" data-close="modal-edit">Cancel</button>
+      <button type="button" class="btn-submit" id="btn-edit-submit">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- ══════════════════════════════════════════════════════════
+     MODAL: DELETE CONFIRM
+═══════════════════════════════════════════════════════════ -->
+<div class="modal-overlay" id="modal-delete" role="dialog" aria-modal="true" aria-labelledby="delete-modal-title">
+  <div class="modal delete-modal">
+    <input type="hidden" id="delete-id" />
+
+    <div class="delete-body">
+      <div class="delete-icon">
+        <svg viewBox="0 0 24 24" fill="none">
+          <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"
+            stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
+        </svg>
+      </div>
+
+      <div class="delete-title" id="delete-modal-title">Delete Account</div>
+      <div class="delete-desc">
+        Are you sure you want to delete
+        <span class="delete-target" id="delete-target-name"></span>?
+        All associated transaction references will be unlinked.
+        This action cannot be undone.
+      </div>
+    </div>
+
+    <div class="delete-footer">
+      <button type="button" class="btn-cancel" data-close="modal-delete">Cancel</button>
+      <!-- FIX: type="button" is critical here — prevents POST form submission bug -->
+      <button type="button" class="btn-delete-confirm" id="btn-delete-confirm">Delete</button>
+    </div>
+  </div>
+</div>
+
+
+<script src="{{ url_for('static', filename='scripts/accounts.js') }}"></script>
+{% endblock body %}

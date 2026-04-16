@@ -34,6 +34,8 @@ def create_app():
     from app.register.routes import _register; blueprints.append(_register)
     from app.content.lead.dashboard import _dashboard; blueprints.append(_dashboard)
     from app.content.lead.transactions import _transactions; blueprints.append(_transactions)
+    from app.content.money.budgets import _budgets; blueprints.append(_budgets)
+    from app.content.money.accounts import _accounts; blueprints.append(_accounts)
     from app.content.manage.currency import _currency; blueprints.append(_currency)
     from app.content.manage.category import _categories; blueprints.append(_categories)
     from app.api.routes import _api
