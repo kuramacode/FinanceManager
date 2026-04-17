@@ -19,7 +19,9 @@ class FakeConverter:
 
 class TestBudgetTransactionsService(unittest.TestCase):
     def setUp(self):
-        self.db_path = os.path.abspath(f"budget-transactions-{uuid.uuid4().hex}.sqlite3")
+        self.temp_dir = os.path.abspath(os.path.join("tests", ".tmp"))
+        os.makedirs(self.temp_dir, exist_ok=True)
+        self.db_path = os.path.join(self.temp_dir, f"budget-transactions-{uuid.uuid4().hex}.sqlite3")
         self.original_db_path = budget_transactions_service._db_path
         budget_transactions_service._db_path = lambda: self.db_path
 

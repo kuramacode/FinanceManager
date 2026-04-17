@@ -7,7 +7,11 @@ __pycache__/
 instace/
 __pycache__/
 *.db
+*.sqlite3
 env/
+tmp*/
+budget-transactions-*.sqlite3
+tests/.tmp/
 
 # C extensions
 *.so

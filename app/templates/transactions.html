@@ -11,6 +11,7 @@
 
   <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='transactions.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='transactions-modals.css') }}" />
 {% endblock %}
 
 {% block body %}
@@ -71,8 +72,13 @@
     </div>
   </main>
 
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL: ADD / EDIT TRANSACTION
+  ═══════════════════════════════════════════════════════ -->
   <div class="modal-overlay" id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="transactionModalTitle">
-    <div class="modal tx-modal">
+    <div class="modal">
+
       <div class="modal-header">
         <div>
           <div class="modal-title" id="transactionModalTitle">New <em>Transaction</em></div>
@@ -85,24 +91,53 @@
         </button>
       </div>
 
-      <form class="modal-body tx-modal-body" id="transactionForm" method="post" action="{{ url_for('transactions.transactions') }}" autocomplete="off">
+      <form class="modal-body" id="transactionForm" method="post" action="{{ url_for('transactions.transactions') }}" autocomplete="off">
         <input type="hidden" id="transactionFormAction" name="action" value="create" />
         <input type="hidden" id="transactionId" name="transaction_id" value="" />
         <input type="hidden" id="transactionReturnFilter" name="return_filter" value="{{ initial_filter }}" />
 
-        <div class="form-group full">
-          <label class="form-label" for="transactionDescription">Description <span>(optional)</span></label>
-          <input class="form-input" id="transactionDescription" name="description" type="text" maxlength="255" placeholder="e.g. Grocery run, Salary payout..." />
+        <div class="modal-section-title">Details</div>
+
+        <div class="form-group">
+          <label class="form-label" for="transactionDescription">
+            Description <span>(optional)</span>
+          </label>
+          <input
+            class="form-input"
+            id="transactionDescription"
+            name="description"
+            type="text"
+            maxlength="255"
+            placeholder="e.g. Grocery run, Salary payout…"
+          />
         </div>
 
         <div class="form-row">
           <div class="form-group">
             <label class="form-label" for="transactionAmount">Amount <span>*</span></label>
-            <input class="form-input" id="transactionAmount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
+            <input
+              class="form-input"
+              id="transactionAmount"
+              name="amount"
+              type="number"
+              min="0.01"
+              step="0.01"
+              placeholder="0.00"
+              required
+            />
           </div>
           <div class="form-group">
             <label class="form-label" for="transactionCurrency">Currency <span>*</span></label>
-            <input class="form-input uppercase-input" id="transactionCurrency" name="currency_code" type="text" maxlength="3" placeholder="UAH" list="transactionCurrencyOptions" required />
+            <input
+              class="form-input uppercase-input"
+              id="transactionCurrency"
+              name="currency_code"
+              type="text"
+              maxlength="3"
+              placeholder="UAH"
+              list="transactionCurrencyOptions"
+              required
+            />
             <datalist id="transactionCurrencyOptions">
               <option value="UAH"></option>
               <option value="USD"></option>
@@ -111,6 +146,8 @@
             </datalist>
           </div>
         </div>
+
+        <div class="modal-section-title">Classification</div>
 
         <div class="form-row">
           <div class="form-group">
@@ -141,7 +178,7 @@
             <input class="form-input" id="transactionDate" name="date" type="date" required />
           </div>
           <div class="form-group">
-            <label class="form-label" for="transactionTime">Time</label>
+            <label class="form-label" for="transactionTime">Time <span>(optional)</span></label>
             <input class="form-input" id="transactionTime" name="time" type="time" />
           </div>
         </div>
@@ -155,11 +192,17 @@
           <button type="submit" class="btn-submit" id="transactionSubmitBtn">Create Transaction</button>
         </div>
       </form>
+
     </div>
   </div>
 
+
+  <!-- ══════════════════════════════════════════════════════
+       MODAL: DELETE TRANSACTION
+  ═══════════════════════════════════════════════════════ -->
   <div class="modal-overlay" id="transactionDeleteModal" role="dialog" aria-modal="true" aria-labelledby="transactionDeleteTitle">
     <div class="modal tx-delete-modal">
+
       <form class="delete-form" id="transactionDeleteForm" method="post" action="{{ url_for('transactions.transactions') }}">
         <input type="hidden" name="action" value="delete" />
         <input type="hidden" name="transaction_id" id="deleteTransactionId" value="" />
@@ -168,7 +211,8 @@
         <div class="delete-body">
           <div class="delete-icon">
             <svg viewBox="0 0 24 24" fill="none">
-              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"
+                stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
               <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
             </svg>
           </div>
@@ -185,8 +229,10 @@
           <button type="submit" class="btn-delete-confirm">Delete</button>
         </div>
       </form>
+
     </div>
   </div>
+
 
   <script id="transactions-data" type="application/json">{{ transactions_data | tojson }}</script>
   <script id="transaction-categories-data" type="application/json">{{ categories_data | tojson }}</script>
