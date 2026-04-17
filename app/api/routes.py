@@ -1,8 +1,10 @@
+from datetime import date, datetime
 from flask import Blueprint, request, jsonify
 from flask_login import login_required
 from app.services.converter import CurrencyConverter
 from app.services.category import Category_Service
 from app.services.accounts import AccountService
+from app.services.budget_services.budgets import BudgetService
 from app.cache.rate import RateCache
 from app.utils.main_scripts import get_userid
 
@@ -11,6 +13,17 @@ cache = RateCache()
 converter = CurrencyConverter(cache)
 category_service = Category_Service()
 account_service = AccountService()
+budget_service = BudgetService()
+
+
+def _json_safe(value):
+    if isinstance(value, (date, datetime)):
+        return value.isoformat()
+    if isinstance(value, list):
+        return [_json_safe(item) for item in value]
+    if isinstance(value, dict):
+        return {key: _json_safe(item) for key, item in value.items()}
+    return value
 
 
 @_api.route("/convert", methods=['GET'])
@@ -19,16 +32,18 @@ def convert():
     try:
         base_code = request.args.get("from")
         target_code = request.args.get("to")
-        amount = float(request.args.get("amount"))
-        
+        amount_param = request.args.get("amount")
+         
         if not base_code:
             return jsonify({"error": "Parameter 'from' is required"}), 400
 
         if not target_code:
             return jsonify({"error": "Parameter 'to' is required"}), 400
 
-        if not amount:
+        if amount_param is None:
             return jsonify({"error": "Parameter 'amount' is required"}), 400
+
+        amount = float(amount_param)
         
         result = converter.convert(base_code, target_code, amount)
         
@@ -190,12 +205,91 @@ def delete_account(account_id):
     try:
         user_id = get_userid()
         success = account_service.delete_account(account_id, user_id)
-        print(type(success))
         if not success:
             return jsonify({"error": "Account not found or access denied"}), 404
         
         return jsonify({"deleted": account_id}), 200
 
     except Exception as e:
-        print(e)
+        return jsonify({"error": str(e)}), 400
+
+
+@_api.route('/budgets', methods=['GET'])
+@login_required
+def get_budgets():
+    try:
+        user_id = get_userid()
+        budgets = budget_service.get_budgets(user_id)
+        return jsonify(_json_safe(budgets)), 200
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@_api.route('/budgets', methods=['POST'])
+@login_required
+def create_budget():
+    try:
+        user_id = get_userid()
+        data = request.get_json() or {}
+
+        budget = budget_service.create_budget(
+            user_id,
+            name=data.get('name'),
+            desc=data.get('desc'),
+            amount_limit=data.get('amount_limit'),
+            currency_code=data.get('currency_code'),
+            period_type=data.get('period_type'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            category_ids=data.get('category_ids') or [],
+        )
+        return jsonify(_json_safe(budget)), 201
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@_api.route('/budgets/<int:budget_id>', methods=['PUT'])
+@login_required
+def update_budget(budget_id):
+    try:
+        user_id = get_userid()
+        data = request.get_json() or {}
+
+        budget = budget_service.update_budget(
+            budget_id,
+            user_id,
+            name=data.get('name'),
+            desc=data.get('desc'),
+            amount_limit=data.get('amount_limit'),
+            currency_code=data.get('currency_code'),
+            period_type=data.get('period_type'),
+            start_date=data.get('start_date'),
+            end_date=data.get('end_date'),
+            category_ids=data.get('category_ids') or [],
+        )
+
+        if budget is None:
+            return jsonify({"error": "Budget not found or access denied"}), 404
+
+        return jsonify(_json_safe(budget)), 200
+    except ValueError as e:
+        return jsonify({"error": str(e)}), 400
+    except Exception as e:
+        return jsonify({"error": str(e)}), 400
+
+
+@_api.route('/budgets/<int:budget_id>', methods=['DELETE'])
+@login_required
+def delete_budget(budget_id):
+    try:
+        user_id = get_userid()
+        success = budget_service.delete_budget(budget_id, user_id)
+
+        if not success:
+            return jsonify({"error": "Budget not found or access denied"}), 404
+
+        return jsonify({"deleted": budget_id}), 200
+    except Exception as e:
         return jsonify({"error": str(e)}), 400

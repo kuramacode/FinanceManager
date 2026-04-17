@@ -1,30 +1,51 @@
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta
+
+
+def _coerce_date(value):
+    if value is None or value == "":
+        return None
+    if isinstance(value, datetime):
+        return value.date()
+    if isinstance(value, date):
+        return value
+    if isinstance(value, str):
+        return date.fromisoformat(value[:10])
+    raise TypeError(f"Unsupported date value: {value!r}")
+
+
+def _today():
+    return date.today()
+
 
 def get_current_period(budget):
-    today = date.today()
-    
-    if budget['start_date'] and today < budget['start_date']:
+    today = _today()
+
+    start_date = _coerce_date(budget.get("start_date"))
+    end_date = _coerce_date(budget.get("end_date"))
+    period_type = budget.get("period_type")
+
+    if start_date and today < start_date:
         return None
-    
-    if budget['period_type'] == 'custom':
-        if budget['end_date'] and today > budget['end_date']:
+
+    if period_type == "custom":
+        if end_date and today > end_date:
             return None
-        return budget['start_date'], budget['end_date']
-    
-    if budget['period_type'] == 'monthly':
+        return start_date, end_date
+
+    if period_type == "monthly":
         start = date(today.year, today.month, 1)
-        
+
         if today.month == 12:
             end = date(today.year + 1, 1, 1) - timedelta(days=1)
         else:
             end = date(today.year, today.month + 1, 1) - timedelta(days=1)
-            
+
         return start, end
-    
-    if budget['period_type'] == 'weekly':
+
+    if period_type == "weekly":
         start = today - timedelta(days=today.weekday())
         end = start + timedelta(days=6)
-        
+
         return start, end
-    
-    return None
+
+    return start_date, end_date

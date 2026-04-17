@@ -103,6 +103,39 @@ python -m unittest discover -s tests -v
 
 ---
 
+## VS Code debug troubleshooting (Windows)
+
+If VS Code fails to start debugging with:
+
+`AttributeError: module 'sys' has no attribute 'real_prefix'`
+
+this is usually caused by a mismatch between the selected Python interpreter and
+the environment that `debugpy` expects.
+
+### Fix checklist
+
+1. Select the project virtual environment in VS Code:
+   - `Ctrl+Shift+P` → **Python: Select Interpreter** → choose `.venv\Scripts\python.exe`.
+2. Recreate the virtual environment (if needed):
+
+   ```powershell
+   rmdir /s /q .venv
+   py -3 -m venv .venv
+   .venv\Scripts\python -m pip install --upgrade pip
+   .venv\Scripts\python -m pip install -r requirements.txt
+   ```
+
+3. Ensure no local file is shadowing Python stdlib modules:
+   - there should be no `sys.py` in your workspace.
+4. Update the Python extension in VS Code and restart the editor.
+5. If the issue persists, pin `debugpy` in your environment and try again:
+
+   ```powershell
+   .venv\Scripts\python -m pip install "debugpy>=1.8.0"
+   ```
+
+---
+
 ## Project Structure
 
 ```text
@@ -155,4 +188,3 @@ FinanceManager/
 - [ ] AI integration
 - [ ] Analytics
 - [ ] Categories and Budget systems
-

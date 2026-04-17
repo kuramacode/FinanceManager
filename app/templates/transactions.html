@@ -1,131 +1,195 @@
 {% extends "base.html" %}
 
-{% block head %} 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ledger — Transactions</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+{% block head %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ledger - Transactions</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='transactions.css') }}" />
 {% endblock %}
 
 {% block body %}
-  <main>
+  <main
+    class="transactions-page"
+    id="transactionsPage"
+    data-initial-filter="{{ initial_filter }}"
+    data-feedback-status="{{ feedback_status }}"
+    data-feedback-message="{{ feedback_message|e }}"
+  >
     <h1 class="page-title"><em>All</em> transactions</h1>
     <p class="page-sub" id="pageDate"></p>
 
-    <button class="btn-add" id="addBtn" onclick="openModal()">
-        <svg viewBox="0 0 15 15" fill="none"><path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        Add Transaction
+    <button class="btn-add" id="openTransactionModal" type="button">
+      <svg viewBox="0 0 15 15" fill="none">
+        <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      </svg>
+      Add Transaction
     </button>
 
-      <div class="list-header">
-      <span class="section-title">{{ filter }} transactions</span>
+    <div class="tx-feedback" id="transactionsFeedback" hidden></div>
+
+    <div class="list-header">
+      <span class="section-title" id="resultsCopy">All transactions</span>
       <div class="list-controls">
-        <div class="filter-tabs">
-          <a href="?filter=all" class="filter-tab {{ 'active' if filter == 'all' }}">All</a>
-          <a href="?filter=income" class="filter-tab {{ 'active' if filter == 'income' }}">Income</a>
-          <a href="?filter=expense" class="filter-tab {{ 'active' if filter == 'expense' }}">Expense</a>
+        <div class="filter-tabs" id="transactionFilterTabs">
+          <button class="filter-tab" type="button" data-filter="all">All</button>
+          <button class="filter-tab" type="button" data-filter="income">Income</button>
+          <button class="filter-tab" type="button" data-filter="expense">Expense</button>
+          <button class="filter-tab" type="button" data-filter="transfer">Transfer</button>
         </div>
-        <script src="{{ url_for('static', filename='scripts/data.js') }}"></script>
+
         <div class="search-wrap">
-          <svg viewBox="0 0 14 14" fill="none"><circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3"/><path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>
-          <input type="text" id="searchInput" placeholder="Search…" oninput="searchTransactions()">
+          <svg viewBox="0 0 14 14" fill="none">
+            <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3" />
+            <path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+          </svg>
+          <input id="transactionSearch" type="text" placeholder="Search..." autocomplete="off" />
         </div>
       </div>
     </div>
-  {% if transactions|lenght > 0 %}
-    <ul class="tx-list" id="txList">
-      {% for transaction in transactions %}
-      <li class="tx-item" style="animation-delay: 50ms">
-        <div class="tx-icon">{{ categories_lookup.get(transaction.category_id, {}).get('emoji', '📦') }}</div> <!-- Виводимо емодзі категорії або "📦", якщо категорія не знайдена -->
-          <div class="tx-body">
-          <div class="tx-name">{{ transaction.description or  '—' }}</div>
-          <div class="tx-meta">
-            <span class="tx-date">{{ transaction.date | format_date }}</span>
-            <span class="tx-cat">{{ categories_lookup.get(transaction.category_id, {}).get('name', 'Unknown') }}</span> <!-- Виводимо назву категорії або "Unknown", якщо категорія не знайдена -->
-          </div>
-        </div>
-        <div class="tx-amount {{ transaction.type | color }}">  
-        {% if transaction.type == "income" %} 
-          +${{ '%.2f' | format(transaction.amount)}}
-        {% elif transaction.type == "expense" %}  
-          -${{ '%.2f' | format(transaction.amount)}}
-        {% else %}
-           ${{ '%.2f' | format(-transaction.amount)}}
-        {% endif %}
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-    {% else %}
-    <div class="empty-state" id="emptyState">
-      <svg viewBox="0 0 36 36" fill="none"><rect x="4" y="9" width="28" height="20" rx="2.5" stroke="currentColor" stroke-width="1.4"/><path d="M4 15h28" stroke="currentColor" stroke-width="1.4"/><path d="M10 22h6M10 26h9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <p>No transactions found</p>
-    </div>
-    {% endif %}
 
-    <!-- PAGINATION -->
-    <script src="{{ url_for('static', filename='scripts/data.js') }}"></script>
-    <div class="pagination">
-      <span class="page-info" id="pageInfo"></span>
+    <ul class="tx-list tx-runtime-list" id="transactionList"></ul>
+
+    <div class="empty-state tx-empty" id="transactionEmpty" hidden>
+      <svg viewBox="0 0 36 36" fill="none">
+        <rect x="4" y="9" width="28" height="20" rx="2.5" stroke="currentColor" stroke-width="1.4" />
+        <path d="M4 15h28" stroke="currentColor" stroke-width="1.4" />
+        <path d="M10 22h6M10 26h9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+      </svg>
+      <p id="transactionEmptyTitle">No transactions yet</p>
+      <span id="transactionEmptyCopy">Add your first transaction to start tracking movement across categories, accounts, and currencies.</span>
+    </div>
+
+    <div class="pagination" id="transactionPagination">
+      <span class="page-info" id="pageInfo">No results</span>
       <div class="page-btns" id="pageBtns"></div>
     </div>
+  </main>
 
-      <!-- ── MODAL ── -->
-  <div class="modal-overlay" id="modalOverlay" onclick="handleOverlayClick(event)">
-    <div class="modal">
+  <div class="modal-overlay" id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="transactionModalTitle">
+    <div class="modal tx-modal">
       <div class="modal-header">
-        <div class="modal-title">New <em>Transaction</em></div>
-        <button class="modal-close" onclick="closeModal()">
-          <svg viewBox="0 0 12 12" fill="none"><path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <div>
+          <div class="modal-title" id="transactionModalTitle">New <em>Transaction</em></div>
+          <div class="modal-subtitle" id="transactionModalSubtitle">Record category, account, currency, and timestamp in one place.</div>
+        </div>
+        <button type="button" class="modal-close" data-close="transactionModal" aria-label="Close transaction form">
+          <svg viewBox="0 0 12 12" fill="none">
+            <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
         </button>
       </div>
-      <p class="modal-sub">Record income or expense entry</p>
-      <form action="{{ url_for('transactions.transactions') }}" method="post">
-      <div class="field">
-        <label>Description</label>
-        <input type="text" id="f_name" name="f_name" placeholder="e.g. Grocery run, Freelance payment…" required>   
-         </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Amount ($)</label>
-          <input type="number" id="f_amount" name="f_amount" placeholder="0.00" step="0.01" min="0" required>      
+
+      <form class="modal-body tx-modal-body" id="transactionForm" method="post" action="{{ url_for('transactions.transactions') }}" autocomplete="off">
+        <input type="hidden" id="transactionFormAction" name="action" value="create" />
+        <input type="hidden" id="transactionId" name="transaction_id" value="" />
+        <input type="hidden" id="transactionReturnFilter" name="return_filter" value="{{ initial_filter }}" />
+
+        <div class="form-group full">
+          <label class="form-label" for="transactionDescription">Description <span>(optional)</span></label>
+          <input class="form-input" id="transactionDescription" name="description" type="text" maxlength="255" placeholder="e.g. Grocery run, Salary payout..." />
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="transactionAmount">Amount <span>*</span></label>
+            <input class="form-input" id="transactionAmount" name="amount" type="number" min="0.01" step="0.01" placeholder="0.00" required />
           </div>
-        <div class="field">
-          <label>Type</label>
-          <select id="f_type" name="f_type" required>
-            <option value="expense">Expense</option>
-            <option value="income">Income</option>
-          </select>
+          <div class="form-group">
+            <label class="form-label" for="transactionCurrency">Currency <span>*</span></label>
+            <input class="form-input uppercase-input" id="transactionCurrency" name="currency_code" type="text" maxlength="3" placeholder="UAH" list="transactionCurrencyOptions" required />
+            <datalist id="transactionCurrencyOptions">
+              <option value="UAH"></option>
+              <option value="USD"></option>
+              <option value="EUR"></option>
+              <option value="GBP"></option>
+            </datalist>
+          </div>
         </div>
-      </div>
-      <div class="field-row">
-        <div class="field">
-          <label>Category</label>
-          <select id="f_category" name="f_category" required>
-          {% for cat in  categories %}
-            <option value="{{ cat.id }}">{{ cat.name }}</option>
-          {% endfor %}
-          </select>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label" for="transactionType">Type <span>*</span></label>
+            <select class="form-select" id="transactionType" name="type" required>
+              <option value="expense">Expense</option>
+              <option value="income">Income</option>
+              <option value="transfer">Transfer</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="transactionAccount">Account <span>(optional)</span></label>
+            <select class="form-select" id="transactionAccount" name="account_id"></select>
+          </div>
         </div>
-        <div class="field">
-          <label>Date</label>
-          <input type="date" id="f_date" name="f_date" required>
+
+        <div class="tx-form-hint" id="transactionTypeHint">
+          Expense transactions reduce available budget in the selected category.
         </div>
-        <div class="field">
-          <label>Time</label>
-          <input type="time" id="f_time" name="f_time" required>
+
+        <div class="form-row three-up">
+          <div class="form-group">
+            <label class="form-label" for="transactionCategory">Category <span>*</span></label>
+            <select class="form-select" id="transactionCategory" name="category_id" required></select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="transactionDate">Date <span>*</span></label>
+            <input class="form-input" id="transactionDate" name="date" type="date" required />
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="transactionTime">Time</label>
+            <input class="form-input" id="transactionTime" name="time" type="time" />
+          </div>
         </div>
-      </div>
-      <div class="modal-actions">
-        <button class="btn-cancel" type="button" onclick="closeModal()">Cancel</button>
-        <button class="btn-submit" type="submit" >Add Entry</button>
-      </div>
-    </form>
+
+        <div class="tx-form-hint" id="transactionCategoryHint">
+          Choose a category that matches the selected transaction type.
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-cancel" data-close="transactionModal">Cancel</button>
+          <button type="submit" class="btn-submit" id="transactionSubmitBtn">Create Transaction</button>
+        </div>
+      </form>
     </div>
   </div>
- 
-  <script src="{{ url_for('static', filename='scripts/addButton.js') }}"></script>
-  </main>
+
+  <div class="modal-overlay" id="transactionDeleteModal" role="dialog" aria-modal="true" aria-labelledby="transactionDeleteTitle">
+    <div class="modal tx-delete-modal">
+      <form class="delete-form" id="transactionDeleteForm" method="post" action="{{ url_for('transactions.transactions') }}">
+        <input type="hidden" name="action" value="delete" />
+        <input type="hidden" name="transaction_id" id="deleteTransactionId" value="" />
+        <input type="hidden" name="return_filter" id="deleteTransactionReturnFilter" value="{{ initial_filter }}" />
+
+        <div class="delete-body">
+          <div class="delete-icon">
+            <svg viewBox="0 0 24 24" fill="none">
+              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="delete-title" id="transactionDeleteTitle">Delete Transaction</div>
+          <div class="delete-desc">
+            Remove
+            <span class="delete-target" id="deleteTransactionName"></span>
+            from the ledger? This cannot be undone.
+          </div>
+        </div>
+
+        <div class="delete-footer">
+          <button type="button" class="btn-cancel" data-close="transactionDeleteModal">Cancel</button>
+          <button type="submit" class="btn-delete-confirm">Delete</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script id="transactions-data" type="application/json">{{ transactions_data | tojson }}</script>
+  <script id="transaction-categories-data" type="application/json">{{ categories_data | tojson }}</script>
+  <script id="transaction-accounts-data" type="application/json">{{ accounts_data | tojson }}</script>
+  <script src="{{ url_for('static', filename='scripts/data.js') }}"></script>
 {% endblock %}

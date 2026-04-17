@@ -1,9 +1,11 @@
-import sqlite3 
-from app.utils.main_scripts import _db_path
+def get_budget_status(spent, limit_amount):
+    if limit_amount <= 0:
+        return "invalid"
 
-def resolve(usage):
-    with sqlite3.connect(_db_path()) as db:
-        db.row_factory = sqlite3.Row
-        cur = db.cursor()
-        
-        
+    percent = (spent / limit_amount) * 100
+
+    if percent > 100:
+        return "exceeded"
+    if percent >= 80:
+        return "warning"
+    return "on_track"

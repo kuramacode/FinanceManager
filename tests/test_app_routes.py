@@ -82,7 +82,7 @@ from werkzeug.security import generate_password_hash
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app import app
-from models import db, User, Categories, Transactions
+from app.models import db, User, Categories, Transactions
 
 class TestAppRoutes(unittest.TestCase):
     @classmethod

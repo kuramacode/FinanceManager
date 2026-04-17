@@ -205,4 +205,15 @@ for item in data:
     cur.execute('''INSERT INTO exchange_rates(base_code, target_code, rate, date, source) VALUES(?, ?, ?, ?, ?)''', (base_code, target_code, rate, date, source))
     db.commit()
 db.close()"""
-cur.execute('''DROP TABLE accounts''')
+db.row_factory = sqlite3.Row
+useri = cur.execute('''
+                    SELECT id FROM users
+                    ''').fetchall()
+ids = []
+
+for user in useri:
+    for item in user:
+        ids.append(item)
+    
+    
+print(ids)

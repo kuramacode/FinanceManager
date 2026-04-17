@@ -2,6 +2,10 @@ import sqlite3
 from app.utils.main_scripts import _db_path
 
 
+def _is_built_in_db_value(value) -> bool:
+    return str(value).strip().lower() in {"1", "true"}
+
+
 class Category_Service:
     def get_categories(self, user_id):
         with sqlite3.connect(_db_path()) as db:
@@ -12,16 +16,17 @@ class Category_Service:
                 """
                 SELECT id, name, desc, user_id, emoji, built_in, type
                 FROM categories
-                WHERE built_in = ? OR user_id = ?
+                WHERE user_id = ?
+                   OR CAST(COALESCE(built_in, 0) AS TEXT) IN ('1', 'True', 'true')
                 ORDER BY built_in DESC, name ASC
                 """,
-                ("True", user_id),
+                (user_id,),
             ).fetchall()
 
             return [
                 {
                     **dict(row),
-                    "built_in": dict(row)["built_in"] == "True"
+                    "built_in": _is_built_in_db_value(dict(row).get("built_in"))
                 }
                 for row in rows
             ]
@@ -30,20 +35,20 @@ class Category_Service:
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()
-            
+             
             cur.execute('''
                         INSERT INTO categories (name, desc, user_id, emoji, built_in, type)
                         VALUES (?, ?, ?, ?, ?, ?)
-                        ''', (name, desc, user_id, emoji, "False", type_,))
+                        ''', (name, desc, user_id, emoji, False, type_,))
             db.commit()
-            
+             
             row = cur.execute('''
                               SELECT id, name, desc, user_id, emoji, built_in, type FROM categories WHERE id=?
                               ''', (cur.lastrowid, )).fetchone()
-            
+             
             return {
                 **dict(row),
-                "built_in": dict(row)["built_in"] == "True"
+                "built_in": _is_built_in_db_value(dict(row).get("built_in"))
                 }
         
     def update_category(self, category_id, user_id, name, desc, emoji, type_):
@@ -52,17 +57,20 @@ class Category_Service:
             cur = db.cursor()
             # Only allow editing user-owned (non built-in) categories
             existing = cur.execute('''
-                                   SELECT id FROM categories WHERE id=? AND user_id=? AND built_in=?
-                                   ''', (category_id, user_id, "False",)).fetchone()
-            
+                                   SELECT id FROM categories
+                                   WHERE id=? AND user_id=?
+                                     AND CAST(COALESCE(built_in, 0) AS TEXT) NOT IN ('1', 'True', 'true')
+                                   ''', (category_id, user_id,)).fetchone()
+             
             if not existing:
                 return None
             
             cur.execute('''
                         UPDATE categories
                         SET name=?, desc=?, emoji=?, type=?
-                        WHERE id=? AND user_id=? AND built_in=?
-                        ''', (name, desc, emoji, type_, category_id, user_id, "False",))
+                        WHERE id=? AND user_id=?
+                          AND CAST(COALESCE(built_in, 0) AS TEXT) NOT IN ('1', 'True', 'true')
+                        ''', (name, desc, emoji, type_, category_id, user_id,))
             db.commit()
             
             row = cur.execute('''
@@ -72,17 +80,19 @@ class Category_Service:
             
             return {
                 **dict(row),
-                "built_in": dict(row)["built_in"] == "True"
+                "built_in": _is_built_in_db_value(dict(row).get("built_in"))
                 }
             
     def delete_category(self, category_id, user_id):
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()
-            
+             
             result = cur.execute('''
-                                 DELETE FROM categories WHERE id=? AND user_id=? AND built_in=?
-                                 ''', (category_id, user_id, "False",))
+                                 DELETE FROM categories
+                                 WHERE id=? AND user_id=?
+                                   AND CAST(COALESCE(built_in, 0) AS TEXT) NOT IN ('1', 'True', 'true')
+                                 ''', (category_id, user_id,))
             db.commit()
-            
+             
             return result.rowcount > 0
