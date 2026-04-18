@@ -285,28 +285,30 @@ function buildTransactionCard(transaction) {
   const meta = typeMeta(transaction.type);
   const accountMarkup = transaction.account_name
     ? `<span class="tx-account">${escapeHtml(transaction.account_name)}</span>`
-    : "";
-  const currencyMarkup = `<span class="tx-currency">${escapeHtml(transaction.currency_code)}</span>`;
-  const note = transaction.description
-    ? transaction.description
-    : `${meta.label} in ${transaction.category_name}`;
+    : `<span class="tx-account">No account</span>`;
+  const title = transactionTitle(transaction);
+  const amountClass = transaction.type === "income"
+    ? "pos"
+    : transaction.type === "expense"
+      ? "neg"
+      : "neutral";
 
   return `
-    <li class="tx-item ${meta.className}" data-id="${transaction.id}">
-      <div class="tx-icon">${escapeHtml(transaction.category_emoji)}</div>
-      <div class="tx-body">
-        <div class="tx-item-head">
-          <div class="tx-name">${escapeHtml(note)}</div>
-          <span class="tx-pill ${meta.className}">${escapeHtml(meta.label)}</span>
-        </div>
-        <div class="tx-meta">
-          <span class="tx-date">${escapeHtml(formatDateTime(transaction.date))}</span>
-          <span class="tx-cat">${escapeHtml(transaction.category_name)}</span>
-          ${accountMarkup}
-          ${currencyMarkup}
+    <article class="tx-row" data-id="${transaction.id}">
+      <div class="tx-main">
+        <div class="tx-main-icon">${escapeHtml(transaction.category_emoji)}</div>
+        <div class="tx-main-body">
+          <div class="tx-main-title">${escapeHtml(title)}</div>
+          <div class="tx-main-sub">
+            <span class="tx-date-mini">${escapeHtml(formatDateTime(transaction.date))}</span>
+          </div>
         </div>
       </div>
-      <div class="tx-amount ${meta.className}">
+      <div><span class="tx-status ${meta.className}">${escapeHtml(meta.label)}</span></div>
+      <div><span class="tx-category">${escapeHtml(transaction.category_name)}</span></div>
+      <div>${accountMarkup}</div>
+      <div><span class="tx-currency-badge">${escapeHtml(transaction.currency_code)}</span></div>
+      <div class="tx-amount-cell ${amountClass}">
         ${escapeHtml(amountDisplay(transaction))}
       </div>
       <div class="tx-actions">
@@ -321,7 +323,7 @@ function buildTransactionCard(transaction) {
           </svg>
         </button>
       </div>
-    </li>
+    </article>
   `;
 }
 

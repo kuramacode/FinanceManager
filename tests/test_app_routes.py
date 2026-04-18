@@ -81,15 +81,21 @@ from werkzeug.security import generate_password_hash
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
-from app import app
+from app import create_app
 from app.models import db, User, Categories, Transactions
+from tests.test_support import make_test_db_uri
 
 class TestAppRoutes(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        app.config["TESTING"] = True
-        app.config['WTF_CSRF_ENABLED'] = False
-        cls.ctx = app.app_context()
+        cls.app = create_app(
+            {
+                "TESTING": True,
+                "WTF_CSRF_ENABLED": False,
+                "SQLALCHEMY_DATABASE_URI": make_test_db_uri(),
+            }
+        )
+        cls.ctx = cls.app.app_context()
         cls.ctx.push()
 
     @classmethod
@@ -100,7 +106,7 @@ class TestAppRoutes(unittest.TestCase):
         db.session.remove()
         db.drop_all()
         db.create_all()
-        self.client = app.test_client()
+        self.client = self.app.test_client()
     
     def _create_user(self, username="alice", email="alice@example.com", password="secret123"):
         user = User(

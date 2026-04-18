@@ -12,6 +12,379 @@
   <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='transactions.css') }}" />
   <link rel="stylesheet" href="{{ url_for('static', filename='transactions-modals.css') }}" />
+
+  <style>
+    main {
+      flex: 1;
+      padding: 48px 52px;
+      max-width: 1180px;
+    }
+
+    .toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .toolbar-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn-add-tx {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 12px 16px;
+      border-radius: 9px;
+      background: var(--sidebar);
+      color: #fdfaf4;
+      font-family: "Epilogue", sans-serif;
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      border: none;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .btn-add-tx:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn-add-tx svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .transactions-summary {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 34px;
+    }
+
+    .transactions-panel {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px 10px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 0.67rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .panel-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .date-range {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 7px 11px;
+      font-size: 0.74rem;
+      color: var(--text);
+    }
+
+    .date-range svg {
+      width: 13px;
+      height: 13px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .toolbar-chip {
+      display: inline-flex;
+      align-items: center;
+      min-height: 38px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--paper);
+      color: var(--text);
+      font-size: 0.72rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+    }
+
+    .tx-table {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .tx-row {
+      display: grid;
+      grid-template-columns: minmax(220px, 1.8fr) minmax(90px, 0.8fr) minmax(90px, 0.8fr) minmax(110px, 0.85fr) minmax(90px, 0.7fr) minmax(110px, 0.75fr) 52px;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 0;
+      border-top: 1px solid var(--border);
+      animation: fadeUp 0.22s ease both;
+    }
+
+    .tx-row.header {
+      padding-top: 2px;
+      padding-bottom: 10px;
+      border-top: none;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 2px;
+    }
+
+    .tx-row.header div {
+      font-size: 0.62rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .tx-main {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: 0;
+    }
+
+    .tx-main-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 10px;
+      background: var(--tag-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1rem;
+      flex-shrink: 0;
+    }
+
+    .tx-main-body {
+      min-width: 0;
+    }
+
+    .tx-main-title {
+      font-size: 0.84rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tx-main-sub {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 4px;
+      flex-wrap: wrap;
+    }
+
+    .tx-date-mini {
+      font-size: 0.66rem;
+      color: var(--muted);
+    }
+
+    .tx-category,
+    .tx-account,
+    .tx-currency-badge {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      font-size: 0.61rem;
+      color: var(--muted);
+      background: var(--tag-bg);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px 8px;
+      font-weight: 500;
+    }
+
+    .tx-status {
+      display: inline-flex;
+      align-items: center;
+      width: fit-content;
+      padding: 4px 8px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--tag-bg);
+      font-size: 0.62rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .tx-status.income {
+      color: var(--income);
+      border-color: rgba(58, 122, 80, 0.18);
+      background: rgba(58, 122, 80, 0.08);
+    }
+
+    .tx-status.expense {
+      color: var(--expense);
+      border-color: rgba(184, 64, 64, 0.16);
+      background: rgba(184, 64, 64, 0.09);
+    }
+
+    .tx-status.transfer {
+      color: #476e87;
+      border-color: rgba(71, 110, 135, 0.16);
+      background: rgba(71, 110, 135, 0.09);
+    }
+
+    .tx-amount-cell {
+      font-family: "Playfair Display", serif;
+      font-size: 1rem;
+      text-align: right;
+      justify-self: end;
+      white-space: nowrap;
+    }
+
+    .tx-amount-cell.pos { color: var(--income); }
+    .tx-amount-cell.neg { color: var(--expense); }
+    .tx-amount-cell.neutral { color: var(--text); }
+
+    .tx-actions {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 6px;
+      margin-left: 0;
+    }
+
+    .tx-action-btn {
+      width: 31px;
+      height: 31px;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: var(--paper);
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.14s;
+    }
+
+    .tx-action-btn:hover {
+      color: var(--text);
+      border-color: var(--muted);
+      background: var(--tag-bg);
+      transform: none;
+    }
+
+    .tx-action-btn.danger:hover {
+      color: var(--expense);
+      border-color: rgba(184, 64, 64, 0.24);
+    }
+
+    .tx-action-btn svg {
+      width: 13px;
+      height: 13px;
+    }
+
+    .transactions-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      border-top: 1px solid var(--border);
+      margin-top: 14px;
+      padding-top: 18px;
+      flex-wrap: wrap;
+    }
+
+    .tx-empty[hidden] {
+      display: none !important;
+    }
+
+    .tx-empty {
+      margin-top: 16px;
+      padding: 72px 0;
+      text-align: center;
+    }
+
+    .tx-empty svg {
+      width: 42px;
+      height: 42px;
+      color: var(--border);
+      margin-bottom: 12px;
+    }
+
+    .tx-empty p {
+      font-family: "Playfair Display", serif;
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .tx-empty span {
+      color: var(--muted);
+      font-size: 0.8rem;
+    }
+
+    @media (max-width: 1120px) {
+      .transactions-summary {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 900px) {
+      aside {
+        display: none;
+      }
+
+      main {
+        padding: 28px 20px;
+        max-width: 100%;
+      }
+
+      .transactions-summary {
+        grid-template-columns: 1fr;
+      }
+
+      .toolbar {
+        align-items: stretch;
+      }
+
+      .toolbar-right {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .transactions-panel {
+        overflow-x: auto;
+      }
+
+      .tx-row {
+        min-width: 980px;
+      }
+    }
+  </style>
 {% endblock %}
 
 {% block body %}
@@ -22,63 +395,113 @@
     data-feedback-status="{{ feedback_status }}"
     data-feedback-message="{{ feedback_message|e }}"
   >
-    <h1 class="page-title"><em>All</em> transactions</h1>
-    <p class="page-sub" id="pageDate"></p>
+    <h1 class="page-title">Trans<em>actions</em></h1>
+    <p class="page-sub">Manage income, expenses, and transfers across all your accounts.</p>
 
-    <button class="btn-add" id="openTransactionModal" type="button">
-      <svg viewBox="0 0 15 15" fill="none">
-        <path d="M6.5 1v11M1 6.5h11" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
-      </svg>
-      Add Transaction
-    </button>
+    <section class="transactions-summary">
+      <div class="card neutral">
+        <div class="card-label">Records</div>
+        <div class="card-value">{{ summary.count }}</div>
+        <div class="card-sub">Transactions currently stored</div>
+      </div>
 
-    <div class="tx-feedback" id="transactionsFeedback" hidden></div>
+      <div class="card green">
+        <div class="card-label">Income</div>
+        <div class="card-value">+{{ "%.2f"|format(summary.income_total) }}</div>
+        <div class="card-sub">Confirmed income entries</div>
+      </div>
 
-    <div class="list-header">
-      <span class="section-title" id="resultsCopy">All transactions</span>
-      <div class="list-controls">
-        <div class="filter-tabs" id="transactionFilterTabs">
-          <button class="filter-tab" type="button" data-filter="all">All</button>
-          <button class="filter-tab" type="button" data-filter="income">Income</button>
-          <button class="filter-tab" type="button" data-filter="expense">Expense</button>
-          <button class="filter-tab" type="button" data-filter="transfer">Transfer</button>
-        </div>
+      <div class="card red">
+        <div class="card-label">Expenses</div>
+        <div class="card-value">-{{ "%.2f"|format(summary.expense_total) }}</div>
+        <div class="card-sub">Recorded expense entries</div>
+      </div>
 
+      <div class="card neutral">
+        <div class="card-label">Net Result</div>
+        <div class="card-value">{% if summary.net_total >= 0 %}+{% endif %}{{ "%.2f"|format(summary.net_total) }}</div>
+        <div class="card-sub">Income minus expenses</div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="filter-tabs" id="transactionFilterTabs">
+        <button class="filter-tab" type="button" data-filter="all">All</button>
+        <button class="filter-tab" type="button" data-filter="income">Income</button>
+        <button class="filter-tab" type="button" data-filter="expense">Expense</button>
+        <button class="filter-tab" type="button" data-filter="transfer">Transfer</button>
+      </div>
+
+      <div class="toolbar-right">
         <div class="search-wrap">
-          <svg viewBox="0 0 14 14" fill="none">
-            <circle cx="6" cy="6" r="4.5" stroke="currentColor" stroke-width="1.3" />
-            <path d="M9.5 9.5L13 13" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" />
+          <svg viewBox="0 0 15 15" fill="none">
+            <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4" />
+            <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
           </svg>
-          <input id="transactionSearch" type="text" placeholder="Search..." autocomplete="off" />
+          <input id="transactionSearch" type="text" placeholder="Search transactions..." autocomplete="off" />
         </div>
+
+        <span class="toolbar-chip">Newest first</span>
+
+        <button class="btn-add-tx" id="openTransactionModal" type="button">
+          <svg viewBox="0 0 12 12" fill="none">
+            <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          Add Transaction
+        </button>
       </div>
     </div>
 
-    <ul class="tx-list tx-runtime-list" id="transactionList"></ul>
+    <div class="tx-feedback" id="transactionsFeedback" hidden></div>
 
-    <div class="empty-state tx-empty" id="transactionEmpty" hidden>
-      <svg viewBox="0 0 36 36" fill="none">
-        <rect x="4" y="9" width="28" height="20" rx="2.5" stroke="currentColor" stroke-width="1.4" />
-        <path d="M4 15h28" stroke="currentColor" stroke-width="1.4" />
-        <path d="M10 22h6M10 26h9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
-      </svg>
-      <p id="transactionEmptyTitle">No transactions yet</p>
-      <span id="transactionEmptyCopy">Add your first transaction to start tracking movement across categories, accounts, and currencies.</span>
-    </div>
+    <section class="transactions-panel">
+      <div class="panel-head">
+        <div class="panel-title" id="resultsCopy">All transactions</div>
 
-    <div class="pagination" id="transactionPagination">
-      <span class="page-info" id="pageInfo">No results</span>
-      <div class="page-btns" id="pageBtns"></div>
-    </div>
+        <div class="panel-actions">
+          <div class="date-range">
+            <svg viewBox="0 0 15 15" fill="none">
+              <rect x="2" y="3" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+              <path d="M4 1.8v2.4M11 1.8v2.4M2 6h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            {{ date_range_label }}
+          </div>
+        </div>
+      </div>
+
+      <div class="tx-table">
+        <div class="tx-row header">
+          <div>Transaction</div>
+          <div>Type</div>
+          <div>Category</div>
+          <div>Account</div>
+          <div>Currency</div>
+          <div>Amount</div>
+          <div></div>
+        </div>
+
+        <div id="transactionList"></div>
+      </div>
+
+      <div class="tx-empty" id="transactionEmpty" hidden>
+        <svg viewBox="0 0 36 36" fill="none">
+          <rect x="4" y="9" width="28" height="20" rx="2.5" stroke="currentColor" stroke-width="1.4" />
+          <path d="M4 15h28" stroke="currentColor" stroke-width="1.4" />
+          <path d="M10 22h6M10 26h9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+        </svg>
+        <p id="transactionEmptyTitle">No transactions yet</p>
+        <span id="transactionEmptyCopy">Add your first transaction to start tracking movement across categories, accounts, and currencies.</span>
+      </div>
+
+      <div class="transactions-pagination pagination" id="transactionPagination">
+        <span class="page-info" id="pageInfo">No results</span>
+        <div class="page-btns" id="pageBtns"></div>
+      </div>
+    </section>
   </main>
 
-
-  <!-- ══════════════════════════════════════════════════════
-       MODAL: ADD / EDIT TRANSACTION
-  ═══════════════════════════════════════════════════════ -->
   <div class="modal-overlay" id="transactionModal" role="dialog" aria-modal="true" aria-labelledby="transactionModalTitle">
     <div class="modal">
-
       <div class="modal-header">
         <div>
           <div class="modal-title" id="transactionModalTitle">New <em>Transaction</em></div>
@@ -108,7 +531,7 @@
             name="description"
             type="text"
             maxlength="255"
-            placeholder="e.g. Grocery run, Salary payout…"
+            placeholder="e.g. Grocery run, Salary payout..."
           />
         </div>
 
@@ -192,17 +615,11 @@
           <button type="submit" class="btn-submit" id="transactionSubmitBtn">Create Transaction</button>
         </div>
       </form>
-
     </div>
   </div>
 
-
-  <!-- ══════════════════════════════════════════════════════
-       MODAL: DELETE TRANSACTION
-  ═══════════════════════════════════════════════════════ -->
   <div class="modal-overlay" id="transactionDeleteModal" role="dialog" aria-modal="true" aria-labelledby="transactionDeleteTitle">
     <div class="modal tx-delete-modal">
-
       <form class="delete-form" id="transactionDeleteForm" method="post" action="{{ url_for('transactions.transactions') }}">
         <input type="hidden" name="action" value="delete" />
         <input type="hidden" name="transaction_id" id="deleteTransactionId" value="" />
@@ -211,8 +628,7 @@
         <div class="delete-body">
           <div class="delete-icon">
             <svg viewBox="0 0 24 24" fill="none">
-              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"
-                stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
+              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" />
               <path d="M10 11v6M14 11v6" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
             </svg>
           </div>
@@ -229,10 +645,8 @@
           <button type="submit" class="btn-delete-confirm">Delete</button>
         </div>
       </form>
-
     </div>
   </div>
-
 
   <script id="transactions-data" type="application/json">{{ transactions_data | tojson }}</script>
   <script id="transaction-categories-data" type="application/json">{{ categories_data | tojson }}</script>

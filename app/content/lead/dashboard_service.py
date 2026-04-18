@@ -1,12 +1,14 @@
 import sqlite3
 import sys; import os
 
+from app.utils.database import sqlite_db_path
+
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
 from app.config import Config  # Тепер це спрацює!
 
 def _db_path() -> str: 
-    return Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')
+    return sqlite_db_path()
 
 def get_sum_income(userId):
     with sqlite3.connect(_db_path()) as database: 

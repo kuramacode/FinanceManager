@@ -32,7 +32,7 @@ def format_date_for_website(date: str) -> str:
 
 
 def category_name(category_id: int, user_id: int) -> str:
-    db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+    db = sqlite3.connect(_db_path())
     cur = db.cursor()
 
     cur.execute('''SELECT name FROM categories WHERE user_id = ? AND id = ?''', (user_id, category_id))
@@ -41,7 +41,7 @@ def category_name(category_id: int, user_id: int) -> str:
     return category_name
 
 def category_emoji(category_id: int, user_id: int) -> str:
-    db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+    db = sqlite3.connect(_db_path())
     cur = db.cursor()
 
     cur.execute('''SELECT emoji FROM categories WHERE user_id = ? AND id = ?''', (user_id, category_id))

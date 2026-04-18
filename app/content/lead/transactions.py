@@ -151,6 +151,49 @@ def _parse_transaction_payload(user_id: int, form):
     }
 
 
+def _build_transactions_summary(transactions_data: list[dict]) -> dict:
+    income_total = round(
+        sum(transaction["amount"] for transaction in transactions_data if transaction["type"] == "income"),
+        2,
+    )
+    expense_total = round(
+        sum(transaction["amount"] for transaction in transactions_data if transaction["type"] == "expense"),
+        2,
+    )
+    transfer_total = round(
+        sum(transaction["amount"] for transaction in transactions_data if transaction["type"] == "transfer"),
+        2,
+    )
+
+    return {
+        "count": len(transactions_data),
+        "income_total": income_total,
+        "expense_total": expense_total,
+        "transfer_total": transfer_total,
+        "net_total": round(income_total - expense_total, 2),
+    }
+
+
+def _build_date_range_label(transactions_data: list[dict]) -> str:
+    dates = []
+    for transaction in transactions_data:
+        if not transaction.get("date"):
+            continue
+        try:
+            dates.append(datetime.fromisoformat(transaction["date"]))
+        except ValueError:
+            continue
+
+    if not dates:
+        return "No dates yet"
+
+    start = min(dates)
+    end = max(dates)
+    if start.date() == end.date():
+        return start.strftime("%b %d, %Y")
+    return f"{start.strftime('%b %d, %Y')} - {end.strftime('%b %d, %Y')}"
+
+
 @_transactions.route("/transactions", methods=["GET", "POST"])
 @login_required
 def transactions():
@@ -207,15 +250,19 @@ def transactions():
         _normalize_transaction(transaction, category_map, account_map)
         for transaction in Transactions.query.filter_by(user_id=user_id).order_by(Transactions.date.desc()).all()
     ]
+    summary = _build_transactions_summary(transactions_data)
 
     return render_template(
         "transactions.html",
         transactions_data=transactions_data,
         categories_data=categories,
         accounts_data=accounts,
+        summary=summary,
+        date_range_label=_build_date_range_label(transactions_data),
         initial_filter=initial_filter,
         feedback_status=feedback_status,
         feedback_message=feedback_message,
         username=get_username(),
         userID=user_id,
+        active_page="transactions",
     )

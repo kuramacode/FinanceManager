@@ -5,6 +5,8 @@ import sqlite3
 import sys 
 import os
 
+from app.utils.database import sqlite_db_path
+
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 
@@ -20,7 +22,7 @@ def get_username():
     return current_user.username
 
 def _db_path() -> str: 
-    return Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', '')
+    return sqlite_db_path()
 
 def get_categories_lookup(userId):
     categories = get_categories(userId) # Отримання списку категорій для конкретного користувача

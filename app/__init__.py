@@ -2,16 +2,41 @@ from flask import Flask
 from flask_login import LoginManager
 from app.config import Config
 from app.utils.jinja_filters import color_change, format_date_for_website,category_name, category_emoji, currency_flag, get_difference_percentage, get_difference
+from app.utils.database import (
+    default_sqlite_path,
+    ensure_sqlite_directory,
+    make_test_database_uri,
+    sqlite_path_from_uri,
+)
 from app.utils.main_scripts import get_username
 from app.models import db, User
 import os
 
 login_manager = LoginManager()
 
-def create_app():
+def _configure_database_uri_for_testing(app: Flask) -> None:
+    if not app.config.get("TESTING"):
+        return
+
+    database_uri = str(app.config.get("SQLALCHEMY_DATABASE_URI") or "").strip()
+    try:
+        configured_path = sqlite_path_from_uri(database_uri)
+    except ValueError:
+        return
+
+    if configured_path == default_sqlite_path():
+        app.config["SQLALCHEMY_DATABASE_URI"] = make_test_database_uri()
+
+
+def create_app(config_overrides=None):
     app = Flask(__name__, instance_relative_config=True)
     
     app.config.from_object(Config)
+    if config_overrides:
+        app.config.update(config_overrides)
+
+    _configure_database_uri_for_testing(app)
+
     app.jinja_env.filters['color'] = color_change
     app.jinja_env.filters['format_date'] = format_date_for_website
     app.jinja_env.filters['category_name'] = category_name
@@ -44,8 +69,8 @@ def create_app():
         app.register_blueprint(br)
     
     with app.app_context():
-        if app.config['SQLALCHEMY_DATABASE_URI'].startswith('sqlite:///'):
-            db_path = app.config['SQLALCHEMY_DATABASE_URI'].replace('sqlite:///', '')
+        db_path = ensure_sqlite_directory(app.config['SQLALCHEMY_DATABASE_URI'])
+        if db_path is not None:
             os.makedirs(os.path.dirname(db_path), exist_ok=True)
         db.create_all()
 

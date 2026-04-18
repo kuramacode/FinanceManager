@@ -5,14 +5,19 @@ from werkzeug.security import generate_password_hash
 
 from app import create_app
 from app.models import Budget, BudgetCategory, Categories, User, db
+from tests.test_support import make_test_db_uri
 
 
 class TestBudgetApi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.app = create_app()
-        cls.app.config["TESTING"] = True
-        cls.app.config["SECRET_KEY"] = "test-secret"
+        cls.app = create_app(
+            {
+                "TESTING": True,
+                "SECRET_KEY": "test-secret",
+                "SQLALCHEMY_DATABASE_URI": make_test_db_uri(),
+            }
+        )
         cls.ctx = cls.app.app_context()
         cls.ctx.push()
 
