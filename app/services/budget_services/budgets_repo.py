@@ -4,6 +4,7 @@ from app.utils.main_scripts import _db_path
 
 
 def _parse_db_date(value):
+    """Розбирає вхідні дані у функції `_parse_db_date`."""
     if value is None or value == "":
         return None
     if isinstance(value, datetime):
@@ -16,6 +17,7 @@ def _parse_db_date(value):
 
 
 def _normalize_budget_row(row):
+    """Нормалізує дані у функції `_normalize_budget_row`."""
     budget = dict(row)
     budget["start_date"] = _parse_db_date(budget.get("start_date"))
     budget["end_date"] = _parse_db_date(budget.get("end_date"))
@@ -26,12 +28,14 @@ def _normalize_budget_row(row):
 
 
 def _normalize_category_row(row):
+    """Нормалізує дані у функції `_normalize_category_row`."""
     category = dict(row)
     category["built_in"] = str(category.get("built_in", "")).strip().lower() in {"1", "true"}
     return category
 
 
 def get_user_budgets(user_id):
+    """Повертає дані у функції `get_user_budgets`."""
     with sqlite3.connect(_db_path()) as db:
         db.row_factory = sqlite3.Row
         cur = db.cursor()
@@ -50,6 +54,7 @@ def get_user_budgets(user_id):
 
 
 def get_budget_by_id(budget_id: int, user_id: int):
+    """Повертає дані у функції `get_budget_by_id`."""
     with sqlite3.connect(_db_path()) as db:
         db.row_factory = sqlite3.Row
         cur = db.cursor()
@@ -70,6 +75,7 @@ def get_budget_by_id(budget_id: int, user_id: int):
 
 
 def get_budget_category_ids(budget_id: int) -> list[int]:
+    """Повертає дані у функції `get_budget_category_ids`."""
     with sqlite3.connect(_db_path()) as db:
         db.row_factory = sqlite3.Row
         cur = db.cursor()
@@ -86,6 +92,7 @@ def get_budget_category_ids(budget_id: int) -> list[int]:
 
 
 def get_budget_category_ids_map(budget_ids: list[int]) -> dict[int, list[int]]:
+    """Повертає дані у функції `get_budget_category_ids_map`."""
     if not budget_ids:
         return {}
 
@@ -112,6 +119,7 @@ def get_budget_category_ids_map(budget_ids: list[int]) -> dict[int, list[int]]:
 
 
 def get_budget_categories_map(budget_ids: list[int]) -> dict[int, list[dict]]:
+    """Повертає дані у функції `get_budget_categories_map`."""
     if not budget_ids:
         return {}
 
@@ -141,6 +149,7 @@ def get_budget_categories_map(budget_ids: list[int]) -> dict[int, list[dict]]:
 
 
 def get_budgetable_categories_by_ids(user_id: int, category_ids: list[int]) -> list[dict]:
+    """Повертає дані у функції `get_budgetable_categories_by_ids`."""
     if not category_ids:
         return []
 
@@ -168,6 +177,7 @@ def get_budgetable_categories_by_ids(user_id: int, category_ids: list[int]) -> l
 
 
 def create_budget(user_id, name, desc, amount_limit, currency_code, period_type, start_date, end_date, category_ids):
+    """Створює дані у функції `create_budget`."""
     with sqlite3.connect(_db_path()) as db:
         cur = db.cursor()
 
@@ -204,6 +214,7 @@ def create_budget(user_id, name, desc, amount_limit, currency_code, period_type,
 
 
 def update_budget(budget_id, user_id, name, desc, amount_limit, currency_code, period_type, start_date, end_date, category_ids):
+    """Оновлює дані у функції `update_budget`."""
     with sqlite3.connect(_db_path()) as db:
         cur = db.cursor()
 
@@ -260,6 +271,7 @@ def update_budget(budget_id, user_id, name, desc, amount_limit, currency_code, p
 
 
 def delete_budget(budget_id: int, user_id: int) -> bool:
+    """Видаляє дані у функції `delete_budget`."""
     with sqlite3.connect(_db_path()) as db:
         cur = db.cursor()
 

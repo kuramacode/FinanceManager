@@ -23,15 +23,19 @@ class _AnonymousUser:
 
 class _CurrentUserProxy:
     def __init__(self):
+        """Ініціалізує допоміжний тестовий об’єкт."""
         self._value = _AnonymousUser()
 
     def set(self, user):
+        """Виконує допоміжну тестову дію `_CurrentUserProxy.set`."""
         self._value = user
 
     def __getattr__(self, item):
+        """Виконує допоміжну тестову дію `_CurrentUserProxy.__getattr__`."""
         return getattr(self._value, item)
     
     def __bool__(self):
+        """Виконує допоміжну тестову дію `_CurrentUserProxy.__bool__`."""
         return bool(getattr(self._value, "is_authentificated", False))
     
 current_user = _CurrentUserProxy()
@@ -39,29 +43,37 @@ current_user = _CurrentUserProxy()
 class UserMixin:
     @property
     def is_authenticated(self):
+        """Повертає ознаку автентифікації у тестовому стабі."""
         return True
     
 class LoginManager:
     def __init__(self):
+        """Ініціалізує допоміжний тестовий об’єкт."""
         self.login_view = None
         self._loader = None
     
     def init_app(self, app):
+        """Під’єднує тестовий менеджер до застосунку."""
         self.app = app
     
     def user_loader(self, callback):
+        """Реєструє тестовий обробник завантаження користувача."""
         self._loader = callback
         return callback
 
 def login_user(user):
+    """Імітує вхід користувача у тестовому середовищі."""
     current_user.set(user)
 
 def logout_user(user):
+    """Імітує вихід користувача у тестовому середовищі."""
     current_user.set(_AnonymousUser())
 
 def login_required(func):
+    """Створює тестовий декоратор перевірки авторизації."""
     @wraps(func)
     def wrapper(*args, **kwargs):
+        """Обгортає тестову функцію перевіркою авторизації."""
         if not current_user or not current_user.is_authenticated:
             from flask import abort
 
@@ -88,6 +100,7 @@ from tests.test_support import make_test_db_uri
 class TestAppRoutes(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """Готує спільне тестове оточення для всього класу тестів."""
         cls.app = create_app(
             {
                 "TESTING": True,
@@ -100,15 +113,18 @@ class TestAppRoutes(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """Очищає спільне тестове оточення після завершення класу тестів."""
         cls.ctx.pop()
     
     def setUp(self):
+        """Готує тестове оточення перед виконанням кожного тесту."""
         db.session.remove()
         db.drop_all()
         db.create_all()
         self.client = self.app.test_client()
     
     def _create_user(self, username="alice", email="alice@example.com", password="secret123"):
+        """Створює допоміжні тестові дані у функції `_create_user`."""
         user = User(
             username=username,
             email=email,
@@ -119,12 +135,14 @@ class TestAppRoutes(unittest.TestCase):
         return user
     
     def _login(self, username="alice", password="secret123"):
+        """Виконує тестовий вхід користувача."""
         return self.client.post("/login",
             data={"username": username, "password": password},
             follow_redirects=False,
         )
     
     def test_register_creates_user_and_redirects_to_login(self):
+        """Перевіряє сценарій `register_creates_user_and_redirects_to_login`."""
         response = self.client.post(
             "/register",
             data={
@@ -143,6 +161,7 @@ class TestAppRoutes(unittest.TestCase):
         self.assertIsNotNone(created_user)
 
     def test_login_success_redirects_to_dashboard(self):
+        """Перевіряє сценарій `login_success_redirects_to_dashboard`."""
         self._create_user()
 
         response = self._login()
@@ -151,6 +170,7 @@ class TestAppRoutes(unittest.TestCase):
         self.assertIn("/dashboard", response.headers["Location"])
 
     def test_transactions_post_creates_transaction_record(self):
+        """Перевіряє сценарій `transactions_post_creates_transaction_record`."""
         user = self._create_user()
         category = Categories(name="Food", user_id=user.id, emoji="🍔")
         db.session.add(category)

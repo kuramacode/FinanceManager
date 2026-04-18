@@ -16,11 +16,13 @@ TRANSACTION_TYPES = {"income", "expense", "transfer"}
 
 
 def _normalize_filter(value: str | None) -> str:
+    """Нормалізує дані у функції `_normalize_filter`."""
     value = (value or "all").strip().lower()
     return value if value in {"all", *TRANSACTION_TYPES} else "all"
 
 
 def _redirect_with_feedback(status: str, message: str, filter_value: str | None = None):
+    """Виконує логіку функції `_redirect_with_feedback`."""
     params = {
         "status": status,
         "message": message,
@@ -32,6 +34,7 @@ def _redirect_with_feedback(status: str, message: str, filter_value: str | None 
 
 
 def _load_reference_data(user_id: int):
+    """Завантажує службові дані у функції `_load_reference_data`."""
     categories = category_service.get_categories(user_id)
     accounts = account_service.get_accounts(user_id)
 
@@ -42,6 +45,7 @@ def _load_reference_data(user_id: int):
 
 
 def _normalize_transaction(transaction, category_map: dict[int, dict], account_map: dict[int, dict]):
+    """Нормалізує дані у функції `_normalize_transaction`."""
     category = category_map.get(transaction.category_id, {})
     account = account_map.get(transaction.account_id, {}) if transaction.account_id is not None else {}
     currency_code = (
@@ -67,6 +71,7 @@ def _normalize_transaction(transaction, category_map: dict[int, dict], account_m
 
 
 def _parse_datetime(date_value: str | None, time_value: str | None) -> datetime:
+    """Розбирає вхідні дані у функції `_parse_datetime`."""
     date_value = (date_value or "").strip()
     time_value = (time_value or "").strip()
 
@@ -90,6 +95,7 @@ def _parse_datetime(date_value: str | None, time_value: str | None) -> datetime:
 
 
 def _parse_transaction_payload(user_id: int, form):
+    """Розбирає вхідні дані у функції `_parse_transaction_payload`."""
     categories, accounts, category_map, account_map = _load_reference_data(user_id)
 
     if not categories:
@@ -152,6 +158,7 @@ def _parse_transaction_payload(user_id: int, form):
 
 
 def _build_transactions_summary(transactions_data: list[dict]) -> dict:
+    """Формує службові дані у функції `_build_transactions_summary`."""
     income_total = round(
         sum(transaction["amount"] for transaction in transactions_data if transaction["type"] == "income"),
         2,
@@ -175,6 +182,7 @@ def _build_transactions_summary(transactions_data: list[dict]) -> dict:
 
 
 def _build_date_range_label(transactions_data: list[dict]) -> str:
+    """Формує службові дані у функції `_build_date_range_label`."""
     dates = []
     for transaction in transactions_data:
         if not transaction.get("date"):
@@ -197,6 +205,7 @@ def _build_date_range_label(transactions_data: list[dict]) -> str:
 @_transactions.route("/transactions", methods=["GET", "POST"])
 @login_required
 def transactions():
+    """Обробляє маршрут `transactions`."""
     user_id = get_userid()
 
     if request.method == "POST":

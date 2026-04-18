@@ -3,11 +3,13 @@ from app.utils.main_scripts import _db_path
 
 
 def _is_built_in_db_value(value) -> bool:
+    """Виконує логіку функції `_is_built_in_db_value`."""
     return str(value).strip().lower() in {"1", "true"}
 
 
 class Category_Service:
     def get_categories(self, user_id):
+        """Повертає дані у функції `get_categories`."""
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()
@@ -32,6 +34,7 @@ class Category_Service:
             ]
         
     def create_category(self, user_id, name, desc, emoji, type_):
+        """Створює дані у функції `create_category`."""
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()
@@ -52,6 +55,7 @@ class Category_Service:
                 }
         
     def update_category(self, category_id, user_id, name, desc, emoji, type_):
+        """Оновлює дані у функції `update_category`."""
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()
@@ -84,6 +88,7 @@ class Category_Service:
                 }
             
     def delete_category(self, category_id, user_id):
+        """Видаляє дані у функції `delete_category`."""
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()

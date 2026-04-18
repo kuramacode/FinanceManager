@@ -12,6 +12,7 @@ from config import Config  # Тепер це спрацює!
 
 
 def color_change(type: str) -> str:
+    """Виконує логіку функції `color_change`."""
     if type.lower() == "income":
         return "pos"
     elif type.lower() == "expense":
@@ -20,6 +21,7 @@ def color_change(type: str) -> str:
         return "neutral"
 
 def format_date_for_website(date: str) -> str:
+    """Форматує дані у функції `format_date_for_website`."""
     subdates = date.split(' ')
     date_part, time_part = subdates[0], subdates[1]
 
@@ -32,6 +34,7 @@ def format_date_for_website(date: str) -> str:
 
 
 def category_name(category_id: int, user_id: int) -> str:
+    """Виконує логіку функції `category_name`."""
     db = sqlite3.connect(_db_path())
     cur = db.cursor()
 
@@ -41,6 +44,7 @@ def category_name(category_id: int, user_id: int) -> str:
     return category_name
 
 def category_emoji(category_id: int, user_id: int) -> str:
+    """Виконує логіку функції `category_emoji`."""
     db = sqlite3.connect(_db_path())
     cur = db.cursor()
 
@@ -50,6 +54,7 @@ def category_emoji(category_id: int, user_id: int) -> str:
     return category_emoji
 
 def currency_flag(target_code: str) -> str:
+    """Виконує логіку функції `currency_flag`."""
     with sqlite3.connect(_db_path()) as database:
         database.row_factory = sqlite3.Row
         cur = database.cursor()
@@ -64,6 +69,7 @@ def currency_flag(target_code: str) -> str:
             return flag_fetch[0][0]
         
 def get_difference_percentage(date: datetime, code: str):
+    """Повертає дані у функції `get_difference_percentage`."""
     date = datetime.strptime(date, "%d.%m.%Y")
     yesterday = date - timedelta(days=1)
     
@@ -81,6 +87,7 @@ def get_difference_percentage(date: datetime, code: str):
         
         return difference_percentage
 def get_difference(date):
+    """Повертає дані у функції `get_difference`."""
     date = datetime.strptime(date, "%d.%m.%Y")
     yesterday = date - timedelta(days=1)
     

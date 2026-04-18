@@ -10,6 +10,7 @@ from app.services.budget_services.budgets import BudgetService
 
 class TestBudgetPeriodService(unittest.TestCase):
     def test_custom_period_accepts_string_dates(self):
+        """Перевіряє сценарій `custom_period_accepts_string_dates`."""
         budget = {
             "period_type": "custom",
             "start_date": "2026-04-01",
@@ -24,12 +25,15 @@ class TestBudgetPeriodService(unittest.TestCase):
 
 class TestBudgetStatusService(unittest.TestCase):
     def test_returns_on_track_for_safe_budget_usage(self):
+        """Перевіряє сценарій `returns_on_track_for_safe_budget_usage`."""
         self.assertEqual(get_budget_status(25, 100), "on_track")
 
     def test_returns_warning_when_budget_reaches_80_percent(self):
+        """Перевіряє сценарій `returns_warning_when_budget_reaches_80_percent`."""
         self.assertEqual(get_budget_status(80, 100), "warning")
 
     def test_returns_invalid_for_non_positive_limit(self):
+        """Перевіряє сценарій `returns_invalid_for_non_positive_limit`."""
         self.assertEqual(get_budget_status(10, 0), "invalid")
 
 
@@ -43,6 +47,7 @@ class TestBudgetService(unittest.TestCase):
         mock_get_budget_categories_map,
         mock_sum_transactions,
     ):
+        """Перевіряє сценарій `uses_current_period_for_monthly_budget`."""
         mock_get_user_budgets.return_value = [
             {
                 "id": 1,
@@ -89,6 +94,7 @@ class TestBudgetService(unittest.TestCase):
         mock_get_budget_categories_map,
         mock_sum_transactions,
     ):
+        """Перевіряє сценарій `marks_future_budget_as_inactive_without_querying_transactions`."""
         mock_get_user_budgets.return_value = [
             {
                 "id": 2,
@@ -120,6 +126,7 @@ class TestBudgetService(unittest.TestCase):
         mock_get_budget_categories_map,
         mock_sum_transactions,
     ):
+        """Перевіряє сценарій `conversion_failure_does_not_crash_budget_list`."""
         mock_get_user_budgets.return_value = [
             {
                 "id": 3,
@@ -151,6 +158,7 @@ class TestBudgetService(unittest.TestCase):
         mock_repo_create_budget,
         mock_get_budget,
     ):
+        """Перевіряє сценарій `create_budget_normalizes_payload_before_persisting`."""
         mock_get_budgetable_categories_by_ids.return_value = [
             {"id": 5, "name": "Food", "emoji": "F", "type": "expense", "built_in": False}
         ]

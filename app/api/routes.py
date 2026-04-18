@@ -17,6 +17,7 @@ budget_service = BudgetService()
 
 
 def _json_safe(value):
+    """Виконує логіку функції `_json_safe`."""
     if isinstance(value, (date, datetime)):
         return value.isoformat()
     if isinstance(value, list):
@@ -29,6 +30,7 @@ def _json_safe(value):
 @_api.route("/convert", methods=['GET'])
 @login_required
 def convert():
+    """Конвертує дані у функції `convert`."""
     try:
         base_code = request.args.get("from")
         target_code = request.args.get("to")
@@ -55,6 +57,7 @@ def convert():
 @_api.route('/category', methods=['GET'])
 @login_required
 def get_category():
+    """Повертає дані у функції `get_category`."""
     try:
         user_id = get_userid()
         response = category_service.get_categories(user_id)
@@ -66,6 +69,7 @@ def get_category():
 @_api.route('/category', methods=['POST'])
 @login_required
 def create_category():
+    """Створює дані у функції `create_category`."""
     try:
         user_id = get_userid()
         data = request.get_json()
@@ -90,6 +94,7 @@ def create_category():
 @_api.route('/category/<int:category_id>', methods=['PUT'])
 @login_required
 def update_category(category_id):
+    """Оновлює дані у функції `update_category`."""
     try:
         user_id = get_userid()
         data = request.get_json()
@@ -116,6 +121,7 @@ def update_category(category_id):
 @_api.route('/category/<int:category_id>', methods=['DELETE'])
 @login_required
 def delete_category(category_id):
+    """Видаляє дані у функції `delete_category`."""
     try:
         user_id = get_userid()
         success = category_service.delete_category(category_id, user_id)
@@ -131,6 +137,7 @@ def delete_category(category_id):
 @_api.route('/accounts', methods=['GET'])
 @login_required
 def accounts():
+    """Обробляє маршрут `accounts`."""
     try:
         user_id = get_userid()
         response = account_service.get_accounts(user_id)
@@ -142,6 +149,7 @@ def accounts():
 @_api.route('/accounts', methods=['POST'])
 @login_required
 def create_account():
+    """Створює дані у функції `create_account`."""
     try:
         user_id = get_userid()
         data = request.get_json()
@@ -170,6 +178,7 @@ def create_account():
 @_api.route('/accounts/<int:account_id>', methods=['PUT'])
 @login_required
 def update_account(account_id):
+    """Оновлює дані у функції `update_account`."""
     try:
         user_id = get_userid()
         data = request.get_json()
@@ -202,6 +211,7 @@ def update_account(account_id):
 @_api.route('/accounts/<int:account_id>', methods=['DELETE'])
 @login_required
 def delete_account(account_id):
+    """Видаляє дані у функції `delete_account`."""
     try:
         user_id = get_userid()
         success = account_service.delete_account(account_id, user_id)
@@ -217,6 +227,7 @@ def delete_account(account_id):
 @_api.route('/budgets', methods=['GET'])
 @login_required
 def get_budgets():
+    """Повертає дані у функції `get_budgets`."""
     try:
         user_id = get_userid()
         budgets = budget_service.get_budgets(user_id)
@@ -228,6 +239,7 @@ def get_budgets():
 @_api.route('/budgets', methods=['POST'])
 @login_required
 def create_budget():
+    """Створює дані у функції `create_budget`."""
     try:
         user_id = get_userid()
         data = request.get_json() or {}
@@ -253,6 +265,7 @@ def create_budget():
 @_api.route('/budgets/<int:budget_id>', methods=['PUT'])
 @login_required
 def update_budget(budget_id):
+    """Оновлює дані у функції `update_budget`."""
     try:
         user_id = get_userid()
         data = request.get_json() or {}
@@ -283,6 +296,7 @@ def update_budget(budget_id):
 @_api.route('/budgets/<int:budget_id>', methods=['DELETE'])
 @login_required
 def delete_budget(budget_id):
+    """Видаляє дані у функції `delete_budget`."""
     try:
         user_id = get_userid()
         success = budget_service.delete_budget(budget_id, user_id)

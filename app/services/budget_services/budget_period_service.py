@@ -2,6 +2,7 @@ from datetime import date, datetime, timedelta
 
 
 def _coerce_date(value):
+    """Приводить значення до потрібного типу у функції `_coerce_date`."""
     if value is None or value == "":
         return None
     if isinstance(value, datetime):
@@ -14,10 +15,12 @@ def _coerce_date(value):
 
 
 def _today():
+    """Виконує логіку функції `_today`."""
     return date.today()
 
 
 def get_current_period(budget):
+    """Повертає дані у функції `get_current_period`."""
     today = _today()
 
     start_date = _coerce_date(budget.get("start_date"))

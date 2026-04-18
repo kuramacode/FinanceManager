@@ -6,10 +6,7 @@ load_dotenv()
 BASE_DIR = os.path.abspath(os.path.join(os.path.dirname(__file__), '..'))
 
 def _resolve_db_uri() -> str:
-    """
-    Resolve DB URI with support for both legacy and common env vars.
-    Normalizes relative SQLite paths to a stable absolute path inside /instance.
-    """
+    """Виконує логіку функції `_resolve_db_uri`."""
     raw_uri = (
         os.getenv("SQLALCHEMY_DATABASE_URI")
         or os.getenv("DATABASE_URL")

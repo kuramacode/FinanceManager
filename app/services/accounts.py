@@ -3,6 +3,7 @@ from app.utils.main_scripts import _db_path
 
 class AccountService:
     def get_accounts(self, user_id):
+        """Повертає дані у функції `get_accounts`."""
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()
@@ -18,6 +19,7 @@ class AccountService:
             ]
             
     def create_account(self, user_id, name, initial_balance, status, currency_code, emoji, type, subtitle, note):
+        """Створює дані у функції `create_account`."""
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()
@@ -37,6 +39,7 @@ class AccountService:
             return dict(row)
         
     def update_account(self, id_, user_id, name, balance, status, currency_code, emoji, type, subtitle, note):
+        """Оновлює дані у функції `update_account`."""
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()
@@ -64,6 +67,7 @@ class AccountService:
             return dict(row)
         
     def delete_account(self, id_, user_id):
+        """Видаляє дані у функції `delete_account`."""
         with sqlite3.connect(_db_path()) as db:
             db.row_factory = sqlite3.Row
             cur = db.cursor()

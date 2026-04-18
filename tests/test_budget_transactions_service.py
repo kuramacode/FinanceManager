@@ -8,10 +8,12 @@ from app.services.budget_services import budget_transactions_service
 
 class FakeConverter:
     def __init__(self, rates=None):
+        """Ініціалізує допоміжний тестовий об’єкт."""
         self.calls = []
         self.rates = rates or {}
 
     def convert(self, base_currency: str, target_currency: str, amount: float):
+        """Виконує допоміжну тестову дію `FakeConverter.convert`."""
         self.calls.append((base_currency, target_currency, amount))
         rate = self.rates[(base_currency, target_currency)]
         return {"result": round(amount * rate, 2)}
@@ -19,6 +21,7 @@ class FakeConverter:
 
 class TestBudgetTransactionsService(unittest.TestCase):
     def setUp(self):
+        """Готує тестове оточення перед виконанням кожного тесту."""
         self.temp_dir = os.path.abspath(os.path.join("tests", ".tmp"))
         os.makedirs(self.temp_dir, exist_ok=True)
         self.db_path = os.path.join(self.temp_dir, f"budget-transactions-{uuid.uuid4().hex}.sqlite3")
@@ -42,6 +45,7 @@ class TestBudgetTransactionsService(unittest.TestCase):
             db.commit()
 
     def tearDown(self):
+        """Прибирає тимчасові ресурси після виконання тесту."""
         budget_transactions_service._db_path = self.original_db_path
         if os.path.exists(self.db_path):
             try:
@@ -50,6 +54,7 @@ class TestBudgetTransactionsService(unittest.TestCase):
                 pass
 
     def _insert_transaction(self, *, user_id, amount, currency_code, tx_type, category_id, date):
+        """Додає допоміжні тестові дані у функції `_insert_transaction`."""
         with sqlite3.connect(self.db_path) as db:
             db.execute(
                 """
@@ -61,6 +66,7 @@ class TestBudgetTransactionsService(unittest.TestCase):
             db.commit()
 
     def test_sums_same_currency_transactions_without_conversion(self):
+        """Перевіряє сценарій `sums_same_currency_transactions_without_conversion`."""
         self._insert_transaction(
             user_id=1,
             amount=120.50,
@@ -92,6 +98,7 @@ class TestBudgetTransactionsService(unittest.TestCase):
         self.assertEqual(converter.calls, [])
 
     def test_converts_mixed_currency_transactions_into_budget_currency(self):
+        """Перевіряє сценарій `converts_mixed_currency_transactions_into_budget_currency`."""
         self._insert_transaction(
             user_id=1,
             amount=100.0,
@@ -147,6 +154,7 @@ class TestBudgetTransactionsService(unittest.TestCase):
         self.assertEqual(converter.calls, [("USD", "UAH", 10.0)])
 
     def test_includes_transactions_on_end_date_with_time_component(self):
+        """Перевіряє сценарій `includes_transactions_on_end_date_with_time_component`."""
         self._insert_transaction(
             user_id=1,
             amount=42.0,

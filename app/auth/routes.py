@@ -8,6 +8,7 @@ _auth= Blueprint('auth', __name__)
 
 @_auth.route('/login', methods=['GET', 'POST'])
 def login():
+    """Обробляє маршрут `login`."""
     if request.method == 'POST':
         
         username, password = request.form.get('username'), request.form.get('password')
@@ -24,6 +25,7 @@ def login():
 @_auth.route('/logout', methods=['GET', 'POST'])
 @login_required
 def logout():
+    """Обробляє маршрут `logout`."""
     logout_user()
     return redirect(url_for('auth.login'))
 

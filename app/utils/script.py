@@ -9,6 +9,7 @@ from config import Config  # Тепер це спрацює!
 
 
 def create_table_users():
+    """Створює дані у функції `create_table_users`."""
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, email TEXT, password TEXT)''')
@@ -17,6 +18,7 @@ def create_table_users():
     return "Table created successfully"
 
 def create_table_transactions():
+    """Створює дані у функції `create_table_transactions`."""
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS transactions(id INTEGER PRIMARY KEY, amount FLOAT, date DATETIME,
@@ -26,6 +28,7 @@ def create_table_transactions():
     return "Table created successfully"
 
 def create_table_categories():
+    """Створює дані у функції `create_table_categories`."""
     db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
     cur = db.cursor()
 
@@ -39,6 +42,7 @@ create_table_categories()
 
 
 def insert_transaction(amount, date, description, user_id, category_id, type):
+    """Додає дані у функції `insert_transaction`."""
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
     cur.execute('''INSERT INTO transactions(amount, date, description, user_id, category_id, type) VALUES(?, ?, ?, ?, ?, ?)''', (amount, date, description, user_id, category_id, type))
@@ -46,6 +50,7 @@ def insert_transaction(amount, date, description, user_id, category_id, type):
     db.close()
     return "Transaction inserted successfully"
 def insert_user(username, email, password):
+    """Додає дані у функції `insert_user`."""
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
     cur.execute('''INSERT INTO users(username, email, password) VALUES(?, ?, ?)''', (username, email, password))
@@ -54,6 +59,7 @@ def insert_user(username, email, password):
     return "User inserted successfully"
 
 def insert_categories(name, userId, desc, emoji, built_in, type):
+    """Додає дані у функції `insert_categories`."""
     db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
     cur = db.cursor()
     cur.execute('''INSERT INTO categories(name, user_id, desc, emoji, built_in, type) VALUES(?, ?, ?, ?, ?, ?)''', (name, userId, desc, emoji, built_in, type))
@@ -62,6 +68,7 @@ def insert_categories(name, userId, desc, emoji, built_in, type):
     return "Success"
 
 def get_categories(user_id):
+    """Повертає дані у функції `get_categories`."""
     db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
     cur = db.cursor()
 

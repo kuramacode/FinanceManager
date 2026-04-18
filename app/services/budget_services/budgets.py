@@ -17,6 +17,7 @@ class BudgetService:
     ALLOWED_PERIOD_TYPES = {"custom", "monthly", "weekly"}
 
     def _parse_input_date(self, value, field_name: str, *, required: bool) -> date | None:
+        """Розбирає вхідні дані у функції `_parse_input_date`."""
         if value is None or value == "":
             if required:
                 raise ValueError(f"{field_name} is required")
@@ -35,6 +36,7 @@ class BudgetService:
         raise ValueError(f"{field_name} must be a valid date")
 
     def _normalize_category_ids(self, category_ids) -> list[int]:
+        """Нормалізує дані у функції `_normalize_category_ids`."""
         if not isinstance(category_ids, list):
             raise ValueError("Category IDs must be provided as a list")
 
@@ -68,6 +70,7 @@ class BudgetService:
         end_date,
         category_ids,
     ):
+        """Перевіряє дані у функції `_validate_payload`."""
         name = (name or "").strip()
         if not name:
             raise ValueError("Name is required")
@@ -115,6 +118,7 @@ class BudgetService:
         }
 
     def _build_budget_view(self, user_id, budget, categories):
+        """Формує службові дані у функції `_build_budget_view`."""
         category_ids = [category["id"] for category in categories]
         current_period = get_current_period(budget)
         conversion_error = None
@@ -166,6 +170,7 @@ class BudgetService:
         }
 
     def get_budgets(self, user_id):
+        """Повертає дані у функції `get_budgets`."""
         budgets = get_user_budgets(user_id)
         category_map = get_budget_categories_map([budget["id"] for budget in budgets])
         return [
@@ -174,6 +179,7 @@ class BudgetService:
         ]
 
     def get_budget(self, user_id, budget_id):
+        """Повертає дані у функції `get_budget`."""
         budget = get_budget_by_id(budget_id, user_id)
         if budget is None:
             return None
@@ -182,6 +188,7 @@ class BudgetService:
         return self._build_budget_view(user_id, budget, category_map.get(budget_id, []))
 
     def create_budget(self, user_id, *, name, desc, amount_limit, currency_code, period_type, start_date, end_date, category_ids):
+        """Створює дані у функції `create_budget`."""
         payload = self._validate_payload(
             user_id,
             name=name,
@@ -197,6 +204,7 @@ class BudgetService:
         return self.get_budget(user_id, budget["id"])
 
     def update_budget(self, budget_id, user_id, *, name, desc, amount_limit, currency_code, period_type, start_date, end_date, category_ids):
+        """Оновлює дані у функції `update_budget`."""
         payload = self._validate_payload(
             user_id,
             name=name,
@@ -214,4 +222,5 @@ class BudgetService:
         return self.get_budget(user_id, budget_id)
 
     def delete_budget(self, budget_id, user_id):
+        """Видаляє дані у функції `delete_budget`."""
         return repo_delete_budget(budget_id, user_id)

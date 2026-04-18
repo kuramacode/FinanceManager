@@ -15,6 +15,7 @@ budget_service = BudgetService()
 
 
 def _build_dashboard_insights(balance, income_sum, budgets, transactions):
+    """Формує службові дані у функції `_build_dashboard_insights`."""
     insights = []
 
     if income_sum > 0:
@@ -76,6 +77,7 @@ def _build_dashboard_insights(balance, income_sum, budgets, transactions):
 @_dashboard.route("/dashboard")
 @login_required
 def dashboard():
+    """Обробляє маршрут `dashboard`."""
     user_id = get_userid()
     transactions = get_last_transactions(user_id)
     income_sum = get_sum_income(user_id)

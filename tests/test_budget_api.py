@@ -11,6 +11,7 @@ from tests.test_support import make_test_db_uri
 class TestBudgetApi(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """Готує спільне тестове оточення для всього класу тестів."""
         cls.app = create_app(
             {
                 "TESTING": True,
@@ -23,15 +24,18 @@ class TestBudgetApi(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """Очищає спільне тестове оточення після завершення класу тестів."""
         cls.ctx.pop()
 
     def setUp(self):
+        """Готує тестове оточення перед виконанням кожного тесту."""
         db.session.remove()
         db.drop_all()
         db.create_all()
         self.client = self.app.test_client()
 
     def _create_user(self, username="alice", email="alice@example.com", password="secret123"):
+        """Створює допоміжні тестові дані у функції `_create_user`."""
         user = User(
             username=username,
             email=email,
@@ -42,6 +46,7 @@ class TestBudgetApi(unittest.TestCase):
         return user
 
     def _create_category(self, user_id, name, type_="expense"):
+        """Створює допоміжні тестові дані у функції `_create_category`."""
         category = Categories(
             name=name,
             user_id=user_id,
@@ -54,6 +59,7 @@ class TestBudgetApi(unittest.TestCase):
         return category
 
     def _login(self, username="alice", password="secret123"):
+        """Виконує тестовий вхід користувача."""
         return self.client.post(
             "/login",
             data={"username": username, "password": password},
@@ -61,6 +67,7 @@ class TestBudgetApi(unittest.TestCase):
         )
 
     def test_create_budget_api_returns_computed_budget_payload(self):
+        """Перевіряє сценарій `create_budget_api_returns_computed_budget_payload`."""
         user = self._create_user()
         category = self._create_category(user.id, "Food")
         self._login(user.username, "secret123")
@@ -91,6 +98,7 @@ class TestBudgetApi(unittest.TestCase):
         self.assertEqual(payload["spent"], 0.0)
 
     def test_update_and_delete_budget_api(self):
+        """Перевіряє сценарій `update_and_delete_budget_api`."""
         user = self._create_user()
         first_category = self._create_category(user.id, "Food")
         second_category = self._create_category(user.id, "Dining")
@@ -139,6 +147,7 @@ class TestBudgetApi(unittest.TestCase):
         self.assertEqual(get_response.get_json(), [])
 
     def test_delete_budget_does_not_remove_another_users_links(self):
+        """Перевіряє сценарій `delete_budget_does_not_remove_another_users_links`."""
         owner = self._create_user("owner", "owner@example.com")
         intruder = self._create_user("intruder", "intruder@example.com")
         category = self._create_category(owner.id, "Rent")

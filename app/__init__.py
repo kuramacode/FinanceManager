@@ -15,6 +15,7 @@ import os
 login_manager = LoginManager()
 
 def _configure_database_uri_for_testing(app: Flask) -> None:
+    """Налаштовує тестовий URI бази даних для застосунку."""
     if not app.config.get("TESTING"):
         return
 
@@ -29,6 +30,7 @@ def _configure_database_uri_for_testing(app: Flask) -> None:
 
 
 def create_app(config_overrides=None):
+    """Створює та налаштовує Flask-застосунок."""
     app = Flask(__name__, instance_relative_config=True)
     
     app.config.from_object(Config)
@@ -79,4 +81,5 @@ def create_app(config_overrides=None):
 
 @login_manager.user_loader
 def load_user(user_id):
+    """Завантажує користувача з бази даних для Flask-Login."""
     return db.session.get(User, int(user_id))

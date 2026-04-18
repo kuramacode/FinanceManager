@@ -7,6 +7,7 @@ class BudgetConversionError(RuntimeError):
 
 
 def _build_converter():
+    """Формує службові дані у функції `_build_converter`."""
     from app.cache.rate import RateCache
     from app.services.converter import CurrencyConverter
 
@@ -14,6 +15,7 @@ def _build_converter():
 
 
 def _normalize_query_date(value):
+    """Нормалізує дані у функції `_normalize_query_date`."""
     return value.isoformat() if hasattr(value, "isoformat") else value
 
 
@@ -26,6 +28,7 @@ def sum_transactions_for_budget(
     budget_currency_code: str,
     converter=None,
 ) -> float:
+    """Виконує логіку функції `sum_transactions_for_budget`."""
     if not categories:
         return 0.0
 

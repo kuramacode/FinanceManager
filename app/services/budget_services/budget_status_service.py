@@ -1,4 +1,5 @@
 def get_budget_status(spent, limit_amount):
+    """Повертає дані у функції `get_budget_status`."""
     if limit_amount <= 0:
         return "invalid"
 

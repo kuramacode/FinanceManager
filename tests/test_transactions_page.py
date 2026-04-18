@@ -11,6 +11,7 @@ from tests.test_support import make_test_db_uri
 class TestTransactionsPage(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
+        """Готує спільне тестове оточення для всього класу тестів."""
         cls.app = create_app(
             {
                 "TESTING": True,
@@ -23,15 +24,18 @@ class TestTransactionsPage(unittest.TestCase):
 
     @classmethod
     def tearDownClass(cls):
+        """Очищає спільне тестове оточення після завершення класу тестів."""
         cls.ctx.pop()
 
     def setUp(self):
+        """Готує тестове оточення перед виконанням кожного тесту."""
         db.session.remove()
         db.drop_all()
         db.create_all()
         self.client = self.app.test_client()
 
     def _create_user(self, username="alice", email="alice@example.com", password="secret123"):
+        """Створює допоміжні тестові дані у функції `_create_user`."""
         user = User(
             username=username,
             email=email,
@@ -42,6 +46,7 @@ class TestTransactionsPage(unittest.TestCase):
         return user
 
     def _create_category(self, user_id, name, type_):
+        """Створює допоміжні тестові дані у функції `_create_category`."""
         category = Categories(
             name=name,
             user_id=user_id,
@@ -54,6 +59,7 @@ class TestTransactionsPage(unittest.TestCase):
         return category
 
     def _create_account(self, user_id, name="Cash", currency_code="USD", status="active"):
+        """Створює допоміжні тестові дані у функції `_create_account`."""
         account = Accounts(
             name=name,
             balance=0,
@@ -68,6 +74,7 @@ class TestTransactionsPage(unittest.TestCase):
         return account
 
     def _login(self, username="alice", password="secret123"):
+        """Виконує тестовий вхід користувача."""
         return self.client.post(
             "/login",
             data={"username": username, "password": password},
@@ -75,6 +82,7 @@ class TestTransactionsPage(unittest.TestCase):
         )
 
     def test_get_transactions_page_renders_embedded_transaction_data(self):
+        """Перевіряє сценарій `get_transactions_page_renders_embedded_transaction_data`."""
         user = self._create_user()
         category = self._create_category(user.id, "Food", "expense")
 
@@ -99,6 +107,7 @@ class TestTransactionsPage(unittest.TestCase):
         self.assertIn("Lunch", html)
 
     def test_post_create_transaction_persists_account_and_currency(self):
+        """Перевіряє сценарій `post_create_transaction_persists_account_and_currency`."""
         user = self._create_user()
         category = self._create_category(user.id, "Food", "expense")
         account = self._create_account(user.id, name="Wallet", currency_code="EUR")
@@ -133,6 +142,7 @@ class TestTransactionsPage(unittest.TestCase):
         self.assertEqual(transaction.date, datetime(2026, 4, 17, 13, 45))
 
     def test_post_update_and_delete_transaction(self):
+        """Перевіряє сценарій `post_update_and_delete_transaction`."""
         user = self._create_user()
         expense_category = self._create_category(user.id, "Bills", "expense")
         income_category = self._create_category(user.id, "Salary", "income")

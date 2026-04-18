@@ -6,4 +6,5 @@ _budgets = Blueprint('budgets', __name__)
 @_budgets.route('/budgets', methods=['GET'])
 @login_required
 def budgets():
+    """Обробляє маршрут `budgets`."""
     return render_template('budgets.html')

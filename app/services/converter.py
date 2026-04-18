@@ -2,10 +2,12 @@ from app.clients.nbu_client import fetch_rates
 
 class CurrencyConverter():
     def __init__(self, cache):
+        """Ініціалізує об’єкт у функції `__init__`."""
         self._rates = None
         self._cache = cache
     
     def _load_rates(self):
+        """Завантажує службові дані у функції `_load_rates`."""
         rates = self._cache.get_rates()
         
         if rates:
@@ -18,6 +20,7 @@ class CurrencyConverter():
         self._rates = rates
             
     def convert(self, base_currency: str, target_currency: str, amount: float):
+        """Конвертує дані у функції `convert`."""
         self._load_rates()
         if base_currency not in self._rates:
             raise ValueError(f"Unsupported currency: {base_currency}")

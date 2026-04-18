@@ -8,9 +8,11 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from app.config import Config  # Тепер це спрацює!
 
 def _db_path() -> str: 
+    """Повертає шлях до поточної SQLite-бази даних."""
     return sqlite_db_path()
 
 def get_sum_income(userId):
+    """Повертає суму доходів користувача."""
     with sqlite3.connect(_db_path()) as database: 
         cur = database.cursor()
         cur.execute( # Виконання SQL-запиту для отримання суми доходів (типу 'income') для конкретного користувача, використовуючи COALESCE для обробки випадків, коли сума може бути NULL
@@ -22,6 +24,7 @@ def get_sum_income(userId):
 
 
 def get_sum_expense(userId):
+    """Повертає суму витрат користувача."""
     with sqlite3.connect(_db_path()) as database:
         cur = database.cursor()
         cur.execute(
@@ -32,6 +35,7 @@ def get_sum_expense(userId):
         return abs(cur.fetchone()[0])
 
 def get_last_transactions(userId):
+    """Повертає останні транзакції користувача."""
     with sqlite3.connect(_db_path()) as database:
         database.row_factory = sqlite3.Row
         cur = database.cursor()

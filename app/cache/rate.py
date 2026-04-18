@@ -7,6 +7,7 @@ class RateCache:
     TTL = 14400
     
     def get_rates(self):
+        """Повертає дані у функції `get_rates`."""
         data = _redis.get(self.KEY)
         
         if data:
@@ -15,4 +16,5 @@ class RateCache:
         return None
     
     def set_rates(self, rates: dict):
+        """Виконує логіку функції `set_rates`."""
         _redis.set(self.KEY, json.dumps(rates), ex=self.TTL) 

@@ -7,6 +7,7 @@ _categories = Blueprint('category', __name__)
 @_categories.route('/category', methods=['GET'])
 @login_required
 def category():
+    """Обробляє маршрут `category`."""
     userid = get_userid()
     income_categories = get_income_categories(userid)
     expense_categories = get_expense_categories(userid)
