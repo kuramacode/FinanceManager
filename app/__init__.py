@@ -60,6 +60,7 @@ def create_app(config_overrides=None):
     from app.auth.routes import _auth; blueprints.append(_auth)
     from app.register.routes import _register; blueprints.append(_register)
     from app.content.lead.dashboard import _dashboard; blueprints.append(_dashboard)
+    from app.content.lead.analytics import _analytics; blueprints.append(_analytics)
     from app.content.lead.transactions import _transactions; blueprints.append(_transactions)
     from app.content.money.budgets import _budgets; blueprints.append(_budgets)
     from app.content.money.accounts import _accounts; blueprints.append(_accounts)

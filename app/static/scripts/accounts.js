@@ -73,6 +73,8 @@ function normalizeAccount(account) {
     id:            account?.id,
     name:          account?.name          ?? 'Untitled account',
     balance:       Number(account?.balance ?? 0),
+    initial_balance: Number(account?.initial_balance ?? account?.balance ?? 0),
+    transactions_delta: Number(account?.transactions_delta ?? 0),
     status:        account?.status        ?? 'active',
     currency_code: account?.currency_code ?? 'UAH',
     emoji:         account?.emoji         ?? '💳',
@@ -375,7 +377,7 @@ async function submitAdd() {
 
     if (!name) { alert('Account name is required.'); return; }
 
-    const payload = { name, balance, status, currency_code, emoji, type, subtitle, note };
+    const payload = { name, initial_balance: balance, status, currency_code, emoji, type, subtitle, note };
     const created = await createAccount(payload);
 
     accounts.push(normalizeAccount(created));
@@ -395,7 +397,7 @@ function openEditModal(id) {
   // FIX: was missing type, subtitle, note, emoji
   document.getElementById('edit-id').value       = a.id;
   document.getElementById('edit-name').value     = a.name;
-  document.getElementById('edit-balance').value  = a.balance;
+  document.getElementById('edit-balance').value  = a.initial_balance;
   document.getElementById('edit-currency').value = a.currency_code;
   document.getElementById('edit-status').value   = a.status;
   document.getElementById('edit-type').value     = a.type;
@@ -427,7 +429,7 @@ async function submitEdit() {
     if (!name) { alert('Account name is required.'); return; }
 
     // FIX: was only sending 4 fields — now sends all 8
-    const payload = { name, balance, status, currency_code, emoji, type, subtitle, note };
+    const payload = { name, initial_balance: balance, status, currency_code, emoji, type, subtitle, note };
     const updated = await updateAccount(id, payload);
 
     const index = accounts.findIndex(x => x.id === id);
