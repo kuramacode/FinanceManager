@@ -27,6 +27,7 @@ class Transactions(db.Model):
     type = db.Column(db.String(100), nullable=False) # income, expense, transfer
     account_id = db.Column(db.Integer, db.ForeignKey('accounts.id'), nullable=True) # Визначення стовпця account_id як целого числа, который является внешним ключом, ссылающимся на id в таблице accounts, и допускает null (для транзакций типа transfer)
     currency_code = db.Column(db.String(3), nullable=False, default='UAH')
+
 class Categories(db.Model):
     __tablename__ = "categories"
     id = db.Column(db.Integer, primary_key=True) # Визначення стовпця id як цілого числа, який є первинним ключем
