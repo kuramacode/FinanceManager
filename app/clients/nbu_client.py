@@ -3,6 +3,7 @@ import requests
 nbu_url = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?json"
 
 def fetch_rates():
+    """Отримує дані у функції `fetch_rates`."""
     response = requests.get(nbu_url)
     response.raise_for_status()
     

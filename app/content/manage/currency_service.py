@@ -3,6 +3,7 @@ from app.utils.main_scripts import _db_path
 from datetime import datetime, timedelta
 
 def get_rates(date: str, currencies: list):
+    """Повертає дані у функції `get_rates`."""
     with sqlite3.connect(_db_path()) as database:
         database.row_factory = sqlite3.Row
         cur = database.cursor()
@@ -31,6 +32,7 @@ def get_rates(date: str, currencies: list):
         return cur.fetchall(), date
     
 def get_nows_date():
+    """Повертає дані у функції `get_nows_date`."""
     now = datetime.now()
     return now.strftime("%d.%m.%Y %H:%M:%S")
 

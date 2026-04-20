@@ -2,6 +2,7 @@ import sqlite3
 import requests
 from datetime import datetime
 from app.config import Config
+from app.utils.database import sqlite_db_path
 
 
 FORMAT = "%d.%m.%Y"
@@ -20,7 +21,7 @@ else:
     response = requests.get(url)
     data = response.json()
 
-    db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+    db = sqlite3.connect(sqlite_db_path())
     cur = db.cursor()
 
     for item in data:

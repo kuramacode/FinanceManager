@@ -8,6 +8,7 @@ _register = Blueprint('register', __name__)
 @_register.route('/register', methods=['GET', 'POST'])
 def register(): # Функція-обробник для реєстрації нових користувачів
     # Перевіряє, чи це POST-запит (відправлення заповненої форми реєстрації)
+    """Обробляє маршрут `register`."""
     if request.method == 'POST':
         username, email, password, password_repeat = get_data_for_register()
         hash_password = generate_password_hash(password)# Хешує перший введений пароль для безпечного зберігання у БД

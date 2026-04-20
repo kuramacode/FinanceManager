@@ -9,6 +9,7 @@ from config import Config  # Тепер це спрацює!
 
 
 def create_table_users():
+    """Створює дані у функції `create_table_users`."""
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS users(id INTEGER PRIMARY KEY AUTOINCREMENT, username TEXT, email TEXT, password TEXT)''')
@@ -17,6 +18,7 @@ def create_table_users():
     return "Table created successfully"
 
 def create_table_transactions():
+    """Створює дані у функції `create_table_transactions`."""
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
     cur.execute('''CREATE TABLE IF NOT EXISTS transactions(id INTEGER PRIMARY KEY, amount FLOAT, date DATETIME,
@@ -26,6 +28,7 @@ def create_table_transactions():
     return "Table created successfully"
 
 def create_table_categories():
+    """Створює дані у функції `create_table_categories`."""
     db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
     cur = db.cursor()
 
@@ -39,6 +42,7 @@ create_table_categories()
 
 
 def insert_transaction(amount, date, description, user_id, category_id, type):
+    """Додає дані у функції `insert_transaction`."""
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
     cur.execute('''INSERT INTO transactions(amount, date, description, user_id, category_id, type) VALUES(?, ?, ?, ?, ?, ?)''', (amount, date, description, user_id, category_id, type))
@@ -46,6 +50,7 @@ def insert_transaction(amount, date, description, user_id, category_id, type):
     db.close()
     return "Transaction inserted successfully"
 def insert_user(username, email, password):
+    """Додає дані у функції `insert_user`."""
     db = sqlite3.connect('instance/users.db')
     cur = db.cursor()
     cur.execute('''INSERT INTO users(username, email, password) VALUES(?, ?, ?)''', (username, email, password))
@@ -53,15 +58,17 @@ def insert_user(username, email, password):
     db.close()
     return "User inserted successfully"
 
-def insert_categories(name, userId, emoji):
+def insert_categories(name, userId, desc, emoji, built_in, type):
+    """Додає дані у функції `insert_categories`."""
     db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
     cur = db.cursor()
-    cur.execute('''INSERT INTO categories(name, user_id, emoji) VALUES(?, ?, ?)''', (name, userId, emoji))
+    cur.execute('''INSERT INTO categories(name, user_id, desc, emoji, built_in, type) VALUES(?, ?, ?, ?, ?, ?)''', (name, userId, desc, emoji, built_in, type))
     db.commit()
     db.close()
     return "Success"
 
 def get_categories(user_id):
+    """Повертає дані у функції `get_categories`."""
     db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
     cur = db.cursor()
 
@@ -72,6 +79,7 @@ def get_categories(user_id):
     return categories
 
 db = sqlite3.connect(Config.SQLALCHEMY_DATABASE_URI.replace('sqlite:///', ''))
+db.row_factory = sqlite3.Row
 cur = db.cursor()
 
 users = [
@@ -109,15 +117,55 @@ categorie = {
 }
 
 categories = [
-    {"name": "Salary", "user_id": "5", "emoji": "💸"},
-    {"name": "Groceries / Doctor", "user_id": "5", "emoji": "💊"},
-    {"name": "Entertainment", "user_id": "5", "emoji": "🎉"},
-    {"name": "Dining / Coffee", "user_id": "5", "emoji": "🍵"},
-    {"name": "Education", "user_id": "5", "emoji": "🏫"},
-    {"name": "Electronics", "user_id": "5", "emoji": "💻"},
-    {"name": "Books", "user_id": "5", "emoji": "📖"},
+    {
+        "name": "Clothing",
+        "user_id": "3",
+        "desc": "Clothes, shoes, and accessories",
+        "emoji": "👕",
+        "type": "expense",
+        "built_in": "False"
+    },
+    {
+        "name": "Fuel",
+        "user_id": "3",
+        "desc": "Gasoline or diesel for vehicles",
+        "emoji": "⛽",
+        "type": "expense",
+        "built_in": "False"
+    },
+    {
+        "name": "Fast Food",
+        "user_id": "3",
+        "desc": "Quick meals, street food, takeaways",
+        "emoji": "🍔",
+        "type": "expense",
+        "built_in": "False"
+    },
+    {
+        "name": "Coffee",
+        "user_id": "3",
+        "desc": "Coffee shops and drinks",
+        "emoji": "☕",
+        "type": "expense",
+        "built_in": "False"
+    },
+    {
+        "name": "Taxi",
+        "user_id": "3",
+        "desc": "Ride services and taxis",
+        "emoji": "🚕",
+        "type": "expense",
+        "built_in": "False"
+    },
+    {
+        "name": "Gaming",
+        "user_id": "3",
+        "desc": "Games, in-game purchases, platforms",
+        "emoji": "🎮",
+        "type": "expense",
+        "built_in": "False"
+    }
 ]
-
 
 CURRENCIES = [
   { "code": 'USD', "name": 'US Dollar', "flag": "🇺🇸"      },
@@ -148,7 +196,7 @@ currencies = ['AED', 'BRL',
 
 
 
-import requests
+"""import requests
 
 url = "https://bank.gov.ua/NBUStatService/v1/statdirectory/exchange?date=20260411&json"
 base_code = 'UAH'
@@ -163,4 +211,16 @@ for item in data:
     target_code, rate, date = item.get('cc'), item.get('rate'), item.get('exchangedate')
     cur.execute('''INSERT INTO exchange_rates(base_code, target_code, rate, date, source) VALUES(?, ?, ?, ?, ?)''', (base_code, target_code, rate, date, source))
     db.commit()
-db.close()
+db.close()"""
+db.row_factory = sqlite3.Row
+useri = cur.execute('''
+                    SELECT id FROM users
+                    ''').fetchall()
+ids = []
+
+for user in useri:
+    for item in user:
+        ids.append(item)
+    
+    
+print(ids)

@@ -1,68 +1,699 @@
 {% extends "base.html" %}
 
 {% block head %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard - Ledger</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
 
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ledger — Dashboard</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}">
+  <style>
+    main {
+      flex: 1;
+      padding: 48px 52px;
+      max-width: 1240px;
+    }
 
+    .topbar {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-bottom: 34px;
+    }
+
+    .topbar-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .period-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 9px;
+      padding: 9px 12px;
+      font-size: 0.74rem;
+      color: var(--text);
+    }
+
+    .period-chip svg {
+      width: 13px;
+      height: 13px;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 11px 15px;
+      border-radius: 9px;
+      background: var(--sidebar);
+      color: #fdfaf4;
+      font-family: "Epilogue", sans-serif;
+      font-size: 0.76rem;
+      font-weight: 600;
+      letter-spacing: 0.03em;
+      border: none;
+      cursor: pointer;
+      text-decoration: none;
+      transition: opacity 0.15s, transform 0.15s;
+    }
+
+    .btn-primary:hover {
+      opacity: 0.88;
+      transform: translateY(-1px);
+    }
+
+    .btn-primary svg {
+      width: 12px;
+      height: 12px;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.7fr) minmax(320px, 0.95fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .panel {
+      background: var(--paper);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 18px 20px;
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .panel-title {
+      font-size: 0.67rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      font-weight: 600;
+    }
+
+    .panel-link {
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-decoration: none;
+      transition: color 0.14s;
+    }
+
+    .panel-link:hover {
+      color: var(--text);
+    }
+
+    .hero {
+      background: linear-gradient(135deg, var(--paper), #f7f1e7);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 22px 24px;
+      margin-bottom: 20px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -30px;
+      top: -30px;
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;
+      background: rgba(42, 37, 32, 0.04);
+    }
+
+    .hero-label {
+      font-size: 0.64rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-balance {
+      font-family: "Playfair Display", serif;
+      font-size: 2.4rem;
+      line-height: 1;
+      letter-spacing: -0.03em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-sub {
+      margin-top: 10px;
+      font-size: 0.78rem;
+      color: var(--muted);
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+    }
+
+    .hero-metrics {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-metric {
+      background: rgba(255, 255, 255, 0.5);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px 13px;
+    }
+
+    .hero-metric-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+      font-weight: 600;
+      margin-bottom: 7px;
+    }
+
+    .hero-metric-value {
+      font-size: 0.9rem;
+      font-weight: 600;
+    }
+
+    .hero-metric-value.pos { color: var(--income); }
+    .hero-metric-value.neg { color: var(--expense); }
+
+    .budget-list,
+    .account-list {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .budget-item,
+    .account-item {
+      padding: 13px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .budget-item:last-child,
+    .account-item:last-child {
+      border-bottom: none;
+      padding-bottom: 4px;
+    }
+
+    .budget-top,
+    .account-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+
+    .budget-main,
+    .account-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+    }
+
+    .mini-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 9px;
+      background: var(--tag-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 0.95rem;
+      flex-shrink: 0;
+    }
+
+    .budget-name,
+    .account-name {
+      font-size: 0.82rem;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .budget-sub,
+    .account-sub {
+      font-size: 0.66rem;
+      color: var(--muted);
+      margin-top: 3px;
+    }
+
+    .budget-value,
+    .account-value {
+      font-size: 0.78rem;
+      font-weight: 600;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .budget-progress {
+      height: 8px;
+      border-radius: 999px;
+      background: #ece5d8;
+      overflow: hidden;
+    }
+
+    .budget-progress-bar {
+      height: 100%;
+      border-radius: 999px;
+    }
+
+    .budget-progress-bar.good { background: var(--income); }
+    .budget-progress-bar.warn { background: #c28c2c; }
+    .budget-progress-bar.over { background: var(--expense); }
+
+    .account-badge {
+      display: inline-flex;
+      align-items: center;
+      border: 1px solid var(--border);
+      background: var(--tag-bg);
+      color: var(--muted);
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: 0.6rem;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    .account-badge.active {
+      color: var(--income);
+      background: rgba(58, 122, 80, 0.08);
+      border-color: rgba(58, 122, 80, 0.18);
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    .quick-action {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      text-decoration: none;
+      color: var(--text);
+      transition: transform 0.14s, border-color 0.14s, background 0.14s;
+    }
+
+    .quick-action:hover {
+      transform: translateY(-1px);
+      border-color: var(--muted);
+      background: #f7f1e7;
+    }
+
+    .quick-action-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 9px;
+      background: var(--paper);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 10px;
+    }
+
+    .quick-action-icon svg {
+      width: 14px;
+      height: 14px;
+      color: var(--text);
+    }
+
+    .quick-action-title {
+      font-size: 0.78rem;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+
+    .quick-action-sub {
+      font-size: 0.68rem;
+      color: var(--muted);
+      line-height: 1.35;
+    }
+
+    .insight {
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+      padding: 12px 0 2px;
+      border-top: 1px solid var(--border);
+    }
+
+    .insight:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+
+    .insight-icon {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: var(--tag-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 0.9rem;
+    }
+
+    .insight-title {
+      font-size: 0.77rem;
+      font-weight: 600;
+      margin-bottom: 3px;
+    }
+
+    .insight-text {
+      font-size: 0.69rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+
+    .dashboard-empty {
+      padding: 18px 0 8px;
+      color: var(--muted);
+      font-size: 0.78rem;
+      line-height: 1.5;
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    @media (max-width: 1120px) {
+      .dashboard-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-metrics,
+      .stat-cards {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 760px) {
+      aside {
+        display: none;
+      }
+
+      main {
+        padding: 28px 20px;
+        max-width: 100%;
+      }
+
+      .topbar {
+        align-items: stretch;
+      }
+
+      .topbar-actions {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .hero-metrics,
+      .stat-cards,
+      .quick-actions {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
 {% endblock %}
 
 {% block body %}
-
   <main>
-    <h1 class="page-title">Good <em>morning</em></h1>
-    <p class="page-sub" id="pageDate"></p>
+    <div class="topbar">
+      <div>
+        <h1 class="page-title">Dash<em>board</em></h1>
+        <p class="page-sub">A clean overview of your balances, spending, budgets, and most recent activity.</p>
+      </div>
 
-    <div class="stat-cards">
-      <div class="card green">
-        <div class="card-label">Income</div>
-        <div class="card-value" id="statIncome">${{ income_sum }}</div>
-        <div class="card-sub" id="incomeCount">— transactions</div>
-      </div>
-      <div class="card red">
-        <div class="card-label">Expenses</div>
-        <div class="card-value" id="statExpense">${{ expense_sum }}</div>
-        <div class="card-sub" id="expenseCount">— transactions</div>
-      </div>
-      <div class="card neutral">
-        <div class="card-label">Balance</div>
-        <div class="card-value" id="statBalance">${{ balance }}</div>
-        <div class="card-sub">this month</div>
+      <div class="topbar-actions">
+        <div class="period-chip">
+          <svg viewBox="0 0 15 15" fill="none">
+            <rect x="2" y="3" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+            <path d="M4 1.8v2.4M11 1.8v2.4M2 6h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+          </svg>
+          {{ current_month_label }}
+        </div>
+
+        <a class="btn-primary" href="{{ url_for('transactions.transactions') }}">
+          <svg viewBox="0 0 12 12" fill="none">
+            <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
+          </svg>
+          Add Transaction
+        </a>
       </div>
     </div>
 
-<ul class="tx-list" id="txList">
-      {% for transaction in transactions %}
-      <li class="tx-item" style="animation-delay: 50ms">
-        <div class="tx-icon">{{ categories_lookup.get(transaction.category_id, {}).get('emoji', '📦') }}</div> <!-- Виводимо емодзі категорії або "📦", якщо категорія не знайдена -->
-        <div class="tx-body">
-          <div class="tx-name">{{ transaction.description or  '—' }}</div>
-          <div class="tx-meta">
-            <span class="tx-date">{{ transaction.date | format_date }}</span>
-            <span class="tx-cat">{{ categories_lookup.get(transaction.category_id, {}).get('name', 'Unknown') }}</span> <!-- Виводимо назву категорії або "Unknown", якщо категорія не знайдена -->
-          </div>
-        </div>
-        <div class="tx-amount {{ transaction.type | color }}">  
-        {% if transaction.type == "income" %} 
-          +${{ '%.2f' | format(transaction.amount)}}
-        {% elif transaction.type == "expense" %}  
-          -${{ '%.2f' | format(transaction.amount)}}
-        {% else %}
-           ${{ '%.2f' | format(-transaction.amount)}}
-        {% endif %}
-        </div>
-      </li>
-      {% endfor %}
-    </ul>
-  </main>
+    <section class="hero">
+      <div class="hero-label">Current Net Result</div>
+      <div class="hero-balance">
+        {% if balance >= 0 %}+{% endif %}${{ "%.2f"|format(balance) }}
+      </div>
+      <div class="hero-sub">
+        This view is built from your recorded income and expenses, so you can spot momentum quickly and jump into the areas that need attention.
+      </div>
 
-  <script src="{{ url_for('static', filename='scripts/data.js') }}"></script>
-  <script>
-    document.getElementById('pageDate').textContent =
-      new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
-  </script>
+      <div class="hero-metrics">
+        <div class="hero-metric">
+          <div class="hero-metric-label">Total Income</div>
+          <div class="hero-metric-value pos">+${{ "%.2f"|format(income_sum) }}</div>
+        </div>
+        <div class="hero-metric">
+          <div class="hero-metric-label">Total Expenses</div>
+          <div class="hero-metric-value neg">-${{ "%.2f"|format(expense_sum) }}</div>
+        </div>
+        <div class="hero-metric">
+          <div class="hero-metric-label">Savings Rate</div>
+          <div class="hero-metric-value">{{ savings_rate }}%</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="stat-cards">
+      <div class="card green">
+        <div class="card-label">Recent Records</div>
+        <div class="card-value">{{ transactions|length }}</div>
+        <div class="card-sub">Last transactions on the dashboard</div>
+      </div>
+
+      <div class="card neutral">
+        <div class="card-label">Accounts</div>
+        <div class="card-value">{{ accounts|length }}</div>
+        <div class="card-sub">Tracked balances and wallets</div>
+      </div>
+
+      <div class="card red">
+        <div class="card-label">Active Budgets</div>
+        <div class="card-value">{{ active_budgets|length }}</div>
+        <div class="card-sub">{{ budgets|length }} total budgets configured</div>
+      </div>
+    </section>
+
+    <section class="dashboard-grid">
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Recent Transactions</div>
+            <a href="{{ url_for('transactions.transactions') }}" class="panel-link">View all</a>
+          </div>
+
+          {% if transactions %}
+            <ul class="tx-list">
+              {% for transaction in transactions %}
+                <li class="tx-item">
+                  <div class="tx-icon">{{ categories_lookup.get(transaction.category_id, {}).get('emoji', '#') }}</div>
+                  <div class="tx-body">
+                    <div class="tx-name">{{ transaction.description or 'Untitled transaction' }}</div>
+                    <div class="tx-meta">
+                      <span class="tx-date">{{ transaction.date | format_date }}</span>
+                      <span class="tx-cat">{{ categories_lookup.get(transaction.category_id, {}).get('name', 'Unknown') }}</span>
+                    </div>
+                  </div>
+                  <div class="tx-amount {{ transaction.type | color }}">
+                    {% if transaction.type == "income" %}
+                      +${{ "%.2f"|format(transaction.amount) }}
+                    {% elif transaction.type == "expense" %}
+                      -${{ "%.2f"|format(transaction.amount) }}
+                    {% else %}
+                      ${{ "%.2f"|format(transaction.amount) }}
+                    {% endif %}
+                  </div>
+                </li>
+              {% endfor %}
+            </ul>
+          {% else %}
+            <div class="dashboard-empty">No transactions yet. Add your first record to start filling this overview.</div>
+          {% endif %}
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Budget Snapshot</div>
+            <a href="{{ url_for('budgets.budgets') }}" class="panel-link">Manage budgets</a>
+          </div>
+
+          {% if budgets %}
+            <div class="budget-list">
+              {% for budget in budgets[:3] %}
+                <div class="budget-item">
+                  <div class="budget-top">
+                    <div class="budget-main">
+                      <div class="mini-icon">{{ budget.icon }}</div>
+                      <div>
+                        <div class="budget-name">{{ budget.name }}</div>
+                        <div class="budget-sub">{{ "%.2f"|format(budget.spent) }} of {{ "%.2f"|format(budget.amount_limit) }} {{ budget.currency_code }}</div>
+                      </div>
+                    </div>
+                    <div class="budget-value">{{ budget.percent|round|int }}%</div>
+                  </div>
+                  <div class="budget-progress">
+                    <div class="budget-progress-bar {% if budget.status == 'exceeded' %}over{% elif budget.status == 'warning' %}warn{% else %}good{% endif %}" style="width: {{ [budget.percent, 100]|min }}%;"></div>
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="dashboard-empty">No budgets configured yet. Create one to monitor category spending from this page.</div>
+          {% endif %}
+        </section>
+      </div>
+
+      <div class="stack">
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Accounts</div>
+            <a href="{{ url_for('accounts.accounts') }}" class="panel-link">View accounts</a>
+          </div>
+
+          {% if accounts %}
+            <div class="account-list">
+              {% for account in accounts[:3] %}
+                <div class="account-item">
+                  <div class="account-top">
+                    <div class="account-main">
+                      <div class="mini-icon">{{ account.emoji or "#" }}</div>
+                      <div>
+                        <div class="account-name">{{ account.name }}</div>
+                        <div class="account-sub">{{ account.currency_code }}{% if account.subtitle %} • {{ account.subtitle }}{% endif %}</div>
+                      </div>
+                    </div>
+                    <div class="account-value">{{ "%.2f"|format(account.balance or 0) }} {{ account.currency_code }}</div>
+                  </div>
+                  <span class="account-badge {% if account.status == 'active' %}active{% endif %}">{{ account.status or 'unknown' }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="dashboard-empty">No accounts yet. Add a cash, bank, or card account to track balances here.</div>
+          {% endif %}
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Quick Actions</div>
+          </div>
+
+          <div class="quick-actions">
+            <a href="{{ url_for('transactions.transactions') }}" class="quick-action">
+              <div class="quick-action-icon">
+                <svg viewBox="0 0 12 12" fill="none">
+                  <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                </svg>
+              </div>
+              <div class="quick-action-title">Add transaction</div>
+              <div class="quick-action-sub">Create a new income, expense, or transfer entry.</div>
+            </a>
+
+            <a href="{{ url_for('budgets.budgets') }}" class="quick-action">
+              <div class="quick-action-icon">
+                <svg viewBox="0 0 15 15" fill="none">
+                  <path d="M2 12L7.5 3 13 12H2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
+                </svg>
+              </div>
+              <div class="quick-action-title">Create budget</div>
+              <div class="quick-action-sub">Set limits and keep category spending visible.</div>
+            </a>
+
+            <a href="{{ url_for('accounts.accounts') }}" class="quick-action">
+              <div class="quick-action-icon">
+                <svg viewBox="0 0 15 15" fill="none">
+                  <rect x="1" y="3" width="13" height="9" rx="1.8" stroke="currentColor" stroke-width="1.4" />
+                  <path d="M1 6h13" stroke="currentColor" stroke-width="1.4" />
+                </svg>
+              </div>
+              <div class="quick-action-title">Add account</div>
+              <div class="quick-action-sub">Track balances across cash, banks, and cards.</div>
+            </a>
+
+            <a href="{{ url_for('category.category') }}" class="quick-action">
+              <div class="quick-action-icon">
+                <svg viewBox="0 0 15 15" fill="none">
+                  <circle cx="4.5" cy="4.5" r="3" stroke="currentColor" stroke-width="1.4" />
+                  <circle cx="10.5" cy="10.5" r="3" stroke="currentColor" stroke-width="1.4" />
+                  <circle cx="10.5" cy="4.5" r="3" stroke="currentColor" stroke-width="1.4" opacity=".45" />
+                  <circle cx="4.5" cy="10.5" r="3" stroke="currentColor" stroke-width="1.4" opacity=".45" />
+                </svg>
+              </div>
+              <div class="quick-action-title">Manage categories</div>
+              <div class="quick-action-sub">Keep income and expense groups organized.</div>
+            </a>
+          </div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-head">
+            <div class="panel-title">Insights</div>
+          </div>
+
+          {% if dashboard_insights %}
+            {% for insight in dashboard_insights %}
+              <div class="insight">
+                <div class="insight-icon">{{ insight.icon }}</div>
+                <div>
+                  <div class="insight-title">{{ insight.title }}</div>
+                  <div class="insight-text">{{ insight.text }}</div>
+                </div>
+              </div>
+            {% endfor %}
+          {% else %}
+            <div class="dashboard-empty">Insights will appear here once you have transactions, budgets, or account activity to analyze.</div>
+          {% endif %}
+        </section>
+      </div>
+    </section>
+  </main>
 {% endblock %}
