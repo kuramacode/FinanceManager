@@ -1,6 +1,8 @@
 from sqlalchemy import and_, func
 
-from app.models import Accounts, Transactions, db
+from app.models import db
+from app.models.accounts import Accounts
+from app.models.transactions import Transactions
 from app.services.account_balance_service import AccountBalanceService
 
 

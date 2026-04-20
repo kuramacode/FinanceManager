@@ -1,4 +1,4 @@
-from app.models import db
+from . import db
 
 class Currency(db.Model):
     __tablename__ = 'currencies'

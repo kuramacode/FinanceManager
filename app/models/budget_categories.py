@@ -1,4 +1,4 @@
-from app.models import db
+from . import db
 
 class BudgetCategory(db.Model):
     __tablename__ = "budget_categories"

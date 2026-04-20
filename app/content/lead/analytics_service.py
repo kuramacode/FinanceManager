@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from datetime import date, datetime
 
-from app.models import Transactions
+from app.models.transactions import Transactions
 from app.services.accounts import AccountService
 from app.services.budget_services.budgets import BudgetService
 from app.services.category import Category_Service

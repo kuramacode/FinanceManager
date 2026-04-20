@@ -1,4 +1,4 @@
-from app.models import db
+from . import db
 from flask_login import UserMixin
 
 class User(UserMixin, db.Model): # Створення моделі користувача, яка наслідує UserMixin для інтеграції з Flask-Login

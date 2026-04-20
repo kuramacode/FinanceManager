@@ -3,7 +3,8 @@ from datetime import datetime
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import login_required
 
-from app.models import Transactions, db
+from app.models import db
+from app.models.transactions import Transactions
 from app.services.accounts import AccountService
 from app.services.category import Category_Service
 from app.utils.main_scripts import get_userid, get_username

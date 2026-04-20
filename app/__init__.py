@@ -9,7 +9,8 @@ from app.utils.database import (
     sqlite_path_from_uri,
 )
 from app.utils.main_scripts import get_username
-from app.models import db, User
+from app.models import db
+from app.models.user import User
 import os
 
 login_manager = LoginManager()
