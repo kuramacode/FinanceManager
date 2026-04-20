@@ -2,11 +2,23 @@ from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 
-from app.models.accounts import Accounts
-from app.models.budget_categories import BudgetCategory
-from app.models.budgets import Budget
-from app.models.categories import Categories
-from app.models.currencies import Currency
-from app.models.exchange_rates import ExchangeRate
-from app.models.transactions import Transactions
-from app.models.user import User
+from .accounts import Accounts
+from .budget_categories import BudgetCategory
+from .budgets import Budget
+from .categories import Categories
+from .currencies import Currency
+from .exchange_rates import ExchangeRate
+from .transactions import Transactions
+from .user import User
+
+__all__ = [
+    "db",
+    "Accounts",
+    "Budget",
+    "BudgetCategory",
+    "Categories",
+    "Currency",
+    "ExchangeRate",
+    "Transactions",
+    "User",
+]

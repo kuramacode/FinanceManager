@@ -1,5 +1,5 @@
 from flask import Blueprint, request, redirect, url_for, render_template
-from ..models import *
+from app.models import User, db
 from werkzeug.security import generate_password_hash
 from ..utils.main_scripts import get_data_for_register
 

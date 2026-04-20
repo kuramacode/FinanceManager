@@ -1,4 +1,4 @@
-from app.models.__init__ import db
+from app.models import db
 
 class ExchangeRate(db.Model):
     __tablename__ = 'exchange_rates'
