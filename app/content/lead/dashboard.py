@@ -63,11 +63,15 @@ def _build_dashboard_insights(balance, income_sum, budgets, transactions):
     expense_transactions = [tx for tx in transactions if (tx["type"] or "").lower() == "expense"]
     if expense_transactions:
         largest_expense = max(expense_transactions, key=lambda tx: abs(float(tx["amount"] or 0)))
+        largest_expense_currency = (largest_expense["currency_code"] or "UAH").upper()
         insights.append(
             {
-                "icon": "$",
+                "icon": "\u20b4" if largest_expense_currency == "UAH" else largest_expense_currency,
                 "title": "Largest recent expense",
-                "text": f"{largest_expense['description'] or 'Recent expense'} for {abs(float(largest_expense['amount'] or 0)):.2f}.",
+                "text": (
+                    f"{largest_expense['description'] or 'Recent expense'} for "
+                    f"{abs(float(largest_expense['amount'] or 0)):.2f} {largest_expense_currency}."
+                ),
             }
         )
 
@@ -98,6 +102,7 @@ def dashboard():
         income_sum=income_sum,
         expense_sum=expense_sum,
         balance=balance,
+        dashboard_currency="UAH",
         userID=user_id,
         categories_lookup=categories_lookup,
         accounts=accounts,

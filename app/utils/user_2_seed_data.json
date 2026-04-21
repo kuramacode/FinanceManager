@@ -1,0 +1,690 @@
+{
+  "metadata": {
+    "description": "Seed data for user_id 2 based on the app SQLAlchemy models.",
+    "user_id": 2,
+    "currency_code": "UAH",
+    "transaction_count": 40
+  },
+  "accounts": [
+    {
+      "id": 201,
+      "name": "PrivatBank Card",
+      "balance": 12500.0,
+      "status": "active",
+      "currency_code": "UAH",
+      "emoji": "\ud83d\udcb3",
+      "type": "card",
+      "subtitle": "Main daily spending card",
+      "note": "Used for salary, bills, groceries, and online payments.",
+      "user_id": 2
+    },
+    {
+      "id": 202,
+      "name": "Cash Wallet",
+      "balance": 4200.0,
+      "status": "active",
+      "currency_code": "UAH",
+      "emoji": "\ud83d\udcb5",
+      "type": "cash",
+      "subtitle": "Cash for small local purchases",
+      "note": "Used mostly for transport, cafes, and market purchases.",
+      "user_id": 2
+    }
+  ],
+  "categories": [
+    {
+      "id": 201,
+      "name": "Salary",
+      "desc": "Primary monthly salary payments.",
+      "user_id": 2,
+      "emoji": "\ud83d\udcbc",
+      "built_in": false,
+      "type": "income"
+    },
+    {
+      "id": 202,
+      "name": "Freelance",
+      "desc": "Side projects and contract work.",
+      "user_id": 2,
+      "emoji": "\ud83d\udcbb",
+      "built_in": false,
+      "type": "income"
+    },
+    {
+      "id": 203,
+      "name": "Gift",
+      "desc": "Gifts, refunds, and occasional incoming money.",
+      "user_id": 2,
+      "emoji": "\ud83c\udf81",
+      "built_in": false,
+      "type": "income"
+    },
+    {
+      "id": 204,
+      "name": "Groceries",
+      "desc": "Supermarkets, markets, and household food.",
+      "user_id": 2,
+      "emoji": "\ud83d\uded2",
+      "built_in": false,
+      "type": "expense"
+    },
+    {
+      "id": 205,
+      "name": "Transport",
+      "desc": "Taxi, metro, bus, fuel, and ride services.",
+      "user_id": 2,
+      "emoji": "\ud83d\ude95",
+      "built_in": false,
+      "type": "expense"
+    },
+    {
+      "id": 206,
+      "name": "Rent",
+      "desc": "Monthly apartment rent.",
+      "user_id": 2,
+      "emoji": "\ud83c\udfe0",
+      "built_in": false,
+      "type": "expense"
+    },
+    {
+      "id": 207,
+      "name": "Utilities",
+      "desc": "Electricity, water, heating, internet, and mobile service.",
+      "user_id": 2,
+      "emoji": "\ud83d\udca1",
+      "built_in": false,
+      "type": "expense"
+    },
+    {
+      "id": 208,
+      "name": "Dining",
+      "desc": "Restaurants, cafes, delivery, and coffee.",
+      "user_id": 2,
+      "emoji": "\ud83c\udf7d\ufe0f",
+      "built_in": false,
+      "type": "expense"
+    },
+    {
+      "id": 209,
+      "name": "Entertainment",
+      "desc": "Movies, concerts, games, and subscriptions.",
+      "user_id": 2,
+      "emoji": "\ud83c\udfac",
+      "built_in": false,
+      "type": "expense"
+    },
+    {
+      "id": 210,
+      "name": "Health",
+      "desc": "Medicine, doctor visits, and fitness.",
+      "user_id": 2,
+      "emoji": "\ud83d\udc8a",
+      "built_in": false,
+      "type": "expense"
+    },
+    {
+      "id": 211,
+      "name": "Shopping",
+      "desc": "Clothes, electronics, personal items, and home goods.",
+      "user_id": 2,
+      "emoji": "\ud83d\udecd\ufe0f",
+      "built_in": false,
+      "type": "expense"
+    },
+    {
+      "id": 212,
+      "name": "Education",
+      "desc": "Courses, books, tools, and learning subscriptions.",
+      "user_id": 2,
+      "emoji": "\ud83d\udcda",
+      "built_in": false,
+      "type": "expense"
+    }
+  ],
+  "budgets": [
+    {
+      "id": 201,
+      "user_id": 2,
+      "name": "Food Budget",
+      "desc": "Groceries plus dining for the current month.",
+      "amount_limit": 14000.0,
+      "currency_code": "UAH",
+      "period_type": "monthly",
+      "start_date": "2026-04-01",
+      "end_date": "2026-04-30"
+    },
+    {
+      "id": 202,
+      "user_id": 2,
+      "name": "Transport Budget",
+      "desc": "Public transport, taxi, and ride services.",
+      "amount_limit": 4500.0,
+      "currency_code": "UAH",
+      "period_type": "monthly",
+      "start_date": "2026-04-01",
+      "end_date": "2026-04-30"
+    },
+    {
+      "id": 203,
+      "user_id": 2,
+      "name": "Home Budget",
+      "desc": "Rent and utilities.",
+      "amount_limit": 23000.0,
+      "currency_code": "UAH",
+      "period_type": "monthly",
+      "start_date": "2026-04-01",
+      "end_date": "2026-04-30"
+    },
+    {
+      "id": 204,
+      "user_id": 2,
+      "name": "Lifestyle Budget",
+      "desc": "Entertainment, shopping, and health spending.",
+      "amount_limit": 11000.0,
+      "currency_code": "UAH",
+      "period_type": "monthly",
+      "start_date": "2026-04-01",
+      "end_date": "2026-04-30"
+    },
+    {
+      "id": 205,
+      "user_id": 2,
+      "name": "Learning Budget",
+      "desc": "Courses, books, and professional tools.",
+      "amount_limit": 3500.0,
+      "currency_code": "UAH",
+      "period_type": "monthly",
+      "start_date": "2026-04-01",
+      "end_date": "2026-04-30"
+    }
+  ],
+  "budget_categories": [
+    {
+      "id": 201,
+      "budget_id": 201,
+      "category_id": 204
+    },
+    {
+      "id": 202,
+      "budget_id": 201,
+      "category_id": 208
+    },
+    {
+      "id": 203,
+      "budget_id": 202,
+      "category_id": 205
+    },
+    {
+      "id": 204,
+      "budget_id": 203,
+      "category_id": 206
+    },
+    {
+      "id": 205,
+      "budget_id": 203,
+      "category_id": 207
+    },
+    {
+      "id": 206,
+      "budget_id": 204,
+      "category_id": 209
+    },
+    {
+      "id": 207,
+      "budget_id": 204,
+      "category_id": 210
+    },
+    {
+      "id": 208,
+      "budget_id": 204,
+      "category_id": 211
+    },
+    {
+      "id": 209,
+      "budget_id": 205,
+      "category_id": 212
+    }
+  ],
+  "transactions": [
+    {
+      "id": 2001,
+      "amount": 45000.0,
+      "date": "2026-04-01 09:00:00",
+      "description": "Monthly salary",
+      "user_id": 2,
+      "category_id": 201,
+      "type": "income",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2002,
+      "amount": 2500.0,
+      "date": "2026-04-02 18:30:00",
+      "description": "Landing page freelance task",
+      "user_id": 2,
+      "category_id": 202,
+      "type": "income",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2003,
+      "amount": 800.0,
+      "date": "2026-04-07 12:10:00",
+      "description": "Birthday gift",
+      "user_id": 2,
+      "category_id": 203,
+      "type": "income",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2004,
+      "amount": 4200.0,
+      "date": "2026-04-16 15:45:00",
+      "description": "Freelance bug fixes",
+      "user_id": 2,
+      "category_id": 202,
+      "type": "income",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2005,
+      "amount": 1870.55,
+      "date": "2026-04-01 19:20:00",
+      "description": "Silpo weekly groceries",
+      "user_id": 2,
+      "category_id": 204,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2006,
+      "amount": 135.0,
+      "date": "2026-04-02 08:15:00",
+      "description": "Metro and tram tickets",
+      "user_id": 2,
+      "category_id": 205,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2007,
+      "amount": 18000.0,
+      "date": "2026-04-03 10:00:00",
+      "description": "Apartment rent",
+      "user_id": 2,
+      "category_id": 206,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2008,
+      "amount": 1450.75,
+      "date": "2026-04-03 12:30:00",
+      "description": "Electricity and water",
+      "user_id": 2,
+      "category_id": 207,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2009,
+      "amount": 320.0,
+      "date": "2026-04-03 18:45:00",
+      "description": "Coffee with teammate",
+      "user_id": 2,
+      "category_id": 208,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2010,
+      "amount": 520.0,
+      "date": "2026-04-04 20:10:00",
+      "description": "Cinema tickets",
+      "user_id": 2,
+      "category_id": 209,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2011,
+      "amount": 680.0,
+      "date": "2026-04-05 11:40:00",
+      "description": "Pharmacy",
+      "user_id": 2,
+      "category_id": 210,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2012,
+      "amount": 2390.0,
+      "date": "2026-04-05 16:25:00",
+      "description": "New sneakers",
+      "user_id": 2,
+      "category_id": 211,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2013,
+      "amount": 1200.0,
+      "date": "2026-04-06 09:50:00",
+      "description": "Online course subscription",
+      "user_id": 2,
+      "category_id": 212,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2014,
+      "amount": 960.4,
+      "date": "2026-04-06 19:10:00",
+      "description": "ATB groceries",
+      "user_id": 2,
+      "category_id": 204,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2015,
+      "amount": 280.0,
+      "date": "2026-04-07 08:05:00",
+      "description": "Taxi to client meeting",
+      "user_id": 2,
+      "category_id": 205,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2016,
+      "amount": 410.0,
+      "date": "2026-04-07 13:30:00",
+      "description": "Lunch near office",
+      "user_id": 2,
+      "category_id": 208,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2017,
+      "amount": 299.0,
+      "date": "2026-04-08 21:00:00",
+      "description": "Streaming subscription",
+      "user_id": 2,
+      "category_id": 209,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2018,
+      "amount": 780.0,
+      "date": "2026-04-09 18:00:00",
+      "description": "Doctor consultation",
+      "user_id": 2,
+      "category_id": 210,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2019,
+      "amount": 1640.25,
+      "date": "2026-04-10 17:35:00",
+      "description": "Weekly grocery refill",
+      "user_id": 2,
+      "category_id": 204,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2020,
+      "amount": 95.0,
+      "date": "2026-04-10 19:10:00",
+      "description": "Bus tickets",
+      "user_id": 2,
+      "category_id": 205,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2021,
+      "amount": 1150.0,
+      "date": "2026-04-11 14:20:00",
+      "description": "Dinner with friends",
+      "user_id": 2,
+      "category_id": 208,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2022,
+      "amount": 740.0,
+      "date": "2026-04-12 15:00:00",
+      "description": "Board game night",
+      "user_id": 2,
+      "category_id": 209,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2023,
+      "amount": 2150.0,
+      "date": "2026-04-12 16:10:00",
+      "description": "Clothes and basics",
+      "user_id": 2,
+      "category_id": 211,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2024,
+      "amount": 350.0,
+      "date": "2026-04-13 08:30:00",
+      "description": "Taxi after rain",
+      "user_id": 2,
+      "category_id": 205,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2025,
+      "amount": 890.0,
+      "date": "2026-04-13 19:00:00",
+      "description": "Book order",
+      "user_id": 2,
+      "category_id": 212,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2026,
+      "amount": 1180.9,
+      "date": "2026-04-14 18:40:00",
+      "description": "Groceries after work",
+      "user_id": 2,
+      "category_id": 204,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2027,
+      "amount": 520.0,
+      "date": "2026-04-14 20:15:00",
+      "description": "Pizza delivery",
+      "user_id": 2,
+      "category_id": 208,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2028,
+      "amount": 620.0,
+      "date": "2026-04-15 12:00:00",
+      "description": "Mobile and internet",
+      "user_id": 2,
+      "category_id": 207,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2029,
+      "amount": 230.0,
+      "date": "2026-04-15 18:05:00",
+      "description": "Gym day pass",
+      "user_id": 2,
+      "category_id": 210,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2030,
+      "amount": 1340.0,
+      "date": "2026-04-16 19:30:00",
+      "description": "Household items",
+      "user_id": 2,
+      "category_id": 211,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2031,
+      "amount": 1485.7,
+      "date": "2026-04-17 18:15:00",
+      "description": "Varus groceries",
+      "user_id": 2,
+      "category_id": 204,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2032,
+      "amount": 170.0,
+      "date": "2026-04-17 23:05:00",
+      "description": "Late taxi home",
+      "user_id": 2,
+      "category_id": 205,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2033,
+      "amount": 430.0,
+      "date": "2026-04-18 10:20:00",
+      "description": "Breakfast cafe",
+      "user_id": 2,
+      "category_id": 208,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2034,
+      "amount": 360.0,
+      "date": "2026-04-18 19:40:00",
+      "description": "Concert ticket fee",
+      "user_id": 2,
+      "category_id": 209,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2035,
+      "amount": 990.0,
+      "date": "2026-04-19 13:10:00",
+      "description": "Skincare and vitamins",
+      "user_id": 2,
+      "category_id": 210,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2036,
+      "amount": 760.0,
+      "date": "2026-04-19 17:25:00",
+      "description": "USB-C hub",
+      "user_id": 2,
+      "category_id": 211,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2037,
+      "amount": 2100.0,
+      "date": "2026-04-20 09:30:00",
+      "description": "Professional workshop",
+      "user_id": 2,
+      "category_id": 212,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2038,
+      "amount": 1265.35,
+      "date": "2026-04-20 18:50:00",
+      "description": "Groceries for the week",
+      "user_id": 2,
+      "category_id": 204,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2039,
+      "amount": 240.0,
+      "date": "2026-04-21 08:20:00",
+      "description": "Morning taxi",
+      "user_id": 2,
+      "category_id": 205,
+      "type": "expense",
+      "account_id": 201,
+      "currency_code": "UAH"
+    },
+    {
+      "id": 2040,
+      "amount": 390.0,
+      "date": "2026-04-21 13:15:00",
+      "description": "Lunch and coffee",
+      "user_id": 2,
+      "category_id": 208,
+      "type": "expense",
+      "account_id": 202,
+      "currency_code": "UAH"
+    }
+  ]
+}

@@ -7,7 +7,7 @@ from pydantic import ValidationError
 
 from app.ai.clients import OpenRouterClient
 from app.ai.context import build_expense_analysis_context
-from app.ai.exceptions import AIResponseFormatError
+from app.ai.exceptions import AIError, AIResponseFormatError
 from app.ai.prompts import BASE_PROMPT, EXPENSE_ANALYSIS_PROMPT
 from app.ai.schemas.analysis import (
     ExpenseAnalysisInputSchema,
@@ -44,7 +44,7 @@ def _safe_parse_json(raw_text: str) -> Dict[str, Any]:
     
 class AnalyzeExpensesUseCase:
     def __init__(self, client: OpenRouterClient | None = None) -> None:
-        self.client = client or OpenRouterClient()
+        self.client = client
         
     def execute(
         self,
@@ -62,7 +62,8 @@ class AnalyzeExpensesUseCase:
             validated_input = ExpenseAnalysisInputSchema(**context_data)
             prompt = _build_expense_analysis_prompt(validated_input.model_dump())
             
-            raw_response = self.client.send_prompt(prompt)
+            client = self.client or OpenRouterClient()
+            raw_response = client.send_prompt(prompt)
             parsed_response = _safe_parse_json(raw_response)
             
             validated_output = ExpenseAnalysisOutputSchema(**parsed_response)
@@ -73,7 +74,7 @@ class AnalyzeExpensesUseCase:
                 error=None,
             )
             
-        except (ValidationError, AIResponseFormatError, ValueError, TypeError) as exc:
+        except (ValidationError, AIError, ValueError, TypeError) as exc:
             return ExpenseAnalysisResultSchema(
                 ok=False,
                 data=None,

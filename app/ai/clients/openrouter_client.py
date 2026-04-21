@@ -14,18 +14,23 @@ class OpenRouterClient:
         api_key: str | None = None,
         model_name: str | None = None,
         base_url: str | None = None,
-        timeout: str | None = None,
+        timeout: int | float | None = None,
     ) -> None: 
         self.api_key = api_key or AIConfig.API_KEY
         self.model_name = model_name or AIConfig.MODEL_NAME
-        self.base_url = base_url or AIConfig.BASE_URL
+        self.base_url = (base_url or AIConfig.BASE_URL).rstrip("/")
         self.timeout = timeout or AIConfig.TIMEOUT_SECONDS
         
-        if not api_key:
+        if not self.api_key:
             raise AIConfigurationError("OPENROUTER_API_KEY is not configured")
+
+    def _chat_completions_url(self) -> str:
+        if self.base_url.endswith("/chat/completions"):
+            return self.base_url
+        return f"{self.base_url}/chat/completions"
         
     def send_prompt(self, prompt: str) -> str:
-        url = self.base_url
+        url = self._chat_completions_url()
         
         headers = {
             "Authorization": f"Bearer {self.api_key}",

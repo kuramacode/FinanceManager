@@ -1,5 +1,7 @@
 """Schemas for expense analysis use case."""
 
+from __future__ import annotations
+
 from typing import List, Optional
 from pydantic import BaseModel, Field
 
@@ -34,4 +36,3 @@ class ExpenseAnalysisResultSchema(BaseModel):
     ok: bool = True
     data: Optional[ExpenseAnalysisOutputSchema] = None
     error: Optional[str] = None
-    

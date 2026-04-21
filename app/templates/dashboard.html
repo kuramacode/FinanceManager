@@ -454,6 +454,7 @@
 
 {% block body %}
   <main>
+    {% set display_currency = dashboard_currency|default("UAH", true) %}
     <div class="topbar">
       <div>
         <h1 class="page-title">Dash<em>board</em></h1>
@@ -481,7 +482,7 @@
     <section class="hero">
       <div class="hero-label">Current Net Result</div>
       <div class="hero-balance">
-        {% if balance >= 0 %}+{% endif %}${{ "%.2f"|format(balance) }}
+        {% if balance >= 0 %}+{% endif %}{{ "%.2f"|format(balance) }} {{ display_currency }}
       </div>
       <div class="hero-sub">
         This view is built from your recorded income and expenses, so you can spot momentum quickly and jump into the areas that need attention.
@@ -490,11 +491,11 @@
       <div class="hero-metrics">
         <div class="hero-metric">
           <div class="hero-metric-label">Total Income</div>
-          <div class="hero-metric-value pos">+${{ "%.2f"|format(income_sum) }}</div>
+          <div class="hero-metric-value pos">+{{ "%.2f"|format(income_sum) }} {{ display_currency }}</div>
         </div>
         <div class="hero-metric">
           <div class="hero-metric-label">Total Expenses</div>
-          <div class="hero-metric-value neg">-${{ "%.2f"|format(expense_sum) }}</div>
+          <div class="hero-metric-value neg">-{{ "%.2f"|format(expense_sum) }} {{ display_currency }}</div>
         </div>
         <div class="hero-metric">
           <div class="hero-metric-label">Savings Rate</div>
@@ -544,12 +545,13 @@
                     </div>
                   </div>
                   <div class="tx-amount {{ transaction.type | color }}">
+                    {% set transaction_currency = transaction.currency_code|default(display_currency, true) %}
                     {% if transaction.type == "income" %}
-                      +${{ "%.2f"|format(transaction.amount) }}
+                      +{{ "%.2f"|format(transaction.amount) }} {{ transaction_currency }}
                     {% elif transaction.type == "expense" %}
-                      -${{ "%.2f"|format(transaction.amount) }}
+                      -{{ "%.2f"|format(transaction.amount) }} {{ transaction_currency }}
                     {% else %}
-                      ${{ "%.2f"|format(transaction.amount) }}
+                      {{ "%.2f"|format(transaction.amount) }} {{ transaction_currency }}
                     {% endif %}
                   </div>
                 </li>

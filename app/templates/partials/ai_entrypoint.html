@@ -1,3 +1,5 @@
+{% set ai_connected = ai_entrypoint.get("connected") %}
+
 <section
   class="ai-entrypoint"
   id="aiEntrypoint"
@@ -35,7 +37,7 @@
     >
       <div class="ai-entrypoint__modal-head">
         <div class="ai-entrypoint__modal-copy">
-          <div class="ai-entrypoint__eyebrow">AI Preview</div>
+          <div class="ai-entrypoint__eyebrow">{{ "AI Connected" if ai_connected else "AI Preview" }}</div>
           <h2 class="ai-entrypoint__modal-title" id="aiEntrypointModalTitle">Choose an AI action</h2>
           <p class="ai-entrypoint__modal-subtitle" id="aiEntrypointModalSubtitle">{{ ai_entrypoint.caption }}</p>
         </div>
@@ -61,6 +63,8 @@
             data-ai-action-title="{{ action.title }}"
             data-ai-action-description="{{ action.description }}"
             data-ai-action-prompt="{{ action.prompt }}"
+            data-ai-action-endpoint="{{ action.endpoint|default('', true) }}"
+            data-ai-action-method="{{ action.method|default('GET', true) }}"
           >
             <span class="ai-entrypoint__action-title">{{ action.title }}</span>
             <span class="ai-entrypoint__action-description">{{ action.description }}</span>
@@ -81,7 +85,7 @@
   >
     <div class="ai-entrypoint__drawer-head">
       <div class="ai-entrypoint__drawer-copy">
-        <div class="ai-entrypoint__eyebrow">AI Preview</div>
+        <div class="ai-entrypoint__eyebrow">{{ "AI Connected" if ai_connected else "AI Preview" }}</div>
         <h2 class="ai-entrypoint__drawer-title" id="aiEntrypointDrawerTitle">Choose an action</h2>
         <p class="ai-entrypoint__drawer-subtitle" id="aiEntrypointDrawerSubtitle">{{ ai_entrypoint.label }} assistant shell</p>
       </div>
@@ -95,7 +99,9 @@
 
     <div class="ai-entrypoint__drawer-meta">
       <span class="ai-entrypoint__pill" id="aiEntrypointPagePill">{{ ai_entrypoint.label }}</span>
-      <span class="ai-entrypoint__pill ai-entrypoint__pill--muted">No model connected</span>
+      <span class="ai-entrypoint__pill ai-entrypoint__pill--muted" id="aiEntrypointStatusPill">
+        {{ "Model connected" if ai_connected else "No model connected" }}
+      </span>
     </div>
 
     <div class="ai-entrypoint__chat" id="aiEntrypointChat" aria-live="polite"></div>
@@ -111,7 +117,9 @@
       ></textarea>
 
       <div class="ai-entrypoint__composer-foot">
-        <div class="ai-entrypoint__composer-hint">UI preview only. Messages stay local on the page.</div>
+        <div class="ai-entrypoint__composer-hint">
+          {{ "Dashboard analysis is connected. Follow-up chat will be added separately." if ai_connected else "UI preview only. Messages stay local on the page." }}
+        </div>
         <button class="ai-entrypoint__send" type="submit">Send</button>
       </div>
     </form>
