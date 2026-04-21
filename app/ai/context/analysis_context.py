@@ -2,8 +2,7 @@ from collections import defaultdict
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
-from flask_login import current_user
-
+from app.i18n import get_language_context
 from app.models import db
 from app.models.transactions import Transactions
 from app.models.categories import Categories
@@ -103,6 +102,7 @@ def build_expense_analysis_context(
     user_id: int,
     date_from: Optional[str] = None,
     date_to: Optional[str] = None,
+    language: Optional[str] = None,
 ) -> Dict[str, Any]:
     today = datetime.utcnow()
     default_start = today.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
@@ -126,6 +126,7 @@ def build_expense_analysis_context(
     totals = build_totals(transactions)
 
     return {
+        "response_language": get_language_context(language),
         "period": {
             "date_from": _serialize_date(start_dt),
             "date_to": _serialize_date(end_dt),

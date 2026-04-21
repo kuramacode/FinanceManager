@@ -5,6 +5,8 @@ from copy import deepcopy
 from flask import request
 from flask_login import current_user
 
+from app.i18n import translate as t
+
 _BLUEPRINT_TO_PAGE = {
     "dashboard": "dashboard",
     "transactions": "transactions",
@@ -15,6 +17,33 @@ _BLUEPRINT_TO_PAGE = {
     "currency": "currency",
     "history": "history",
     "profile": "profile",
+}
+
+_PAGE_LABEL_KEYS = {
+    "dashboard": "nav.dashboard",
+    "transactions": "nav.transactions",
+    "budgets": "nav.budgets",
+    "accounts": "nav.accounts",
+    "analytics": "nav.analytics",
+    "category": "nav.categories",
+    "categories": "nav.categories",
+    "currency": "nav.exchange",
+    "history": "nav.history",
+    "profile": "nav.personal",
+    "generic": "common.app_name",
+}
+
+_AI_CAPTION_KEYS = {
+    "dashboard": "ai.captions.dashboard",
+    "transactions": "ai.captions.transactions",
+    "budgets": "ai.captions.budgets",
+    "accounts": "ai.captions.accounts",
+    "analytics": "ai.captions.analytics",
+    "categories": "ai.captions.categories",
+    "currency": "ai.captions.currency",
+    "history": "ai.captions.history",
+    "profile": "ai.captions.profile",
+    "generic": "ai.captions.generic",
 }
 
 _AI_ENTRYPOINTS = {
@@ -372,8 +401,8 @@ _AI_ENTRYPOINTS = {
 
 def _resolve_username() -> str:
     if getattr(current_user, "is_authenticated", False):
-        return getattr(current_user, "username", "") or "Personal"
-    return "Guest"
+        return getattr(current_user, "username", "") or t("common.personal")
+    return t("common.guest")
 
 
 def resolve_active_page(endpoint: str | None = None) -> str:
@@ -386,7 +415,30 @@ def get_ai_entrypoint(page_key: str | None = None) -> dict:
     resolved_key = page_key or resolve_active_page()
     config = deepcopy(_AI_ENTRYPOINTS.get(resolved_key, _AI_ENTRYPOINTS["generic"]))
     config["key"] = config.get("key") or resolved_key
+    label_key = _PAGE_LABEL_KEYS.get(resolved_key)
+    if label_key:
+        config["label"] = t(label_key)
+    caption_key = _AI_CAPTION_KEYS.get(resolved_key)
+    if caption_key:
+        config["caption"] = t(caption_key)
+    config["actions"] = [_translate_ai_action(action) for action in config.get("actions", [])]
     return config
+
+
+def _translate_ai_action(action: dict) -> dict:
+    translated = deepcopy(action)
+    action_id = str(action.get("id") or "").strip()
+    if not action_id:
+        return translated
+
+    for field in ("title", "description", "prompt"):
+        key = f"ai.actions.{action_id}.{field}"
+        translated[f"{field}_key"] = key
+        value = t(key)
+        if value != key:
+            translated[field] = value
+
+    return translated
 
 
 def get_app_shell_context() -> dict:

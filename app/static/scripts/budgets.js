@@ -1,5 +1,10 @@
 const BUDGETS_API = "/api/budgets";
 const CATEGORIES_API = "/api/category";
+const UI_LOCALE = window.ledgerI18n?.locale || "en-US";
+
+function tr(key, replacements = {}, fallback = "") {
+  return window.ledgerI18n?.t(key, replacements, fallback) || fallback || key;
+}
 
 let budgets = [];
 let expenseCategories = [];
@@ -59,17 +64,17 @@ function parseDate(value) {
 function formatDateShort(value) {
   const parsed = parseDate(value);
   if (!parsed) return "--";
-  return parsed.toLocaleDateString("en-US", { month: "short", day: "numeric" });
+  return parsed.toLocaleDateString(UI_LOCALE, { month: "short", day: "numeric" });
 }
 
 function formatDateRange(start, end) {
-  if (!start || !end) return "Dates unavailable";
+  if (!start || !end) return tr("budgets.dates_unavailable");
   return `${formatDateShort(start)} - ${formatDateShort(end)}`;
 }
 
 function formatMoney(amount, code) {
   const value = Number(amount || 0);
-  const abs = Math.abs(value).toLocaleString("en-US", {
+  const abs = Math.abs(value).toLocaleString(UI_LOCALE, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
@@ -84,24 +89,24 @@ function formatMoney(amount, code) {
 
 function statusMeta(status) {
   if (status === "exceeded") {
-    return { label: "Exceeded", className: "over" };
+    return { label: tr("common.status.exceeded"), className: "over" };
   }
   if (status === "warning") {
-    return { label: "Warning", className: "warn" };
+    return { label: tr("common.status.warning"), className: "warn" };
   }
   if (status === "inactive") {
-    return { label: "Inactive", className: "muted" };
+    return { label: tr("common.status.inactive"), className: "muted" };
   }
   if (status === "unavailable") {
-    return { label: "Unavailable", className: "muted" };
+    return { label: tr("common.status.unavailable"), className: "muted" };
   }
-  return { label: "On Track", className: "good" };
+  return { label: tr("common.status.on_track"), className: "good" };
 }
 
 function normalizeCategory(category) {
   return {
     id: Number(category?.id),
-    name: category?.name ?? "Unnamed category",
+    name: category?.name ?? tr("common.unnamed_category"),
     desc: category?.desc ?? "",
     emoji: category?.emoji ?? "#",
     type: category?.type ?? "expense",
@@ -114,7 +119,7 @@ function normalizeBudget(budget) {
 
   return {
     id: Number(budget?.id),
-    name: budget?.name ?? "Untitled budget",
+    name: budget?.name ?? tr("common.untitled_budget"),
     desc: budget?.desc ?? "",
     amount_limit: Number(budget?.amount_limit ?? 0),
     currency_code: (budget?.currency_code ?? "UAH").toUpperCase(),
@@ -147,24 +152,26 @@ function buildBudgetNote(budget) {
   const today = toInputDate();
   if (budget.status === "inactive") {
     if (budget.start_date && budget.start_date > today) {
-      return `Starts on ${formatDateShort(budget.start_date)}.`;
+      return tr("budgets.starts_on", { date: formatDateShort(budget.start_date) });
     }
     if (budget.end_date && budget.end_date < today) {
-      return `Ended on ${formatDateShort(budget.end_date)}.`;
+      return tr("budgets.ended_on", { date: formatDateShort(budget.end_date) });
     }
-    return "Outside the active budget window.";
+    return tr("budgets.outside_window");
   }
 
   if (budget.status === "unavailable") {
-    return "A currency conversion issue prevented accurate spend calculation.";
+    return tr("budgets.conversion_issue");
   }
 
   if (budget.categories.length) {
     const names = budget.categories.slice(0, 3).map(category => category.name).join(", ");
-    return `Tracking ${names}${budget.categories.length > 3 ? " and more." : "."}`;
+    return budget.categories.length > 3
+      ? tr("budgets.tracking_more", { names })
+      : tr("budgets.tracking_categories", { names });
   }
 
-  return "No description provided.";
+  return tr("common.no_description");
 }
 
 function buildCategoryTags(budget) {
@@ -175,14 +182,14 @@ function buildCategoryTags(budget) {
   `);
 
   if (budget.categories.length > 3) {
-    visible.push(`<span class="budget-tag">+${budget.categories.length - 3} more</span>`);
+    visible.push(`<span class="budget-tag">+${budget.categories.length - 3} ${escapeHtml(tr("common.more"))}</span>`);
   }
 
   return visible.join("");
 }
 
 function formatPeriodLabel(budget) {
-  const typeLabel = budget.period_type.charAt(0).toUpperCase() + budget.period_type.slice(1);
+  const typeLabel = tr(`common.periods.${budget.period_type}`, {}, budget.period_type.charAt(0).toUpperCase() + budget.period_type.slice(1));
   if (budget.period_start && budget.period_end) {
     return `${typeLabel} - ${formatDateRange(budget.period_start, budget.period_end)}`;
   }
@@ -200,31 +207,31 @@ function remainingMeta(budget) {
   if (budget.status === "inactive") {
     return {
       className: "muted",
-      label: "Status",
-      value: "Inactive",
+      label: tr("budgets.status"),
+      value: tr("common.status.inactive"),
     };
   }
 
   if (budget.status === "unavailable") {
     return {
       className: "muted",
-      label: "Status",
-      value: "Awaiting rates",
+      label: tr("budgets.status"),
+      value: tr("common.status.awaiting_rates"),
     };
   }
 
   if (budget.remaining < 0) {
     return {
       className: "over",
-      label: "Exceeded",
-      value: `${formatMoney(Math.abs(budget.remaining), budget.currency_code)} over`,
+      label: tr("common.status.exceeded"),
+      value: tr("budgets.over", { amount: formatMoney(Math.abs(budget.remaining), budget.currency_code) }),
     };
   }
 
   return {
     className: "safe",
-    label: "Remaining",
-    value: `${formatMoney(budget.remaining, budget.currency_code)} left`,
+    label: tr("budgets.remaining"),
+    value: tr("budgets.left", { amount: formatMoney(budget.remaining, budget.currency_code) }),
   };
 }
 
@@ -271,9 +278,10 @@ function updateSummary() {
   setText("summaryPlanned", buildCurrencyBreakdown(activeBudgets, "amount_limit"));
   setText("summarySpent", buildCurrencyBreakdown(activeBudgets, "spent"));
   setText("summaryActive", String(activeBudgets.length));
-  setText("summaryActiveSub", activeBudgets.length ? `${currencies.length} ${currencies.length === 1 ? "currency" : "currencies"} in use` : "No active budgets");
+  const currencyUnit = currencies.length === 1 ? tr("budgets.currency_unit_one") : tr("budgets.currency_unit_many");
+  setText("summaryActiveSub", activeBudgets.length ? tr("budgets.currencies_in_use", { count: currencies.length, unit: currencyUnit }) : tr("budgets.no_active_budgets"));
   setText("summaryAttention", String(attentionCount));
-  setText("summaryAttentionSub", attentionCount ? "Warning, exceeded, or unavailable" : "Everything looks healthy");
+  setText("summaryAttentionSub", attentionCount ? tr("budgets.attention_sub") : tr("budgets.everything_healthy"));
 }
 
 function buildBudgetCard(budget) {
@@ -296,7 +304,7 @@ function buildBudgetCard(budget) {
       <div class="budget-amounts">
         <div>
           <div class="budget-current">${formatMoney(budget.spent, budget.currency_code)}</div>
-          <div class="budget-limit">of ${formatMoney(budget.amount_limit, budget.currency_code)} limit</div>
+          <div class="budget-limit">${escapeHtml(tr("budgets.spent_of_limit", { limit: formatMoney(budget.amount_limit, budget.currency_code) }))}</div>
         </div>
         <div class="budget-left">
           <div class="budget-left-value ${remaining.className}">${escapeHtml(remaining.value)}</div>
@@ -306,7 +314,7 @@ function buildBudgetCard(budget) {
 
       <div class="budget-progress-wrap">
         <div class="budget-progress-top">
-          <span class="budget-progress-label">Usage</span>
+          <span class="budget-progress-label">${escapeHtml(tr("budgets.usage"))}</span>
           <span class="budget-progress-value">${Number(budget.percent || 0).toFixed(1)}%</span>
         </div>
         <div class="budget-progress">
@@ -320,13 +328,13 @@ function buildBudgetCard(budget) {
           <div class="budget-tags">${buildCategoryTags(budget)}</div>
         </div>
         <div class="budget-actions">
-          <button type="button" class="icon-btn" data-action="edit" data-id="${budget.id}" title="Edit budget">
+          <button type="button" class="icon-btn" data-action="edit" data-id="${budget.id}" title="${escapeHtml(tr("common.buttons.edit"))}">
             <svg viewBox="0 0 15 15" fill="none">
               <path d="M10.9 2.2a1.5 1.5 0 112.1 2.1l-7.8 7.8-3 .7.7-3 8-7.6z"
                 stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
             </svg>
           </button>
-          <button type="button" class="icon-btn" data-action="delete" data-id="${budget.id}" title="Delete budget">
+          <button type="button" class="icon-btn" data-action="delete" data-id="${budget.id}" title="${escapeHtml(tr("common.buttons.delete"))}">
             <svg viewBox="0 0 15 15" fill="none">
               <path d="M2.5 4h10M6 2.2h3M5 5.2v6M7.5 5.2v6M10 5.2v6 M3.8 4l.6 8c.04.6.54 1 1 1h3.84c.6 0 1.1-.4 1.14-1l.6-8"
                 stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/>
@@ -405,13 +413,16 @@ function updateCategorySummary() {
 
   const selectedCount = document.querySelectorAll(".budget-category-checkbox:checked").length;
   if (!expenseCategories.length) {
-    summary.textContent = "No expense categories are available yet.";
+    summary.textContent = tr("budgets.no_expense_categories");
     return;
   }
 
   summary.textContent = selectedCount
-    ? `${selectedCount} categor${selectedCount === 1 ? "y" : "ies"} selected`
-    : "Select one or more expense categories.";
+    ? tr("budgets.selected_categories", {
+      count: selectedCount,
+      unit: selectedCount === 1 ? tr("budgets.category_unit_one") : tr("budgets.category_unit_many"),
+    })
+    : tr("budgets.select_categories");
 }
 
 function renderCategoryPicker(selectedIds = []) {
@@ -435,7 +446,7 @@ function renderCategoryPicker(selectedIds = []) {
         <span class="budget-category-emoji">${escapeHtml(category.emoji)}</span>
         <span class="budget-category-copy">
           <span class="budget-category-name">${escapeHtml(category.name)}</span>
-          <span class="budget-category-desc">${escapeHtml(category.desc || (category.built_in ? "Built-in category" : "Expense category"))}</span>
+          <span class="budget-category-desc">${escapeHtml(category.desc || (category.built_in ? tr("common.built_in_category") : tr("common.expense_category")))}</span>
         </span>
       </span>
     </label>
@@ -460,7 +471,7 @@ function syncPeriodFields() {
   if (periodType === "custom") {
     endDateGroup.classList.remove("is-hidden");
     endDateInput.required = true;
-    hint.textContent = "Custom budgets use the exact start and end date range you choose.";
+    hint.textContent = tr("budgets.custom_hint");
     return;
   }
 
@@ -469,8 +480,8 @@ function syncPeriodFields() {
   endDateInput.value = startDateInput.value;
 
   hint.textContent = periodType === "weekly"
-    ? "Weekly budgets use the current week while the start date controls when the budget becomes active."
-    : "Monthly budgets use the current calendar month while the start date controls when the budget becomes active.";
+    ? tr("budgets.weekly_hint")
+    : tr("budgets.monthly_hint");
 }
 
 function resetBudgetForm() {
@@ -485,9 +496,9 @@ function resetBudgetForm() {
   document.getElementById("budgetPeriodType").value = "monthly";
   document.getElementById("budgetStartDate").value = toInputDate();
   document.getElementById("budgetEndDate").value = toInputDate();
-  document.getElementById("budgetSubmitBtn").textContent = "Create Budget";
-  document.getElementById("budget-modal-title").textContent = "New Budget";
-  document.getElementById("budget-modal-subtitle").textContent = "Create a budget rule and attach one or more expense categories.";
+  document.getElementById("budgetSubmitBtn").textContent = tr("budgets.add_budget");
+  document.getElementById("budget-modal-title").textContent = tr("budgets.modal_new_title");
+  document.getElementById("budget-modal-subtitle").textContent = tr("budgets.modal_new_subtitle");
   renderCategoryPicker([]);
   syncPeriodFields();
 }
@@ -509,9 +520,9 @@ function openEditBudgetModal(id) {
   document.getElementById("budgetPeriodType").value = budget.period_type;
   document.getElementById("budgetStartDate").value = budget.start_date;
   document.getElementById("budgetEndDate").value = budget.end_date || budget.start_date;
-  document.getElementById("budgetSubmitBtn").textContent = "Save Changes";
-  document.getElementById("budget-modal-title").textContent = "Edit Budget";
-  document.getElementById("budget-modal-subtitle").textContent = "Update budget settings, categories, and active period rules.";
+  document.getElementById("budgetSubmitBtn").textContent = tr("common.buttons.save_changes");
+  document.getElementById("budget-modal-title").textContent = tr("budgets.modal_edit_title");
+  document.getElementById("budget-modal-subtitle").textContent = tr("budgets.modal_edit_subtitle");
 
   renderCategoryPicker(budget.category_ids);
   syncPeriodFields();
@@ -561,31 +572,31 @@ async function submitBudgetForm(event) {
   const category_ids = getSelectedCategoryIds();
 
   if (!name) {
-    showFeedback("Budget name is required.");
+    showFeedback(tr("budgets.name_required"));
     document.getElementById("budgetName").focus();
     return;
   }
 
   if (!Number.isFinite(amount_limit) || amount_limit <= 0) {
-    showFeedback("Budget limit must be greater than 0.");
+    showFeedback(tr("errors.amount_positive"));
     document.getElementById("budgetLimit").focus();
     return;
   }
 
   if (!start_date) {
-    showFeedback("Start date is required.");
+    showFeedback(tr("errors.date_required"));
     document.getElementById("budgetStartDate").focus();
     return;
   }
 
   if (period_type === "custom" && !end_date) {
-    showFeedback("End date is required for custom budgets.");
+    showFeedback(tr("budgets.end_date") + " " + tr("common.required"));
     document.getElementById("budgetEndDate").focus();
     return;
   }
 
   if (!category_ids.length) {
-    showFeedback("Select at least one expense category.");
+    showFeedback(tr("budgets.select_categories"));
     return;
   }
 
@@ -617,7 +628,7 @@ async function submitBudgetForm(event) {
 
     renderBudgets();
     closeOverlay("modal-budget");
-    showFeedback(budgetId ? "Budget updated successfully." : "Budget created successfully.", "success");
+    showFeedback(budgetId ? tr("budgets.updated") : tr("budgets.created"), "success");
   } catch (error) {
     showFeedback(error.message);
   } finally {
@@ -635,7 +646,7 @@ async function submitBudgetDelete() {
     budgets = budgets.filter(item => item.id !== budgetId);
     renderBudgets();
     closeOverlay("modal-budget-delete");
-    showFeedback("Budget deleted successfully.", "success");
+    showFeedback(tr("budgets.deleted"), "success");
   } catch (error) {
     showFeedback(error.message);
   } finally {
@@ -714,7 +725,7 @@ async function initBudgetsPage() {
   try {
     await loadBudgetsPageData();
   } catch (error) {
-    showFeedback(`Failed to load budgets: ${error.message}`);
+    showFeedback(tr("budgets.load_failed", { message: error.message }, `Failed to load budgets: ${error.message}`));
   }
 }
 

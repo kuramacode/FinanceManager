@@ -1,6 +1,7 @@
 from flask import Flask
 from flask_login import LoginManager
 from app.config import Config
+from app.i18n import register_i18n
 from app.utils.app_shell import get_app_shell_context
 from app.utils.jinja_filters import color_change, format_date_for_website,category_name, category_emoji, currency_flag, get_difference_percentage, get_difference
 from app.utils.database import (
@@ -40,6 +41,7 @@ def create_app(config_overrides=None):
         app.config.update(config_overrides)
 
     _configure_database_uri_for_testing(app)
+    register_i18n(app)
 
     app.jinja_env.filters['color'] = color_change
     app.jinja_env.filters['format_date'] = format_date_for_website

@@ -5,7 +5,7 @@ from typing import Any, Dict
 
 from pydantic import ValidationError
 
-from app.ai.clients import OpenRouterClient
+from app.ai.clients.openrouter import OpenRouterClient
 from app.ai.context import build_expense_analysis_context
 from app.ai.exceptions import AIError, AIResponseFormatError
 from app.ai.prompts import BASE_PROMPT, EXPENSE_ANALYSIS_PROMPT
@@ -16,8 +16,14 @@ from app.ai.schemas.analysis import (
 )
 
 def _build_base_prompt(data: Dict[str, Any]) -> str:
+    response_language = data.get("response_language") or {}
+    language_instruction = response_language.get(
+        "ai_instruction",
+        "Answer every user-facing string in English.",
+    )
     return BASE_PROMPT.format(
-        data=json.dumps(data, ensure_ascii=False, indent=2)
+        data=json.dumps(data, ensure_ascii=False, indent=2),
+        language_instruction=language_instruction,
     )
     
 def _build_expense_analysis_prompt(data: Dict[str, Any]) -> str:
@@ -51,19 +57,21 @@ class AnalyzeExpensesUseCase:
         user_id: int,
         date_from: str | None = None,
         date_to: str | None = None,
+        language: str | None = None,
     ) -> ExpenseAnalysisResultSchema:
         try:
             context_data = build_expense_analysis_context(
                 user_id=user_id,
                 date_from=date_from,
                 date_to=date_to,
+                language=language,
             )
             
             validated_input = ExpenseAnalysisInputSchema(**context_data)
             prompt = _build_expense_analysis_prompt(validated_input.model_dump())
             
             client = self.client or OpenRouterClient()
-            raw_response = client.send_prompt(prompt)
+            raw_response = client.send_prompt(prompt, json_response=True)
             parsed_response = _safe_parse_json(raw_response)
             
             validated_output = ExpenseAnalysisOutputSchema(**parsed_response)

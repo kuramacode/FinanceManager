@@ -1,0 +1,16 @@
+{% set next_url = request.full_path if request.query_string else request.path %}
+<div class="language-switcher" role="group" aria-label="{{ t('language.switcher_label') }}">
+  {% for code, language in available_languages.items() %}
+    <form action="{{ url_for('main.set_language', language=code) }}" method="post">
+      <input type="hidden" name="next" value="{{ next_url }}" />
+      <button
+        type="submit"
+        class="language-option{% if current_language == code %} active{% endif %}"
+        aria-pressed="{{ 'true' if current_language == code else 'false' }}"
+        title="{{ t('language.change_to', language=language.native) }}"
+      >
+        {{ language.short }}
+      </button>
+    </form>
+  {% endfor %}
+</div>

@@ -1,4 +1,5 @@
 from flask import Blueprint, request, redirect, url_for, render_template
+from app.i18n import translate as t
 from app.models import db
 from app.models.user import User
 from werkzeug.security import generate_password_hash
@@ -15,7 +16,7 @@ def register(): # Функція-обробник для реєстрації н
         hash_password = generate_password_hash(password)# Хешує перший введений пароль для безпечного зберігання у БД
         
         if password != password_repeat:
-                return 'Passwords do not match'# Повертає повідомлення про помилку, якщо паролі не збігаються
+                return t("errors.passwords_do_not_match")# Повертає повідомлення про помилку, якщо паролі не збігаються
         else:
             user = User(username=username, email=email, password=hash_password)# Створює новий об'єкт користувача з введеними даними
             db.session.add(user) # Додає користувача до сесії бази даних (поки не збережено у БД)

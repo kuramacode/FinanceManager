@@ -3,7 +3,7 @@
 {% block head %}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard - Ledger</title>
+  <title>{{ t("dashboard.title") }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -457,8 +457,8 @@
     {% set display_currency = dashboard_currency|default("UAH", true) %}
     <div class="topbar">
       <div>
-        <h1 class="page-title">Dash<em>board</em></h1>
-        <p class="page-sub">A clean overview of your balances, spending, budgets, and most recent activity.</p>
+        <h1 class="page-title">{{ t("dashboard.heading") | safe }}</h1>
+        <p class="page-sub">{{ t("dashboard.subtitle") }}</p>
       </div>
 
       <div class="topbar-actions">
@@ -474,31 +474,31 @@
           <svg viewBox="0 0 12 12" fill="none">
             <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
           </svg>
-          Add Transaction
+          {{ t("dashboard.add_transaction") }}
         </a>
       </div>
     </div>
 
     <section class="hero">
-      <div class="hero-label">Current Net Result</div>
+      <div class="hero-label">{{ t("dashboard.current_net_result") }}</div>
       <div class="hero-balance">
         {% if balance >= 0 %}+{% endif %}{{ "%.2f"|format(balance) }} {{ display_currency }}
       </div>
       <div class="hero-sub">
-        This view is built from your recorded income and expenses, so you can spot momentum quickly and jump into the areas that need attention.
+        {{ t("dashboard.hero_sub") }}
       </div>
 
       <div class="hero-metrics">
         <div class="hero-metric">
-          <div class="hero-metric-label">Total Income</div>
+          <div class="hero-metric-label">{{ t("dashboard.total_income") }}</div>
           <div class="hero-metric-value pos">+{{ "%.2f"|format(income_sum) }} {{ display_currency }}</div>
         </div>
         <div class="hero-metric">
-          <div class="hero-metric-label">Total Expenses</div>
+          <div class="hero-metric-label">{{ t("dashboard.total_expenses") }}</div>
           <div class="hero-metric-value neg">-{{ "%.2f"|format(expense_sum) }} {{ display_currency }}</div>
         </div>
         <div class="hero-metric">
-          <div class="hero-metric-label">Savings Rate</div>
+          <div class="hero-metric-label">{{ t("dashboard.savings_rate") }}</div>
           <div class="hero-metric-value">{{ savings_rate }}%</div>
         </div>
       </div>
@@ -506,21 +506,21 @@
 
     <section class="stat-cards">
       <div class="card green">
-        <div class="card-label">Recent Records</div>
+        <div class="card-label">{{ t("dashboard.recent_records") }}</div>
         <div class="card-value">{{ transactions|length }}</div>
-        <div class="card-sub">Last transactions on the dashboard</div>
+        <div class="card-sub">{{ t("dashboard.recent_records_sub") }}</div>
       </div>
 
       <div class="card neutral">
-        <div class="card-label">Accounts</div>
+        <div class="card-label">{{ t("nav.accounts") }}</div>
         <div class="card-value">{{ accounts|length }}</div>
-        <div class="card-sub">Tracked balances and wallets</div>
+        <div class="card-sub">{{ t("dashboard.accounts_sub") }}</div>
       </div>
 
       <div class="card red">
-        <div class="card-label">Active Budgets</div>
+        <div class="card-label">{{ t("dashboard.active_budgets") }}</div>
         <div class="card-value">{{ active_budgets|length }}</div>
-        <div class="card-sub">{{ budgets|length }} total budgets configured</div>
+        <div class="card-sub">{{ t("dashboard.active_budgets_sub", count=budgets|length) }}</div>
       </div>
     </section>
 
@@ -528,8 +528,8 @@
       <div class="stack">
         <section class="panel">
           <div class="panel-head">
-            <div class="panel-title">Recent Transactions</div>
-            <a href="{{ url_for('transactions.transactions') }}" class="panel-link">View all</a>
+            <div class="panel-title">{{ t("dashboard.recent_transactions") }}</div>
+            <a href="{{ url_for('transactions.transactions') }}" class="panel-link">{{ t("dashboard.view_all") }}</a>
           </div>
 
           {% if transactions %}
@@ -538,10 +538,10 @@
                 <li class="tx-item">
                   <div class="tx-icon">{{ categories_lookup.get(transaction.category_id, {}).get('emoji', '#') }}</div>
                   <div class="tx-body">
-                    <div class="tx-name">{{ transaction.description or 'Untitled transaction' }}</div>
+                    <div class="tx-name">{{ transaction.description or t("common.untitled_transaction") }}</div>
                     <div class="tx-meta">
                       <span class="tx-date">{{ transaction.date | format_date }}</span>
-                      <span class="tx-cat">{{ categories_lookup.get(transaction.category_id, {}).get('name', 'Unknown') }}</span>
+                      <span class="tx-cat">{{ categories_lookup.get(transaction.category_id, {}).get('name', t("common.unknown")) }}</span>
                     </div>
                   </div>
                   <div class="tx-amount {{ transaction.type | color }}">
@@ -558,14 +558,14 @@
               {% endfor %}
             </ul>
           {% else %}
-            <div class="dashboard-empty">No transactions yet. Add your first record to start filling this overview.</div>
+            <div class="dashboard-empty">{{ t("dashboard.no_transactions") }}</div>
           {% endif %}
         </section>
 
         <section class="panel">
           <div class="panel-head">
-            <div class="panel-title">Budget Snapshot</div>
-            <a href="{{ url_for('budgets.budgets') }}" class="panel-link">Manage budgets</a>
+            <div class="panel-title">{{ t("dashboard.budget_snapshot") }}</div>
+            <a href="{{ url_for('budgets.budgets') }}" class="panel-link">{{ t("dashboard.manage_budgets") }}</a>
           </div>
 
           {% if budgets %}
@@ -577,7 +577,7 @@
                       <div class="mini-icon">{{ budget.icon }}</div>
                       <div>
                         <div class="budget-name">{{ budget.name }}</div>
-                        <div class="budget-sub">{{ "%.2f"|format(budget.spent) }} of {{ "%.2f"|format(budget.amount_limit) }} {{ budget.currency_code }}</div>
+                        <div class="budget-sub">{{ t("dashboard.budget_spent_of", spent="%.2f"|format(budget.spent), limit="%.2f"|format(budget.amount_limit), currency=budget.currency_code) }}</div>
                       </div>
                     </div>
                     <div class="budget-value">{{ budget.percent|round|int }}%</div>
@@ -589,7 +589,7 @@
               {% endfor %}
             </div>
           {% else %}
-            <div class="dashboard-empty">No budgets configured yet. Create one to monitor category spending from this page.</div>
+            <div class="dashboard-empty">{{ t("dashboard.no_budgets") }}</div>
           {% endif %}
         </section>
       </div>
@@ -597,8 +597,8 @@
       <div class="stack">
         <section class="panel">
           <div class="panel-head">
-            <div class="panel-title">Accounts</div>
-            <a href="{{ url_for('accounts.accounts') }}" class="panel-link">View accounts</a>
+            <div class="panel-title">{{ t("nav.accounts") }}</div>
+            <a href="{{ url_for('accounts.accounts') }}" class="panel-link">{{ t("dashboard.view_accounts") }}</a>
           </div>
 
           {% if accounts %}
@@ -610,23 +610,23 @@
                       <div class="mini-icon">{{ account.emoji or "#" }}</div>
                       <div>
                         <div class="account-name">{{ account.name }}</div>
-                        <div class="account-sub">{{ account.currency_code }}{% if account.subtitle %} • {{ account.subtitle }}{% endif %}</div>
+                        <div class="account-sub">{{ account.currency_code }}{% if account.subtitle %} - {{ account.subtitle }}{% endif %}</div>
                       </div>
                     </div>
                     <div class="account-value">{{ "%.2f"|format(account.balance or 0) }} {{ account.currency_code }}</div>
                   </div>
-                  <span class="account-badge {% if account.status == 'active' %}active{% endif %}">{{ account.status or 'unknown' }}</span>
+                  <span class="account-badge {% if account.status == 'active' %}active{% endif %}">{{ t("common.status." ~ (account.status or "unknown")) }}</span>
                 </div>
               {% endfor %}
             </div>
           {% else %}
-            <div class="dashboard-empty">No accounts yet. Add a cash, bank, or card account to track balances here.</div>
+            <div class="dashboard-empty">{{ t("dashboard.no_accounts") }}</div>
           {% endif %}
         </section>
 
         <section class="panel">
           <div class="panel-head">
-            <div class="panel-title">Quick Actions</div>
+            <div class="panel-title">{{ t("dashboard.quick_actions") }}</div>
           </div>
 
           <div class="quick-actions">
@@ -636,8 +636,8 @@
                   <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
                 </svg>
               </div>
-              <div class="quick-action-title">Add transaction</div>
-              <div class="quick-action-sub">Create a new income, expense, or transfer entry.</div>
+              <div class="quick-action-title">{{ t("dashboard.add_transaction") }}</div>
+              <div class="quick-action-sub">{{ t("transactions.modal_new_subtitle") }}</div>
             </a>
 
             <a href="{{ url_for('budgets.budgets') }}" class="quick-action">
@@ -646,8 +646,8 @@
                   <path d="M2 12L7.5 3 13 12H2z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
                 </svg>
               </div>
-              <div class="quick-action-title">Create budget</div>
-              <div class="quick-action-sub">Set limits and keep category spending visible.</div>
+              <div class="quick-action-title">{{ t("dashboard.create_budget") }}</div>
+              <div class="quick-action-sub">{{ t("dashboard.create_budget_sub") }}</div>
             </a>
 
             <a href="{{ url_for('accounts.accounts') }}" class="quick-action">
@@ -657,8 +657,8 @@
                   <path d="M1 6h13" stroke="currentColor" stroke-width="1.4" />
                 </svg>
               </div>
-              <div class="quick-action-title">Add account</div>
-              <div class="quick-action-sub">Track balances across cash, banks, and cards.</div>
+              <div class="quick-action-title">{{ t("dashboard.add_account") }}</div>
+              <div class="quick-action-sub">{{ t("dashboard.add_account_sub") }}</div>
             </a>
 
             <a href="{{ url_for('category.category') }}" class="quick-action">
@@ -670,15 +670,15 @@
                   <circle cx="4.5" cy="10.5" r="3" stroke="currentColor" stroke-width="1.4" opacity=".45" />
                 </svg>
               </div>
-              <div class="quick-action-title">Manage categories</div>
-              <div class="quick-action-sub">Keep income and expense groups organized.</div>
+              <div class="quick-action-title">{{ t("dashboard.manage_categories") }}</div>
+              <div class="quick-action-sub">{{ t("dashboard.manage_categories_sub") }}</div>
             </a>
           </div>
         </section>
 
         <section class="panel">
           <div class="panel-head">
-            <div class="panel-title">Insights</div>
+            <div class="panel-title">{{ t("dashboard.insights") }}</div>
           </div>
 
           {% if dashboard_insights %}
@@ -692,7 +692,7 @@
               </div>
             {% endfor %}
           {% else %}
-            <div class="dashboard-empty">Insights will appear here once you have transactions, budgets, or account activity to analyze.</div>
+            <div class="dashboard-empty">{{ t("dashboard.no_insights") }}</div>
           {% endif %}
         </section>
       </div>

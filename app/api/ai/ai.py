@@ -2,6 +2,7 @@ from flask import Blueprint, jsonify, request
 from flask_login import current_user, login_required
 
 from app.ai.service import AIService
+from app.i18n import get_current_language
 
 _ai = Blueprint("ai", __name__, url_prefix="/api/ai")
 
@@ -16,7 +17,8 @@ def expense_analysis():
     result = service.analyze_expenses(
         user_id=current_user.id,
         date_from=date_from,
-        date_to=date_to
+        date_to=date_to,
+        language=get_current_language(),
     )
     
     if not result.ok:

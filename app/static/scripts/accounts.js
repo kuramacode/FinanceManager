@@ -10,6 +10,11 @@
 let accounts = [];
 let activeFilter = 'all';
 let searchQuery   = '';
+const UI_LOCALE = window.ledgerI18n?.locale || 'en-US';
+
+function tr(key, replacements = {}, fallback = '') {
+  return window.ledgerI18n?.t(key, replacements, fallback) || fallback || key;
+}
 
 // ── EMOJI STATE ──────────────────────────────────────────────
 let selectedAddEmoji  = '💳';
@@ -51,7 +56,7 @@ async function loadAccounts() {
     renderCards();
   } catch (err) {
     console.error('Failed to load accounts:', err);
-    alert(`Failed to load accounts: ${err.message}`);
+    alert(tr('accounts.load_failed', { message: err.message }, `Failed to load accounts: ${err.message}`));
   }
 }
 
@@ -71,7 +76,7 @@ async function deleteAccount(id) {
 function normalizeAccount(account) {
   return {
     id:            account?.id,
-    name:          account?.name          ?? 'Untitled account',
+    name:          account?.name          ?? tr('common.unnamed_account'),
     balance:       Number(account?.balance ?? 0),
     initial_balance: Number(account?.initial_balance ?? account?.balance ?? 0),
     transactions_delta: Number(account?.transactions_delta ?? 0),
@@ -94,7 +99,7 @@ function currencySymbol(code) {
 
 function fmtBalance(balance, code) {
   const sym = currencySymbol(code);
-  const abs = Math.abs(balance).toLocaleString('uk-UA', {
+  const abs = Math.abs(balance).toLocaleString(UI_LOCALE, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2
   });
@@ -112,7 +117,12 @@ function statusBadgeClass(status) {
 
 function statusLabel(status) {
   const s = (typeof status === 'string' && status.trim()) ? status.trim() : 'active';
-  return s.charAt(0).toUpperCase() + s.slice(1);
+  return tr(`common.status.${s}`, {}, s.charAt(0).toUpperCase() + s.slice(1));
+}
+
+function typeLabel(type) {
+  const value = (typeof type === 'string' && type.trim()) ? type.trim().toLowerCase() : 'card';
+  return tr(`common.types.${value}`, {}, value.charAt(0).toUpperCase() + value.slice(1));
 }
 
 // ── EMOJI STRIP ──────────────────────────────────────────────
@@ -152,11 +162,11 @@ function updateSummary() {
   const activeCount = activeAccounts.length;
 
   const set = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
-  set('sum-net-worth', `₴${netWorth.toLocaleString('uk-UA')}`);
-  set('sum-cash-bank', `₴${positiveBalance.toLocaleString('uk-UA')}`);
-  set('sum-credit',    `₴${negativeBalance.toLocaleString('uk-UA')}`);
+  set('sum-net-worth', `₴${netWorth.toLocaleString(UI_LOCALE)}`);
+  set('sum-cash-bank', `₴${positiveBalance.toLocaleString(UI_LOCALE)}`);
+  set('sum-credit',    `₴${negativeBalance.toLocaleString(UI_LOCALE)}`);
   set('sum-total',     total);
-  set('sum-detail',    `${activeCount} active • ${frozenCount} frozen`);
+  set('sum-detail',    tr('accounts.active_frozen_detail', { active: activeCount, frozen: frozenCount }));
 }
 
 // ── FILTERING ────────────────────────────────────────────────
@@ -207,27 +217,27 @@ function renderCards() {
             <div class="account-subline">${escapeHtml(a.subtitle)}</div>
           </div>
         </div>
-        <span class="account-type">${statusLabel(a.type)}</span>
+        <span class="account-type">${escapeHtml(typeLabel(a.type))}</span>
       </div>
 
       <div class="account-balance-block">
         <div class="account-balance ${balCls}">${fmtBalance(a.balance, a.currency_code)}</div>
         <div class="account-balance-sub">
-          ${a.balance >= 0 ? 'Available balance' : 'Current outstanding debt'}
+          ${a.balance >= 0 ? escapeHtml(tr('accounts.available_balance')) : escapeHtml(tr('accounts.outstanding_debt'))}
         </div>
       </div>
 
       <div class="account-stats">
         <div class="mini-stat">
-          <div class="mini-stat-label">Currency</div>
+          <div class="mini-stat-label">${escapeHtml(tr('common.fields.currency'))}</div>
           <div class="mini-stat-value">${escapeHtml(a.currency_code)}</div>
         </div>
         <div class="mini-stat">
-          <div class="mini-stat-label">Status</div>
+          <div class="mini-stat-label">${escapeHtml(tr('common.fields.status'))}</div>
           <div class="mini-stat-value">${statusLabel(a.status)}</div>
         </div>
         <div class="mini-stat">
-          <div class="mini-stat-label">Account ID</div>
+          <div class="mini-stat-label">${escapeHtml(tr('accounts.account_id'))}</div>
           <div class="mini-stat-value">#${a.id}</div>
         </div>
       </div>
@@ -235,13 +245,13 @@ function renderCards() {
       <div class="account-footer">
         <div class="account-note">${escapeHtml(a.note)}</div>
         <div class="account-actions">
-          <button type="button" class="icon-btn btn-edit" data-id="${a.id}" title="Edit">
+          <button type="button" class="icon-btn btn-edit" data-id="${a.id}" title="${escapeHtml(tr('common.buttons.edit'))}">
             <svg viewBox="0 0 15 15" fill="none">
               <path d="M10.9 2.2a1.5 1.5 0 112.1 2.1l-7.8 7.8-3 .7.7-3 8-7.6z"
                 stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/>
             </svg>
           </button>
-          <button type="button" class="icon-btn btn-delete" data-id="${a.id}" title="Delete">
+          <button type="button" class="icon-btn btn-delete" data-id="${a.id}" title="${escapeHtml(tr('common.buttons.delete'))}">
             <svg viewBox="0 0 15 15" fill="none">
               <path d="M2.5 4h10M6 2.2h3M5 5.2v6M7.5 5.2v6M10 5.2v6
                        M3.8 4l.6 8c.04.6.54 1 1 1h3.84c.6 0 1.1-.4 1.14-1l.6-8"
@@ -275,7 +285,10 @@ function renderTable(list) {
   if (!tbody || !wrap || !countEl) return;
 
   tbody.innerHTML  = '';
-  countEl.textContent = `Showing ${list.length} account${list.length !== 1 ? 's' : ''}`;
+  countEl.textContent = tr('accounts.showing_accounts', {
+    count: list.length,
+    unit: list.length === 1 ? tr('accounts.account_unit_one') : tr('accounts.account_unit_many'),
+  });
 
   if (list.length === 0) { wrap.style.display = 'none'; return; }
   wrap.style.display = 'block';
@@ -292,10 +305,10 @@ function renderTable(list) {
         <div class="account-cell-icon">${escapeHtml(a.emoji)}</div>
         <div>
           <div class="account-cell-name">${escapeHtml(a.name)}</div>
-          <div class="account-cell-sub">ID ${a.id}</div>
+          <div class="account-cell-sub">${escapeHtml(tr('common.id'))} ${a.id}</div>
         </div>
       </div>
-      <div class="account-cell-text">${escapeHtml(a.type)}</div>
+      <div class="account-cell-text">${escapeHtml(typeLabel(a.type))}</div>
       <div class="account-cell-text">${escapeHtml(a.currency_code)}</div>
       <div class="account-cell-text ${balCls}">${fmtBalance(a.balance, a.currency_code)}</div>
       <div>
@@ -375,7 +388,7 @@ async function submitAdd() {
     const note          = document.getElementById('add-note')?.value      || '';
     const emoji         = selectedAddEmoji;  // FIX: was missing from payload
 
-    if (!name) { alert('Account name is required.'); return; }
+    if (!name) { alert(tr('accounts.name_required')); return; }
 
     const payload = { name, initial_balance: balance, status, currency_code, emoji, type, subtitle, note };
     const created = await createAccount(payload);
@@ -385,7 +398,7 @@ async function submitAdd() {
     closeOverlay('modal-add');
   } catch (err) {
     console.error('Create account failed:', err);
-    alert(`Create failed: ${err.message}`);
+    alert(tr('accounts.create_failed', { message: err.message }, `Create failed: ${err.message}`));
   }
 }
 
@@ -426,7 +439,7 @@ async function submitEdit() {
     const note          = document.getElementById('edit-note')?.value      || '';       // FIX
     const emoji         = selectedEditEmoji;                                            // FIX
 
-    if (!name) { alert('Account name is required.'); return; }
+    if (!name) { alert(tr('accounts.name_required')); return; }
 
     // FIX: was only sending 4 fields — now sends all 8
     const payload = { name, initial_balance: balance, status, currency_code, emoji, type, subtitle, note };
@@ -439,7 +452,7 @@ async function submitEdit() {
     closeOverlay('modal-edit');
   } catch (err) {
     console.error('Update account failed:', err);
-    alert(`Update failed: ${err.message}`);
+    alert(tr('accounts.update_failed', { message: err.message }, `Update failed: ${err.message}`));
   }
 }
 
@@ -464,7 +477,7 @@ async function submitDelete() {
     closeOverlay('modal-delete');
   } catch (err) {
     console.error('Delete account failed:', err);
-    alert(`Delete failed: ${err.message}`);
+    alert(tr('accounts.delete_failed', { message: err.message }, `Delete failed: ${err.message}`));
   } finally {
     if (confirmBtn) confirmBtn.disabled = false;
   }

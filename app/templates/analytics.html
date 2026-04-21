@@ -3,7 +3,7 @@
 {% block head %}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ledger - Analytics</title>
+  <title>{{ t("analytics.title") }}</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -17,17 +17,17 @@
   <main class="analytics-page" id="analyticsPage" data-user-id="{{ userID }}" data-primary-currency="{{ primary_currency }}">
     <div class="page-header">
       <div>
-        <h1 class="page-title">Ana<em>lytics</em></h1>
+        <h1 class="page-title">{{ t("analytics.heading") | safe }}</h1>
         <p class="page-sub">
-          Build insights from your real transactions, budgets, and account balances while keeping currencies separated correctly.
+          {{ t("analytics.subtitle") }}
         </p>
       </div>
 
       <div class="header-right">
-        <div class="range-chip" id="analyticsRangeLabel">Latest range</div>
+        <div class="range-chip" id="analyticsRangeLabel">{{ t("analytics.latest_range") }}</div>
 
         <label class="currency-filter" for="analyticsCurrency">
-          <span>Currency</span>
+          <span>{{ t("analytics.currency") }}</span>
           <select id="analyticsCurrency">
             {% for code in available_currencies %}
               <option value="{{ code }}" {% if code == primary_currency %}selected{% endif %}>{{ code }}</option>
@@ -63,11 +63,11 @@
     <div class="widget-modal" role="dialog" aria-modal="true" aria-labelledby="widgetModalTitle">
       <div class="widget-modal-header">
         <div>
-          <div class="widget-modal-title" id="widgetModalTitle">Add <em>Widget</em></div>
-          <div class="widget-modal-sub">Choose a chart or graph to place into the selected analytics slot.</div>
+          <div class="widget-modal-title" id="widgetModalTitle">{{ t("analytics.add_widget_title") | safe }}</div>
+          <div class="widget-modal-sub">{{ t("analytics.add_widget_subtitle") }}</div>
         </div>
 
-        <button class="widget-action-btn" id="widgetModalClose" type="button" aria-label="Close widget picker">
+        <button class="widget-action-btn" id="widgetModalClose" type="button" aria-label="{{ t('analytics.close_widget_picker') }}">
           <svg viewBox="0 0 12 12" fill="none">
             <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
           </svg>

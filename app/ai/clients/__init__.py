@@ -1,5 +1,7 @@
-from .openrouter_client import OpenRouterClient
+from .openrouter import OpenRouterClient, OpenRouterCompletion, OpenRouterMessage
 
 __all__ = [
     "OpenRouterClient",
+    "OpenRouterCompletion",
+    "OpenRouterMessage",
 ]

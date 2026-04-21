@@ -2,7 +2,7 @@
 {% block head %}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Budgets - Ledger</title>
+  <title>{{ t("budgets.title") }}</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -14,29 +14,29 @@
 
 {% block body %}
 <main>
-  <h1 class="page-title">Budg<em>ets</em></h1>
-  <p class="page-sub">Track category limits, compare spending against plan, and manage recurring budget rules.</p>
+  <h1 class="page-title">{{ t("budgets.heading") | safe }}</h1>
+  <p class="page-sub">{{ t("budgets.subtitle") }}</p>
 
   <section class="budget-summary">
     <div class="card neutral">
-      <div class="card-label">Planned Limits</div>
+      <div class="card-label">{{ t("budgets.planned_limits") }}</div>
       <div class="card-value" id="summaryPlanned">--</div>
-      <div class="card-sub">Active budgets grouped by currency</div>
+      <div class="card-sub">{{ t("budgets.planned_limits_sub") }}</div>
     </div>
     <div class="card red">
-      <div class="card-label">Spent So Far</div>
+      <div class="card-label">{{ t("budgets.spent_so_far") }}</div>
       <div class="card-value" id="summarySpent">--</div>
-      <div class="card-sub">Current period spend by budget currency</div>
+      <div class="card-sub">{{ t("budgets.spent_so_far_sub") }}</div>
     </div>
     <div class="card neutral">
-      <div class="card-label">Active Budgets</div>
+      <div class="card-label">{{ t("budgets.active_budgets") }}</div>
       <div class="card-value" id="summaryActive">0</div>
-      <div class="card-sub" id="summaryActiveSub">No active budgets</div>
+      <div class="card-sub" id="summaryActiveSub">{{ t("budgets.no_active_budgets") }}</div>
     </div>
     <div class="card green">
-      <div class="card-label">Needs Attention</div>
+      <div class="card-label">{{ t("budgets.needs_attention") }}</div>
       <div class="card-value" id="summaryAttention">0</div>
-      <div class="card-sub" id="summaryAttentionSub">Warning, exceeded, or unavailable</div>
+      <div class="card-sub" id="summaryAttentionSub">{{ t("budgets.attention_sub") }}</div>
     </div>
   </section>
 
@@ -44,11 +44,11 @@
 
   <div class="toolbar">
     <div class="filter-tabs">
-      <button class="filter-tab active" type="button" data-filter="all">All</button>
-      <button class="filter-tab" type="button" data-filter="on_track">On Track</button>
-      <button class="filter-tab" type="button" data-filter="warning">Warning</button>
-      <button class="filter-tab" type="button" data-filter="exceeded">Exceeded</button>
-      <button class="filter-tab" type="button" data-filter="inactive">Inactive</button>
+      <button class="filter-tab active" type="button" data-filter="all">{{ t("common.types.all") }}</button>
+      <button class="filter-tab" type="button" data-filter="on_track">{{ t("common.status.on_track") }}</button>
+      <button class="filter-tab" type="button" data-filter="warning">{{ t("common.status.warning") }}</button>
+      <button class="filter-tab" type="button" data-filter="exceeded">{{ t("common.status.exceeded") }}</button>
+      <button class="filter-tab" type="button" data-filter="inactive">{{ t("common.status.inactive") }}</button>
     </div>
 
     <div class="toolbar-right">
@@ -57,14 +57,14 @@
           <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/>
           <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
         </svg>
-        <input id="budgetSearch" type="text" placeholder="Search budgets..." autocomplete="off" />
+        <input id="budgetSearch" type="text" placeholder="{{ t('budgets.search_placeholder') }}" autocomplete="off" />
       </div>
 
       <button class="btn-add-budget" id="btn-open-budget-modal" type="button">
         <svg viewBox="0 0 12 12" fill="none">
           <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
-        Add Budget
+        {{ t("budgets.add_budget") }}
       </button>
     </div>
   </div>
@@ -76,8 +76,8 @@
       <rect x="4" y="6" width="16" height="12" rx="2" stroke="currentColor" stroke-width="1.4"/>
       <path d="M8 12h8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/>
     </svg>
-    <h3>No budgets yet</h3>
-    <p>Create your first budget to start tracking category limits against real transactions.</p>
+    <h3>{{ t("budgets.no_budgets_title") }}</h3>
+    <p>{{ t("budgets.no_budgets_copy") }}</p>
   </section>
 </main>
 
@@ -85,10 +85,10 @@
   <div class="modal budget-modal">
     <div class="modal-header">
       <div>
-        <div class="modal-title" id="budget-modal-title">New Budget</div>
-        <div class="modal-subtitle" id="budget-modal-subtitle">Create a budget rule and attach one or more expense categories.</div>
+        <div class="modal-title" id="budget-modal-title">{{ t("budgets.modal_new_title") }}</div>
+        <div class="modal-subtitle" id="budget-modal-subtitle">{{ t("budgets.modal_new_subtitle") }}</div>
       </div>
-      <button type="button" class="modal-close" data-close="modal-budget" aria-label="Close">
+      <button type="button" class="modal-close" data-close="modal-budget" aria-label="{{ t('common.buttons.close') }}">
         <svg viewBox="0 0 12 12" fill="none">
           <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
         </svg>
@@ -99,17 +99,17 @@
       <input type="hidden" id="budgetId" />
 
       <div class="form-group full">
-        <label class="form-label" for="budgetName">Name <span>*</span></label>
-        <input class="form-input" id="budgetName" type="text" maxlength="100" placeholder="e.g. Groceries" required />
+        <label class="form-label" for="budgetName">{{ t("common.fields.name") }} <span>*</span></label>
+        <input class="form-input" id="budgetName" type="text" maxlength="100" placeholder="{{ t('budgets.name_placeholder') }}" required />
       </div>
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label" for="budgetLimit">Limit <span>*</span></label>
+          <label class="form-label" for="budgetLimit">{{ t("common.fields.limit") }} <span>*</span></label>
           <input class="form-input" id="budgetLimit" type="number" min="0.01" step="0.01" placeholder="0.00" required />
         </div>
         <div class="form-group">
-          <label class="form-label" for="budgetCurrency">Currency</label>
+          <label class="form-label" for="budgetCurrency">{{ t("common.fields.currency") }}</label>
           <select class="form-select" id="budgetCurrency">
             <option value="UAH">UAH</option>
             <option value="USD">USD</option>
@@ -121,44 +121,44 @@
 
       <div class="form-row">
         <div class="form-group">
-          <label class="form-label" for="budgetPeriodType">Period</label>
+          <label class="form-label" for="budgetPeriodType">{{ t("common.fields.period") }}</label>
           <select class="form-select" id="budgetPeriodType">
-            <option value="monthly">Monthly</option>
-            <option value="weekly">Weekly</option>
-            <option value="custom">Custom range</option>
+            <option value="monthly">{{ t("common.periods.monthly") }}</option>
+            <option value="weekly">{{ t("common.periods.weekly") }}</option>
+            <option value="custom">{{ t("common.periods.custom") }}</option>
           </select>
         </div>
         <div class="form-group">
-          <label class="form-label" for="budgetStartDate">Start date <span>*</span></label>
+          <label class="form-label" for="budgetStartDate">{{ t("budgets.start_date") }} <span>*</span></label>
           <input class="form-input" id="budgetStartDate" type="date" required />
         </div>
       </div>
 
       <div class="form-row">
         <div class="form-group" id="budgetEndDateGroup">
-          <label class="form-label" for="budgetEndDate">End date</label>
+          <label class="form-label" for="budgetEndDate">{{ t("budgets.end_date") }}</label>
           <input class="form-input" id="budgetEndDate" type="date" />
         </div>
         <div class="form-group">
-          <label class="form-label" for="budgetDesc">Description <span>(optional)</span></label>
-          <input class="form-input" id="budgetDesc" type="text" maxlength="255" placeholder="Short note for this budget" />
+          <label class="form-label" for="budgetDesc">{{ t("common.fields.description") }} <span>({{ t("common.optional") }})</span></label>
+          <input class="form-input" id="budgetDesc" type="text" maxlength="255" placeholder="{{ t('budgets.description_placeholder') }}" />
         </div>
       </div>
 
       <div class="budget-form-hint" id="budgetPeriodHint">
-        Monthly and weekly budgets use the current calendar period while the start date controls when the budget becomes active.
+        {{ t("budgets.monthly_hint") }}
       </div>
 
-      <div class="modal-section-title">Expense Categories</div>
-      <div class="budget-form-hint" id="budgetCategorySummary">Select one or more expense categories.</div>
+      <div class="modal-section-title">{{ t("budgets.expense_categories") }}</div>
+      <div class="budget-form-hint" id="budgetCategorySummary">{{ t("budgets.select_categories") }}</div>
       <div class="budget-category-picker" id="budgetCategoryList"></div>
       <div class="budget-form-hint" id="budgetCategoryEmpty" hidden>
-        No expense categories are available yet. Create them on the Categories page first.
+        {{ t("budgets.no_expense_categories") }}
       </div>
 
       <div class="modal-footer">
-        <button type="button" class="btn-cancel" data-close="modal-budget">Cancel</button>
-        <button type="submit" class="btn-submit" id="budgetSubmitBtn">Create Budget</button>
+        <button type="button" class="btn-cancel" data-close="modal-budget">{{ t("common.buttons.cancel") }}</button>
+        <button type="submit" class="btn-submit" id="budgetSubmitBtn">{{ t("budgets.add_budget") }}</button>
       </div>
     </form>
   </div>
@@ -177,17 +177,17 @@
         </svg>
       </div>
 
-      <div class="delete-title" id="budget-delete-title">Delete Budget</div>
+      <div class="delete-title" id="budget-delete-title">{{ t("budgets.delete_title") }}</div>
       <div class="delete-desc">
-        Are you sure you want to delete
+        {{ t("budgets.delete_prompt") }}
         <span class="delete-target" id="deleteBudgetName"></span>?
-        Its category links will be removed and this action cannot be undone.
+        {{ t("budgets.delete_after") }}
       </div>
     </div>
 
     <div class="delete-footer">
-      <button type="button" class="btn-cancel" data-close="modal-budget-delete">Cancel</button>
-      <button type="button" class="btn-delete-confirm" id="budgetDeleteConfirmBtn">Delete</button>
+      <button type="button" class="btn-cancel" data-close="modal-budget-delete">{{ t("common.buttons.cancel") }}</button>
+      <button type="button" class="btn-delete-confirm" id="budgetDeleteConfirmBtn">{{ t("common.buttons.delete") }}</button>
     </div>
   </div>
 </div>

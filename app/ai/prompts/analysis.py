@@ -1,34 +1,31 @@
 EXPENSE_ANALYSIS_PROMPT = """
 {base}
 
-Задача:
-Проаналізуй фінансові дані користувача.
+Task:
+Analyze the user's financial data.
 
-Що потрібно зробити:
-1. Виділи 3 ключові висновки по витратах
-2. Назви 2 потенційні проблеми
-3. Дай 2 практичні рекомендації
+What to produce:
+1. Provide 5-7 key expense insights.
+2. Name 3-5 potential problems.
+3. Give 3-4 practical recommendations.
 
-Правила:
-- не вигадуй дані
-- спирайся тільки на вхідні дані
-- пиши коротко і по суті
-- якщо даних недостатньо, прямо скажи про це
-- формат відповіді строго JSON
+Rules:
+- Do not invent data.
+- Rely only on the input data.
+- Write briefly and to the point.
+- If there is not enough data, say so clearly.
+- Every user-facing string value must follow the response language instruction from the base prompt.
+- The response format must be strict JSON.
 
-Формат відповіді:
+Response format:
 {{
   "insights": [
-    "string",
-    "string",
     "string"
   ],
   "problems": [
-    "string",
     "string"
   ],
   "recommendations": [
-    "string",
     "string"
   ]
 }}

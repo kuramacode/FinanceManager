@@ -24,6 +24,7 @@ EXPENSE_FORECAST_PROMPT = """
   "trend": "up|down|stable|unknown",
   "top_categories": [
     "string",
+    "string",
     "string"
   ],
   "note": "string"

@@ -9,7 +9,7 @@
     if (!element) {
       return {
         key: root.dataset.pageKey || "generic",
-        label: root.dataset.pageLabel || "Workspace",
+        label: root.dataset.pageLabel || tr("common.app_name", {}, "Workspace"),
         caption: root.dataset.pageCaption || "",
         actions: [],
       };
@@ -20,7 +20,7 @@
     } catch (_) {
       return {
         key: root.dataset.pageKey || "generic",
-        label: root.dataset.pageLabel || "Workspace",
+        label: root.dataset.pageLabel || tr("common.app_name", {}, "Workspace"),
         caption: root.dataset.pageCaption || "",
         actions: [],
       };
@@ -34,6 +34,26 @@
       .replaceAll(">", "&gt;")
       .replaceAll('"', "&quot;")
       .replaceAll("'", "&#39;");
+  }
+
+  function tr(key, replacements = {}, fallback = "") {
+    return window.ledgerI18n?.t(key, replacements, fallback) || fallback || key;
+  }
+
+  function currentLanguage() {
+    return window.ledgerI18n?.language || root.dataset.language || document.documentElement.lang || "en";
+  }
+
+  function localizedField(source, field, fallback = "") {
+    const key = source?.[`${field}_key`] || source?.[`${field}Key`] || "";
+    const value = source?.[field] || fallback;
+    return key ? tr(key, {}, value) : value;
+  }
+
+  function endpointForLanguage(endpoint) {
+    const url = new URL(endpoint, window.location.origin);
+    url.searchParams.set("lang", currentLanguage());
+    return url.toString();
   }
 
   const config = readConfig();
@@ -112,10 +132,10 @@
     const wrapper = document.createElement("div");
     wrapper.className = `ai-entrypoint__message ai-entrypoint__message--${role === "user" ? "user" : "assistant"}`;
 
-    const roleLabel = role === "user" ? "You" : options.roleLabel || "AI shell";
+    const roleLabel = role === "user" ? tr("ai.you") : options.roleLabel || tr("ai.ai_shell");
     const bubbleClass = options.note ? "ai-entrypoint__message-bubble ai-entrypoint__message-bubble--note" : "ai-entrypoint__message-bubble";
     const promptMarkup = options.prompt
-      ? `<div class="ai-entrypoint__message-prompt"><strong>Suggested prompt:</strong> ${escapeHtml(options.prompt)}</div>`
+      ? `<div class="ai-entrypoint__message-prompt"><strong>${escapeHtml(tr("ai.suggested_prompt"))}</strong> ${escapeHtml(options.prompt)}</div>`
       : "";
 
     wrapper.innerHTML = `
@@ -146,12 +166,12 @@
 
   function formatExpenseAnalysis(data) {
     const sections = [
-      formatSection("Insights", data?.insights),
-      formatSection("Problems", data?.problems),
-      formatSection("Recommendations", data?.recommendations),
+      formatSection(tr("ai.sections.insights"), data?.insights),
+      formatSection(tr("ai.sections.problems"), data?.problems),
+      formatSection(tr("ai.sections.recommendations"), data?.recommendations),
     ].filter(Boolean);
 
-    return sections.join("\n\n") || "The AI response did not include visible findings.";
+    return sections.join("\n\n") || tr("ai.response_empty");
   }
 
   function errorMessage(payload, fallback) {
@@ -169,14 +189,15 @@
 
     const currentRequestId = ++state.requestId;
     if (statusPill) {
-      statusPill.textContent = "Analyzing";
+      statusPill.textContent = tr("ai.analyzing");
     }
 
     try {
-      const response = await fetch(action.endpoint, {
+      const response = await fetch(endpointForLanguage(action.endpoint), {
         method: action.method || "GET",
         headers: {
           Accept: "application/json",
+          "X-Ledger-Language": currentLanguage(),
         },
       });
 
@@ -188,7 +209,7 @@
       }
 
       if (!response.ok || !payload?.ok) {
-        throw new Error(errorMessage(payload, `AI request failed with status ${response.status}`));
+        throw new Error(errorMessage(payload, tr("ai.request_failed", { status: response.status }, `AI request failed with status ${response.status}`)));
       }
 
       if (currentRequestId !== state.requestId) {
@@ -197,7 +218,7 @@
 
       appendMessage("assistant", formatExpenseAnalysis(payload.data), { roleLabel: "AI" });
       if (statusPill) {
-        statusPill.textContent = "Analysis ready";
+        statusPill.textContent = tr("ai.analysis_ready");
       }
     } catch (error) {
       if (currentRequestId !== state.requestId) {
@@ -206,12 +227,12 @@
 
       appendMessage(
         "assistant",
-        `Could not run AI analysis: ${error?.message || "unknown error"}`,
+        tr("ai.could_not_run", { message: error?.message || tr("common.unknown") }),
         { note: true, roleLabel: "AI" },
       );
 
       if (statusPill) {
-        statusPill.textContent = "AI unavailable";
+        statusPill.textContent = tr("ai.ai_unavailable");
       }
     }
   }
@@ -224,7 +245,7 @@
     if (action.endpoint) {
       appendMessage(
         "assistant",
-        `Running "${action.title}" with the connected Finance Manager AI service.`,
+        tr("ai.running_action", { title: action.title }),
         {
           note: true,
         },
@@ -235,7 +256,7 @@
 
     appendMessage(
       "assistant",
-      `Ready for "${action.title}". This panel is a front-end preview, so no real AI request is sent yet.`,
+      tr("ai.ready_preview", { title: action.title }),
       {
         note: true,
         prompt: action.prompt,
@@ -243,7 +264,7 @@
     );
     appendMessage(
       "assistant",
-      "The future backend can stream answers here, keep conversation history, and attach page-aware suggestions without changing this UI shell.",
+      tr("ai.future_backend"),
     );
   }
 
@@ -304,9 +325,12 @@
 
     return {
       id: actionButton.dataset.aiActionId || "",
-      title: actionButton.dataset.aiActionTitle || "AI action",
-      description: actionButton.dataset.aiActionDescription || "",
-      prompt: actionButton.dataset.aiActionPrompt || "",
+      title: localizedField(actionButton.dataset, "title", tr("ai.choose_action_short")),
+      titleKey: actionButton.dataset.aiActionTitleKey || "",
+      description: localizedField(actionButton.dataset, "description", ""),
+      descriptionKey: actionButton.dataset.aiActionDescriptionKey || "",
+      prompt: localizedField(actionButton.dataset, "prompt", ""),
+      promptKey: actionButton.dataset.aiActionPromptKey || "",
       endpoint: actionButton.dataset.aiActionEndpoint || "",
       method: actionButton.dataset.aiActionMethod || "GET",
     };
@@ -322,9 +346,12 @@
 
     state.selectedAction = {
       id: action.id || "",
-      title: action.title || "AI action",
-      description: action.description || "",
-      prompt: action.prompt || "",
+      title: localizedField(action, "title", tr("ai.choose_action_short")),
+      titleKey: action.title_key || action.titleKey || "",
+      description: localizedField(action, "description", ""),
+      descriptionKey: action.description_key || action.descriptionKey || "",
+      prompt: localizedField(action, "prompt", ""),
+      promptKey: action.prompt_key || action.promptKey || "",
       endpoint: action.endpoint || "",
       method: action.method || "GET",
     };
@@ -334,7 +361,7 @@
     }
 
     if (drawerSubtitle) {
-      drawerSubtitle.textContent = state.selectedAction.description || `${config.label} assistant shell`;
+      drawerSubtitle.textContent = state.selectedAction.description || tr("ai.assistant_shell", { page: config.label });
     }
 
     if (pagePill) {
@@ -397,8 +424,8 @@
     appendMessage(
       "assistant",
       state.selectedAction?.endpoint
-        ? "Follow-up chat is not connected yet. Run the dashboard AI action again to refresh the expense analysis."
-        : "Preview mode is active. This UI is ready for a real AI response handler, but nothing is being sent anywhere yet.",
+        ? tr("ai.followup_not_connected")
+        : tr("ai.preview_mode"),
     );
 
     input.value = "";

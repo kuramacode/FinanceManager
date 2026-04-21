@@ -18,8 +18,16 @@ class CategoryStatSchema(BaseModel):
     name: str
     amount: float
     transaction_count: int = 0
+
+class ResponseLanguageSchema(BaseModel):
+    language: str = "en"
+    locale: str = "en-US"
+    label: str = "English"
+    native: str = "English"
+    ai_instruction: str = "Answer every user-facing string in English."
     
 class ExpenseAnalysisInputSchema(BaseModel):
+    response_language: ResponseLanguageSchema = Field(default_factory=ResponseLanguageSchema)
     period: PeriodSchema
     totals: TotalStatsSchema
     top_expense_categories: List[CategoryStatSchema] = Field(default_factory=list)
