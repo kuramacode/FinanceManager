@@ -113,6 +113,39 @@
       color: var(--text);
     }
 
+    .date-range-form {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0;
+    }
+
+    .date-range select,
+    .date-range input {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-family: "Epilogue", sans-serif;
+      font-size: 0.74rem;
+      outline: none;
+    }
+
+    .date-range input[type="date"] {
+      width: 128px;
+    }
+
+    .date-range-custom-fields {
+      display: none;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+
+    .date-range-form.is-custom .date-range-custom-fields {
+      display: inline-flex;
+    }
+
     .date-range svg {
       width: 13px;
       height: 13px;
@@ -376,6 +409,11 @@
         justify-content: space-between;
       }
 
+      .date-range-form,
+      .date-range {
+        width: 100%;
+      }
+
       .transactions-panel {
         overflow-x: auto;
       }
@@ -459,13 +497,28 @@
         <div class="panel-title" id="resultsCopy">{{ t("transactions.all_transactions") }}</div>
 
         <div class="panel-actions">
-          <div class="date-range">
-            <svg viewBox="0 0 15 15" fill="none">
-              <rect x="2" y="3" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" />
-              <path d="M4 1.8v2.4M11 1.8v2.4M2 6h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-            </svg>
-            {{ date_range_label }}
-          </div>
+          <form class="date-range-form {% if period.key == 'custom' %}is-custom{% endif %}" action="{{ url_for('transactions.transactions') }}" method="get">
+            <input id="transactionsPeriodFilter" type="hidden" name="filter" value="{{ initial_filter }}" />
+            <label class="date-range" for="transactionsPeriod">
+              <svg viewBox="0 0 15 15" fill="none" aria-hidden="true">
+                <rect x="2" y="3" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+                <path d="M4 1.8v2.4M11 1.8v2.4M2 6h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+              </svg>
+              <select id="transactionsPeriod" name="period" onchange="this.form.submit()">
+                {% for option in period_options %}
+                  <option value="{{ option }}" {% if period.key == option %}selected{% endif %}>{{ t("periods." ~ option) }}</option>
+                {% endfor %}
+              </select>
+            </label>
+            <span class="date-range-custom-fields">
+              <label class="date-range" for="transactionsPeriodStart">
+                <input id="transactionsPeriodStart" type="date" name="start" value="{{ period.start_value }}" onchange="this.form.submit()" />
+              </label>
+              <label class="date-range" for="transactionsPeriodEnd">
+                <input id="transactionsPeriodEnd" type="date" name="end" value="{{ period.end_value }}" onchange="this.form.submit()" />
+              </label>
+            </span>
+          </form>
         </div>
       </div>
 
@@ -518,6 +571,9 @@
         <input type="hidden" id="transactionFormAction" name="action" value="create" />
         <input type="hidden" id="transactionId" name="transaction_id" value="" />
         <input type="hidden" id="transactionReturnFilter" name="return_filter" value="{{ initial_filter }}" />
+        <input type="hidden" name="return_period" value="{{ period.key }}" />
+        <input type="hidden" name="return_start" value="{{ period.start_value }}" />
+        <input type="hidden" name="return_end" value="{{ period.end_value }}" />
 
         <div class="modal-section-title">{{ t("transactions.details") }}</div>
 
@@ -624,6 +680,9 @@
         <input type="hidden" name="action" value="delete" />
         <input type="hidden" name="transaction_id" id="deleteTransactionId" value="" />
         <input type="hidden" name="return_filter" id="deleteTransactionReturnFilter" value="{{ initial_filter }}" />
+        <input type="hidden" name="return_period" value="{{ period.key }}" />
+        <input type="hidden" name="return_start" value="{{ period.start_value }}" />
+        <input type="hidden" name="return_end" value="{{ period.end_value }}" />
 
         <div class="delete-body">
           <div class="delete-icon">

@@ -8,6 +8,7 @@ from app.models import db
 from app.models.transactions import Transactions
 from app.services.accounts import AccountService
 from app.services.category import Category_Service
+from app.utils.periods import PERIOD_OPTIONS, apply_period_filter, period_query_params, resolve_period
 from app.utils.main_scripts import get_userid, get_username
 
 _transactions = Blueprint("transactions", __name__)
@@ -23,12 +24,19 @@ def _normalize_filter(value: str | None) -> str:
     return value if value in {"all", *TRANSACTION_TYPES} else "all"
 
 
-def _redirect_with_feedback(status: str, message: str, filter_value: str | None = None):
+def _redirect_with_feedback(
+    status: str,
+    message: str,
+    filter_value: str | None = None,
+    period=None,
+):
     """Повертає редірект на сторінку списку з повідомленням про результат дії та, за потреби, збереженим фільтром."""
     params = {
         "status": status,
         "message": message,
     }
+    if period is not None:
+        params.update(period_query_params(period))
     normalized_filter = _normalize_filter(filter_value)
     if normalized_filter != "all":
         params["filter"] = normalized_filter
@@ -213,6 +221,11 @@ def transactions():
     if request.method == "POST":
         action = (request.form.get("action") or "create").strip().lower()
         return_filter = request.form.get("return_filter")
+        return_period = resolve_period(
+            request.form.get("return_period"),
+            request.form.get("return_start"),
+            request.form.get("return_end"),
+        )
 
         try:
             if action == "delete":
@@ -223,7 +236,7 @@ def transactions():
 
                 db.session.delete(transaction)
                 db.session.commit()
-                return _redirect_with_feedback("success", t("errors.transaction_deleted"), return_filter)
+                return _redirect_with_feedback("success", t("errors.transaction_deleted"), return_filter, return_period)
 
             if action not in {"create", "update"}:
                 raise ValueError(t("errors.unsupported_transaction_action"))
@@ -234,7 +247,7 @@ def transactions():
                 transaction = Transactions(user_id=user_id, **payload)
                 db.session.add(transaction)
                 db.session.commit()
-                return _redirect_with_feedback("success", t("errors.transaction_created"), return_filter)
+                return _redirect_with_feedback("success", t("errors.transaction_created"), return_filter, return_period)
 
             transaction_id = int(request.form.get("transaction_id") or 0)
             transaction = db.session.get(Transactions, transaction_id)
@@ -245,21 +258,27 @@ def transactions():
                 setattr(transaction, field, value)
 
             db.session.commit()
-            return _redirect_with_feedback("success", t("errors.transaction_updated"), return_filter)
+            return _redirect_with_feedback("success", t("errors.transaction_updated"), return_filter, return_period)
         except ValueError as exc:
             db.session.rollback()
-            return _redirect_with_feedback("error", str(exc), return_filter)
+            return _redirect_with_feedback("error", str(exc), return_filter, return_period)
 
     initial_filter = _normalize_filter(request.args.get("filter"))
+    period = resolve_period(request.args.get("period"), request.args.get("start"), request.args.get("end"))
     feedback_status = (request.args.get("status") or "").strip().lower()
     if feedback_status not in {"success", "error"}:
         feedback_status = ""
     feedback_message = (request.args.get("message") or "").strip()
 
     categories, accounts, category_map, account_map = _load_reference_data(user_id)
+    query = apply_period_filter(
+        Transactions.query.filter_by(user_id=user_id),
+        Transactions,
+        period,
+    )
     transactions_data = [
         _normalize_transaction(transaction, category_map, account_map)
-        for transaction in Transactions.query.filter_by(user_id=user_id).order_by(Transactions.date.desc()).all()
+        for transaction in query.order_by(Transactions.date.desc()).all()
     ]
     summary = _build_transactions_summary(transactions_data)
 
@@ -269,7 +288,9 @@ def transactions():
         categories_data=categories,
         accounts_data=accounts,
         summary=summary,
-        date_range_label=_build_date_range_label(transactions_data),
+        date_range_label=period.label,
+        period=period,
+        period_options=PERIOD_OPTIONS,
         initial_filter=initial_filter,
         feedback_status=feedback_status,
         feedback_message=feedback_message,

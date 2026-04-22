@@ -22,7 +22,7 @@
         <svg viewBox="0 0 15 15" fill="none"><path d="M1.5 4h12M1.5 7.5h9M1.5 11h6" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         {{ t("nav.transactions") }}
       </a>
-      <a href="#">
+      <a href="{{ url_for('history.history') }}" class="{% if app_shell.active_page == 'history' %}active{% endif %}">
         <svg viewBox="0 0 15 15" fill="none"><circle cx="7.5" cy="7.5" r="6" stroke="currentColor" stroke-width="1.4"/><path d="M7.5 4.5v3l2 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
         {{ t("nav.history") }}
       </a>

@@ -2,6 +2,7 @@ import sys
 import os
 import types
 import unittest
+from datetime import datetime, timedelta
 from functools import wraps
 from pathlib import Path
 
@@ -38,7 +39,7 @@ class _CurrentUserProxy:
 
     def __bool__(self):
         """Повертає стан автентифікації тестового користувача."""
-        return bool(getattr(self._value, "is_authentificated", False))
+        return bool(getattr(self._value, "is_authenticated", False))
 
 
 current_user = _CurrentUserProxy()
@@ -180,6 +181,35 @@ class TestAppRoutes(unittest.TestCase):
         self.assertEqual(response.status_code, 302)
         self.assertIn("/dashboard", response.headers["Location"])
 
+    def test_login_shows_error_when_username_does_not_exist(self):
+        """Перевіряє сценарій `login_shows_error_when_username_does_not_exist`."""
+        response = self._login(username="missing_user", password="secret123")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"No user with this username was found", response.data)
+        self.assertIn(b'value="missing_user"', response.data)
+
+    def test_login_shows_error_when_password_is_incorrect(self):
+        """Перевіряє сценарій `login_shows_error_when_password_is_incorrect`."""
+        self._create_user()
+
+        response = self._login(password="wrong-password")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Incorrect password", response.data)
+
+    def test_login_shows_errors_for_empty_fields(self):
+        """Перевіряє сценарій `login_shows_errors_for_empty_fields`."""
+        response = self.client.post(
+            "/login",
+            data={"username": "", "password": ""},
+            follow_redirects=False,
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Enter your username", response.data)
+        self.assertIn(b"Enter your password", response.data)
+
     def test_transactions_post_creates_transaction_record(self):
         """Перевіряє сценарій `transactions_post_creates_transaction_record`."""
         user = self._create_user()
@@ -212,6 +242,114 @@ class TestAppRoutes(unittest.TestCase):
         self.assertIsNotNone(tx)
         self.assertEqual(tx.type, "expense")
         self.assertEqual(tx.category_id, category.id)
+
+    def test_history_page_renders_user_transactions(self):
+        """Перевіряє сценарій `history_page_renders_user_transactions`."""
+        user = self._create_user()
+        category = Categories(name="Food", user_id=user.id, emoji="🍔", type="expense", built_in=False)
+        db.session.add(category)
+        db.session.commit()
+        db.session.add(
+            Transactions(
+                amount=123.45,
+                date=datetime(2026, 3, 31, 12, 30),
+                description="Lunch",
+                user_id=user.id,
+                category_id=category.id,
+                type="expense",
+                currency_code="USD",
+            )
+        )
+        db.session.commit()
+
+        self._login(username=user.username, password="secret123")
+        response = self.client.get("/history")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Lunch", response.data)
+        self.assertIn(b"History - Ledger", response.data)
+
+    def test_transactions_page_filters_by_custom_period(self):
+        """Перевіряє сценарій `transactions_page_filters_by_custom_period`."""
+        user = self._create_user()
+        category = Categories(name="Food", user_id=user.id, emoji="🍔", type="expense", built_in=False)
+        db.session.add(category)
+        db.session.commit()
+        now = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)
+        old_date = now - timedelta(days=45)
+        db.session.add_all(
+            [
+                Transactions(
+                    amount=10,
+                    date=now,
+                    description="Current period lunch",
+                    user_id=user.id,
+                    category_id=category.id,
+                    type="expense",
+                    currency_code="UAH",
+                ),
+                Transactions(
+                    amount=20,
+                    date=old_date,
+                    description="Old period lunch",
+                    user_id=user.id,
+                    category_id=category.id,
+                    type="expense",
+                    currency_code="UAH",
+                ),
+            ]
+        )
+        db.session.commit()
+
+        self._login(username=user.username, password="secret123")
+        response = self.client.get(
+            f"/transactions?period=custom&start={now.date().isoformat()}&end={now.date().isoformat()}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Current period lunch", response.data)
+        self.assertNotIn(b"Old period lunch", response.data)
+
+    def test_dashboard_filters_by_custom_period(self):
+        """Перевіряє сценарій `dashboard_filters_by_custom_period`."""
+        user = self._create_user()
+        category = Categories(name="Food", user_id=user.id, emoji="🍔", type="expense", built_in=False)
+        db.session.add(category)
+        db.session.commit()
+        now = datetime.now().replace(hour=12, minute=0, second=0, microsecond=0)
+        old_date = now - timedelta(days=45)
+        db.session.add_all(
+            [
+                Transactions(
+                    amount=10,
+                    date=now,
+                    description="Dashboard current lunch",
+                    user_id=user.id,
+                    category_id=category.id,
+                    type="expense",
+                    currency_code="UAH",
+                ),
+                Transactions(
+                    amount=20,
+                    date=old_date,
+                    description="Dashboard old lunch",
+                    user_id=user.id,
+                    category_id=category.id,
+                    type="expense",
+                    currency_code="UAH",
+                ),
+            ]
+        )
+        db.session.commit()
+
+        self._login(username=user.username, password="secret123")
+        response = self.client.get(
+            f"/dashboard?period=custom&start={now.date().isoformat()}&end={now.date().isoformat()}"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn(b"Dashboard current lunch", response.data)
+        self.assertNotIn(b"Dashboard old lunch", response.data)
 
 
 if __name__ == "__main__":

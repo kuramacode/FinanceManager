@@ -1,12 +1,11 @@
-from datetime import datetime
-
-from flask import Blueprint, render_template
+from flask import Blueprint, render_template, request
 from flask_login import login_required
 
 from app.content.lead.dashboard_service import get_last_transactions, get_sum_expense, get_sum_income
-from app.i18n import format_month_year, translate as t
+from app.i18n import translate as t
 from app.services.accounts import AccountService
 from app.services.budget_services.budgets import BudgetService
+from app.utils.periods import PERIOD_OPTIONS, resolve_period
 from app.utils.main_scripts import get_categories_lookup, get_userid, get_username
 
 _dashboard = Blueprint("dashboard", __name__)
@@ -88,9 +87,10 @@ def _build_dashboard_insights(balance, income_sum, budgets, transactions):
 def dashboard():
     """Обробляє маршрут `dashboard`."""
     user_id = get_userid()
-    transactions = get_last_transactions(user_id)
-    income_sum = get_sum_income(user_id)
-    expense_sum = get_sum_expense(user_id)
+    period = resolve_period(request.args.get("period"), request.args.get("start"), request.args.get("end"))
+    transactions = get_last_transactions(user_id, period.start, period.end)
+    income_sum = get_sum_income(user_id, period.start, period.end)
+    expense_sum = get_sum_expense(user_id, period.start, period.end)
     balance = income_sum - expense_sum
 
     categories_lookup = get_categories_lookup(user_id)
@@ -115,6 +115,7 @@ def dashboard():
         active_budgets=active_budgets,
         dashboard_insights=dashboard_insights,
         savings_rate=savings_rate,
-        current_month_label=format_month_year(datetime.now()),
+        period=period,
+        period_options=PERIOD_OPTIONS,
         active_page="dashboard",
     )
