@@ -2,7 +2,7 @@
 {% block head %}
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Categories — Ledger</title>
+  <title>{{ t("categories.title") }}</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -13,24 +13,24 @@
 {% block body %}
 <!-- ── MAIN ── -->
 <main>
-  <h1 class="page-title">Categ<em>ories</em></h1>
-  <p class="page-sub">Organise your spending and income into groups</p>
+  <h1 class="page-title">{{ t("categories.heading") | safe }}</h1>
+  <p class="page-sub">{{ t("categories.subtitle") }}</p>
 
   <!-- Toolbar -->
   <div class="toolbar">
     <div class="filter-tabs">
-      <button class="filter-tab active" data-filter="all">All</button>
-      <button class="filter-tab" data-filter="expense">Expense</button>
-      <button class="filter-tab" data-filter="income">Income</button>
+      <button class="filter-tab active" data-filter="all">{{ t("common.types.all") }}</button>
+      <button class="filter-tab" data-filter="expense">{{ t("common.types.expense") }}</button>
+      <button class="filter-tab" data-filter="income">{{ t("common.types.income") }}</button>
     </div>
     <div class="toolbar-right">
       <div class="search-wrap">
         <svg viewBox="0 0 15 15" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4"/><path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        <input type="text" id="search-input" placeholder="Search…" autocomplete="off" />
+        <input type="text" id="search-input" placeholder="{{ t('categories.search_placeholder') }}" autocomplete="off" />
       </div>
       <button class="btn-add" id="btn-add-cat">
         <svg viewBox="0 0 12 12" fill="none"><path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        Add Category
+        {{ t("categories.add_category") }}
       </button>
     </div>
   </div>
@@ -38,28 +38,28 @@
   <!-- Expense categories -->
   <div class="categories-section" id="section-expense">
     <div class="section-header">
-      <span class="section-header-label">Expense</span>
+      <span class="section-header-label">{{ t("common.types.expense") }}</span>
       <span class="section-count" id="count-expense">0</span>
       <div class="section-line"></div>
     </div>
     <div class="cat-grid" id="grid-expense"></div>
     <div class="empty-state" id="empty-expense">
       <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <p>No expense categories yet</p>
+      <p>{{ t("categories.no_expense") }}</p>
     </div>
   </div>
 
   <!-- Income categories -->
   <div class="categories-section" id="section-income">
     <div class="section-header">
-      <span class="section-header-label">Income</span>
+      <span class="section-header-label">{{ t("common.types.income") }}</span>
       <span class="section-count" id="count-income">0</span>
       <div class="section-line"></div>
     </div>
     <div class="cat-grid" id="grid-income"></div>
     <div class="empty-state" id="empty-income">
       <svg viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4"/><path d="M8 12h8M12 8v8" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-      <p>No income categories yet</p>
+      <p>{{ t("categories.no_income") }}</p>
     </div>
   </div>
 </main>
@@ -68,39 +68,39 @@
 <div class="modal-overlay" id="modal-overlay">
   <div class="modal">
     <div class="modal-header">
-      <div class="modal-title" id="modal-title">New <em>Category</em></div>
+      <div class="modal-title" id="modal-title">{{ t("categories.modal_new_title") | safe }}</div>
       <button class="modal-close" id="modal-close">
         <svg viewBox="0 0 11 11" fill="none"><path d="M1 1l9 9M10 1L1 10" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
       </button>
     </div>
-    <p class="modal-sub" id="modal-sub">Fill in the details below to create a category</p>
+    <p class="modal-sub" id="modal-sub">{{ t("categories.modal_new_subtitle") }}</p>
 
     <div class="field">
-      <label>Icon</label>
+      <label>{{ t("common.fields.icon") }}</label>
       <div class="emoji-row" id="emoji-row"></div>
     </div>
 
     <div class="field">
-      <label>Name</label>
-      <input type="text" id="field-name" placeholder="e.g. Groceries" maxlength="40" autocomplete="off" />
+      <label>{{ t("common.fields.name") }}</label>
+      <input type="text" id="field-name" placeholder="{{ t('categories.name_placeholder') }}" maxlength="40" autocomplete="off" />
     </div>
 
     <div class="field">
-      <label>Description <span style="font-weight:400;text-transform:none;letter-spacing:0;">(optional)</span></label>
-      <input type="text" id="field-desc" placeholder="Short note…" maxlength="80" autocomplete="off" />
+      <label>{{ t("common.fields.description") }} <span style="font-weight:400;text-transform:none;letter-spacing:0;">({{ t("common.optional") }})</span></label>
+      <input type="text" id="field-desc" placeholder="{{ t('categories.description_placeholder') }}" maxlength="80" autocomplete="off" />
     </div>
 
     <div class="field">
-      <label>Type</label>
+      <label>{{ t("common.fields.type") }}</label>
       <div class="type-toggle">
-        <button class="type-btn expense active" data-type="expense">Expense</button>
-        <button class="type-btn income" data-type="income">Income</button>
+        <button class="type-btn expense active" data-type="expense">{{ t("common.types.expense") }}</button>
+        <button class="type-btn income" data-type="income">{{ t("common.types.income") }}</button>
       </div>
     </div>
 
     <div class="modal-actions" id="modal-actions">
-      <button class="btn-cancel" id="btn-cancel">Cancel</button>
-      <button class="btn-submit" id="btn-submit">Create</button>
+      <button class="btn-cancel" id="btn-cancel">{{ t("common.buttons.cancel") }}</button>
+      <button class="btn-submit" id="btn-submit">{{ t("common.buttons.create") }}</button>
     </div>
   </div>
 </div>

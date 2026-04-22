@@ -1,4 +1,4 @@
-from app.models.__init__ import db
+from . import db
 
 class Currency(db.Model):
     __tablename__ = 'currencies'
@@ -6,5 +6,5 @@ class Currency(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(3), unique=True, nullable=False)
     name = db.Column(db.String(20), unique=True, nullable=False)
-    flag = db.Column(db.String(3), unique=True, nullable=False)
+    flag = db.Column(db.String(8), unique=True, nullable=False)
     

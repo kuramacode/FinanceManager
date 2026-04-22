@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from sqlalchemy import case, func
 
-from app.models import Accounts, Transactions
+from app.models.accounts import Accounts
+from app.models.transactions import Transactions
 
 
 class AccountBalanceService:

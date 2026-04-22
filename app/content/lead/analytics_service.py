@@ -3,7 +3,8 @@ from __future__ import annotations
 from collections import Counter
 from datetime import date, datetime
 
-from app.models import Transactions
+from app.models.transactions import Transactions
+from app.i18n import translate as t
 from app.services.accounts import AccountService
 from app.services.budget_services.budgets import BudgetService
 from app.services.category import Category_Service
@@ -26,7 +27,7 @@ def _normalize_category(category) -> dict:
     """Builds a JSON-safe category payload for analytics widgets."""
     return {
         "id": int(category["id"]),
-        "name": category.get("name") or "Unnamed category",
+        "name": category.get("name") or t("common.unnamed_category"),
         "desc": category.get("desc") or "",
         "emoji": category.get("emoji") or "#",
         "type": (category.get("type") or "expense").strip().lower(),
@@ -38,7 +39,7 @@ def _normalize_account(account) -> dict:
     """Builds a JSON-safe account payload for analytics widgets."""
     return {
         "id": int(account["id"]),
-        "name": account.get("name") or "Unnamed account",
+        "name": account.get("name") or t("common.unnamed_account"),
         "balance": float(account.get("balance") or 0.0),
         "initial_balance": float(account.get("initial_balance") or 0.0),
         "transactions_delta": float(account.get("transactions_delta") or 0.0),
@@ -58,14 +59,14 @@ def _normalize_budget(budget) -> dict:
         categories.append(
             {
                 "id": int(category["id"]),
-                "name": category.get("name") or "Unnamed category",
+                "name": category.get("name") or t("common.unnamed_category"),
                 "emoji": category.get("emoji") or "#",
             }
         )
 
     return {
         "id": int(budget["id"]),
-        "name": budget.get("name") or "Untitled budget",
+        "name": budget.get("name") or t("common.untitled_budget"),
         "desc": budget.get("desc") or "",
         "amount_limit": float(budget.get("amount_limit") or 0.0),
         "currency_code": (budget.get("currency_code") or "UAH").strip().upper(),
@@ -102,7 +103,7 @@ def _normalize_transaction(transaction, category_map: dict[int, dict], account_m
         "description": transaction.description or "",
         "type": (transaction.type or "expense").strip().lower(),
         "category_id": int(transaction.category_id),
-        "category_name": category.get("name") or "Unknown category",
+        "category_name": category.get("name") or t("common.unknown_category"),
         "category_emoji": category.get("emoji") or "#",
         "account_id": None if transaction.account_id is None else int(transaction.account_id),
         "account_name": account.get("name") or "",

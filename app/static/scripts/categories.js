@@ -3,6 +3,10 @@ const EMOJIS = ['🛒','🍔','🚗','🏠','💊','🎮','✈️','📚','☕',
 
 let categories = [];
 
+function tr(key, replacements = {}, fallback = '') {
+    return window.ledgerI18n?.t(key, replacements, fallback) || fallback || key;
+}
+
 async function loadCategories() {
     try {
         const response = await fetch(`api/category`);
@@ -70,19 +74,19 @@ function renderGrid(gridId, emptyId, sectionId, countId, items, hidden) {
             <div class="cat-info">
                 <div class="cat-name-row">
                     <span class="cat-name">${escHtml(c.name)}</span>
-                    ${c.built_in ? '<span class="cat-builtin-badge">built-in</span>' : ''}
+                    ${c.built_in ? `<span class="cat-builtin-badge">${escHtml(tr('common.built_in_category'))}</span>` : ''}
                 </div>
                 <div class="cat-meta">${c.desc ? escHtml(c.desc) : ''}</div>
             </div>
-            <span class="cat-badge ${c.type}">${c.type === 'income' ? 'Income' : 'Expense'}</span>
+            <span class="cat-badge ${c.type}">${c.type === 'income' ? escHtml(tr('common.types.income')) : escHtml(tr('common.types.expense'))}</span>
             ${!c.built_in ? `
             <div class="cat-actions">
-                <button class="cat-action-btn edit" data-id="${c.id}" title="Edit">
+                <button class="cat-action-btn edit" data-id="${c.id}" title="${escHtml(tr('common.buttons.edit'))}">
                     <svg viewBox="0 0 15 15" fill="none" width="13" height="13">
                         <path d="M10.5 1.5l3 3-9 9H1.5v-3l9-9z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
                     </svg>
                 </button>
-                <button class="cat-action-btn delete" data-id="${c.id}" title="Delete">
+                <button class="cat-action-btn delete" data-id="${c.id}" title="${escHtml(tr('common.buttons.delete'))}">
                     <svg viewBox="0 0 15 15" fill="none" width="13" height="13">
                         <path d="M2 4h11M6 4V2.5h3V4M5.5 4v7.5h4V4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -120,11 +124,11 @@ function openAdd() {
     selectedEmoji = EMOJIS[0];
     selectedType  = 'expense';
 
-    document.getElementById('modal-title').innerHTML  = 'New <em>Category</em>';
-    document.getElementById('modal-sub').textContent  = 'Fill in the details below to create a category';
+    document.getElementById('modal-title').innerHTML  = tr('categories.modal_new_title');
+    document.getElementById('modal-sub').textContent  = tr('categories.modal_new_subtitle');
     document.getElementById('field-name').value       = '';
     document.getElementById('field-desc').value       = '';
-    document.getElementById('btn-submit').textContent = 'Create';
+    document.getElementById('btn-submit').textContent = tr('common.buttons.create');
 
     const actions = document.getElementById('modal-actions');
     const delBtn  = actions.querySelector('.btn-delete');
@@ -144,17 +148,17 @@ function openEdit(id) {
     selectedEmoji = cat.emoji;          // fix: was cat.icon
     selectedType  = cat.type;
 
-    document.getElementById('modal-title').innerHTML  = 'Edit <em>Category</em>';
-    document.getElementById('modal-sub').textContent  = 'Update the details for this category';
+    document.getElementById('modal-title').innerHTML  = tr('categories.modal_edit_title');
+    document.getElementById('modal-sub').textContent  = tr('categories.modal_edit_subtitle');
     document.getElementById('field-name').value       = cat.name;
     document.getElementById('field-desc').value       = cat.desc || '';
-    document.getElementById('btn-submit').textContent = 'Save';
+    document.getElementById('btn-submit').textContent = tr('common.buttons.save');
 
     const actions = document.getElementById('modal-actions');
     if (!actions.querySelector('.btn-delete')) {
         const delBtn = document.createElement('button');
         delBtn.className   = 'btn-delete';
-        delBtn.textContent = 'Delete';
+        delBtn.textContent = tr('common.buttons.delete');
         delBtn.addEventListener('click', () => { deleteCategory(editId); closeModal(); });
         actions.insertBefore(delBtn, actions.firstChild);
     }
@@ -221,12 +225,12 @@ async function submitModal() {
         render();
     } catch (err) {
         console.error('Failed to save category:', err);
-        alert('Failed to save category. Please try again.');
+        alert(tr('categories.save_failed'));
     }
 }
 
 async function deleteCategory(id) {
-    if (!confirm('Delete this category?')) return;
+    if (!confirm(tr('categories.delete_confirm'))) return;
 
     try {
         const res = await fetch(`api/category/${id}`, { method: 'DELETE' });
@@ -236,7 +240,7 @@ async function deleteCategory(id) {
         render();
     } catch (err) {
         console.error('Failed to delete category:', err);
-        alert('Failed to delete category. Please try again.');
+        alert(tr('categories.delete_failed'));
     }
 }
 

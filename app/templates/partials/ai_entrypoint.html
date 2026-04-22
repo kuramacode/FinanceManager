@@ -1,0 +1,138 @@
+{% set ai_connected = ai_entrypoint.get("connected") %}
+
+<section
+  class="ai-entrypoint"
+  id="aiEntrypoint"
+  data-page-key="{{ ai_entrypoint.key }}"
+  data-page-label="{{ ai_entrypoint.label }}"
+  data-page-caption="{{ ai_entrypoint.caption }}"
+  data-language="{{ current_language }}"
+>
+  <button
+    class="ai-entrypoint__launcher"
+    id="aiEntrypointLauncher"
+    type="button"
+    aria-haspopup="dialog"
+    aria-controls="aiEntrypointModal"
+    aria-expanded="false"
+  >
+    <span class="ai-entrypoint__launcher-icon" aria-hidden="true">
+      <svg viewBox="0 0 20 20" fill="none">
+        <path d="M10 1.5l1.74 4.76L16.5 8l-4.76 1.74L10 14.5l-1.74-4.76L3.5 8l4.76-1.74L10 1.5z" fill="currentColor" />
+        <path d="M15.8 12.7l.82 2.24 2.24.82-2.24.82-.82 2.24-.82-2.24-2.24-.82 2.24-.82.82-2.24z" fill="currentColor" opacity=".76" />
+      </svg>
+    </span>
+    <span class="ai-entrypoint__launcher-copy">
+      <span class="ai-entrypoint__launcher-title">AI</span>
+      <span class="ai-entrypoint__launcher-sub">{{ ai_entrypoint.label }}</span>
+    </span>
+  </button>
+
+  <div class="ai-entrypoint__modal-backdrop" id="aiEntrypointModal" hidden>
+    <div
+      class="ai-entrypoint__modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="aiEntrypointModalTitle"
+      aria-describedby="aiEntrypointModalSubtitle"
+    >
+      <div class="ai-entrypoint__modal-head">
+        <div class="ai-entrypoint__modal-copy">
+          <div class="ai-entrypoint__eyebrow">{{ t("ai.connected") if ai_connected else t("ai.preview") }}</div>
+          <h2 class="ai-entrypoint__modal-title" id="aiEntrypointModalTitle">{{ t("ai.choose_action") }}</h2>
+          <p class="ai-entrypoint__modal-subtitle" id="aiEntrypointModalSubtitle">{{ ai_entrypoint.caption }}</p>
+        </div>
+
+        <button class="ai-entrypoint__close" id="aiEntrypointCloseModal" type="button" aria-label="{{ t('ai.close_actions') }}">
+          <svg viewBox="0 0 12 12" fill="none">
+            <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="ai-entrypoint__modal-meta">
+        <span class="ai-entrypoint__pill">{{ ai_entrypoint.label }}</span>
+        <span class="ai-entrypoint__pill ai-entrypoint__pill--muted">{{ t("ai.actions_count", count=ai_entrypoint.actions|length) }}</span>
+      </div>
+
+      <div class="ai-entrypoint__action-grid" id="aiEntrypointActionGrid">
+        {% for action in ai_entrypoint.actions %}
+          <button
+            class="ai-entrypoint__action-card"
+            type="button"
+            data-ai-action-id="{{ action.id }}"
+            data-ai-action-title="{{ action.title }}"
+            data-ai-action-title-key="{{ action.title_key|default('', true) }}"
+            data-ai-action-description="{{ action.description }}"
+            data-ai-action-description-key="{{ action.description_key|default('', true) }}"
+            data-ai-action-prompt="{{ action.prompt }}"
+            data-ai-action-prompt-key="{{ action.prompt_key|default('', true) }}"
+            data-ai-action-prompt-type="{{ action.prompt_type|default('', true) }}"
+            data-ai-action-endpoint="{{ action.endpoint|default('', true) }}"
+            data-ai-action-method="{{ action.method|default('GET', true) }}"
+          >
+            <span class="ai-entrypoint__action-title">{{ action.title }}</span>
+            <span class="ai-entrypoint__action-description">{{ action.description }}</span>
+          </button>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="ai-entrypoint__drawer-backdrop" id="aiEntrypointDrawerBackdrop" hidden></div>
+
+  <aside
+    class="ai-entrypoint__drawer"
+    id="aiEntrypointDrawer"
+    hidden
+    aria-hidden="true"
+    aria-labelledby="aiEntrypointDrawerTitle"
+  >
+    <div class="ai-entrypoint__drawer-head">
+      <div class="ai-entrypoint__drawer-copy">
+        <div class="ai-entrypoint__eyebrow">{{ t("ai.connected") if ai_connected else t("ai.preview") }}</div>
+        <h2 class="ai-entrypoint__drawer-title" id="aiEntrypointDrawerTitle">{{ t("ai.choose_action_short") }}</h2>
+        <p class="ai-entrypoint__drawer-subtitle" id="aiEntrypointDrawerSubtitle">{{ t("ai.assistant_shell", page=ai_entrypoint.label) }}</p>
+      </div>
+
+      <button class="ai-entrypoint__close" id="aiEntrypointCloseDrawer" type="button" aria-label="{{ t('ai.close_panel') }}">
+        <svg viewBox="0 0 12 12" fill="none">
+          <path d="M1 1l10 10M11 1L1 11" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+        </svg>
+      </button>
+    </div>
+
+    <div class="ai-entrypoint__drawer-meta">
+      <span class="ai-entrypoint__pill" id="aiEntrypointPagePill">{{ ai_entrypoint.label }}</span>
+      <span class="ai-entrypoint__pill ai-entrypoint__pill--action" id="aiEntrypointActionPill">{{ t("ai.choose_action_short") }}</span>
+      <span class="ai-entrypoint__pill ai-entrypoint__pill--muted" id="aiEntrypointStatusPill">
+        {{ t("ai.model_connected") if ai_connected else t("ai.no_model_connected") }}
+      </span>
+      <button class="ai-entrypoint__switch-action" id="aiEntrypointSwitchAction" type="button">
+        {{ t("ai.change_action") }}
+      </button>
+    </div>
+
+    <div class="ai-entrypoint__chat" id="aiEntrypointChat" aria-live="polite"></div>
+
+    <form class="ai-entrypoint__composer" id="aiEntrypointForm">
+      <label class="ai-entrypoint__composer-label" for="aiEntrypointInput">{{ t("ai.message") }}</label>
+      <textarea
+        class="ai-entrypoint__composer-input"
+        id="aiEntrypointInput"
+        name="message"
+        rows="3"
+        placeholder="{{ t('ai.placeholder', page=ai_entrypoint.label|lower) }}"
+      ></textarea>
+
+      <div class="ai-entrypoint__composer-foot">
+        <div class="ai-entrypoint__composer-hint">
+          {{ t("ai.dashboard_connected_hint") if ai_connected else t("ai.preview_hint") }}
+        </div>
+        <button class="ai-entrypoint__send" type="submit">{{ t("common.buttons.send") }}</button>
+      </div>
+    </form>
+  </aside>
+
+  <script id="ai-entrypoint-data" type="application/json">{{ ai_entrypoint | tojson }}</script>
+</section>

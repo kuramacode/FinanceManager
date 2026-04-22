@@ -1,60 +1,65 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_language }}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ledger — Register</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename="auth.css") }}" />
+  <title>{{ t("auth.register_title") }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='auth.css') }}" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
 <body>
-  <!-- Left panel -->
   <div class="panel-left">
     <a href="{{ url_for('main.main') }}" class="logo">
       <span class="logo-icon">L</span>
       <span class="logo-text">Ledger</span>
     </a>
+    {% include "partials/language_switcher.html" %}
     <div class="panel-body">
-      <p class="panel-eyebrow">Getting started</p>
-      <h1 class="panel-title">Create<br /><em>an account</em></h1>
-      <p class="panel-desc">
-        Free. No credit card. Start tracking your finances right now.
-      </p>
+      <p class="panel-eyebrow">{{ t("auth.getting_started") }}</p>
+      <h1 class="panel-title">{{ t("auth.register_panel_title") | safe }}</h1>
+      <p class="panel-desc">{{ t("auth.register_panel_desc") }}</p>
     </div>
     <div class="panel-quote">
-      <blockquote>"Financial freedom starts with something simple — knowing your number."</blockquote>
+      <blockquote>{{ t("auth.register_quote") }}</blockquote>
     </div>
   </div>
 
-  <!-- Right panel -->
   <div class="panel-right">
     <div class="form-wrap">
-      <p class="form-eyebrow">Create account</p>
-      <h2 class="form-title">Welcome</h2>
+      <p class="form-eyebrow">{{ t("auth.create_account") }}</p>
+      <h2 class="form-title">{{ t("auth.welcome") }}</h2>
       <p class="form-sub">
-        Already have an account? <a href="{{ url_for('auth.login') }}">Sign in</a>
+        {{ t("auth.already_have_account") }} <a href="{{ url_for('auth.login') }}">{{ t("auth.sign_in") }}</a>
       </p>
 
       <form class="form" action="{{ url_for('register.register') }}" method="post">
         <div class="field-row-double">
           <div class="field">
-            <label for="firstName">Username </label>
+            <label for="firstName">{{ t("common.fields.username") }}</label>
             <input type="text" name="username" placeholder="Alex" autocomplete="given-name" />
             <span class="field-error" id="firstNameError"></span>
           </div>
 
-        <div class="field">
-          <label for="email">Email</label>
-          <input type="email" name="email" placeholder="you@example.com" autocomplete="email" />
-          <span class="field-error" id="emailError"></span>
+          <div class="field">
+            <label for="email">{{ t("common.fields.email") }}</label>
+            <input type="email" name="email" placeholder="you@example.com" autocomplete="email" />
+            <span class="field-error" id="emailError"></span>
+          </div>
         </div>
 
         <div class="field">
-          <label for="password">Password</label>
+          <label for="password">{{ t("common.fields.password") }}</label>
           <div class="input-wrap">
-            <input type="password" name="password" placeholder="At least 8 characters" autocomplete="new-password" />
-            <button type="button" class="toggle-pass" id="togglePass" aria-label="Show password">
+            <input id="password" type="password" name="password" placeholder="{{ t('auth.password_placeholder') }}" autocomplete="new-password" />
+            <button
+              type="button"
+              class="toggle-pass"
+              data-password-toggle
+              aria-controls="password"
+              aria-pressed="false"
+              aria-label="{{ t('auth.show_password') }}"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -62,7 +67,6 @@
             </button>
           </div>
           <span class="field-error" id="passwordError"></span>
-          <!-- Strength bar -->
           <div class="strength-bar" id="strengthBar">
             <span class="strength-seg" id="s1"></span>
             <span class="strength-seg" id="s2"></span>
@@ -73,9 +77,22 @@
         </div>
 
         <div class="field">
-          <label for="passwordConfirm">Confirm password</label>
+          <label for="passwordConfirm">{{ t("auth.confirm_password") }}</label>
           <div class="input-wrap">
-            <input type="password" name="password_repeat" placeholder="••••••••" autocomplete="new-password" />
+            <input id="passwordConfirm" type="password" name="password_repeat" placeholder="••••••••" autocomplete="new-password" />
+            <button
+              type="button"
+              class="toggle-pass"
+              data-password-toggle
+              aria-controls="passwordConfirm"
+              aria-pressed="false"
+              aria-label="{{ t('auth.show_password') }}"
+            >
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+                <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                <circle cx="12" cy="12" r="3"/>
+              </svg>
+            </button>
           </div>
           <span class="field-error" id="confirmError"></span>
         </div>
@@ -83,13 +100,13 @@
         <div class="field-row">
           <label class="checkbox-label">
             <input type="checkbox" id="agree" />
-            <span>I agree to the <a href="#">terms of service</a></span>
+            <span>{{ t("auth.agree_terms") }} <a href="#">{{ t("auth.terms") }}</a></span>
           </label>
         </div>
         <span class="field-error" id="agreeError"></span>
 
         <button type="submit" class="btn-submit">
-          <span class="btn-text">Create account</span>
+          <span class="btn-text">{{ t("auth.create_account") }}</span>
           <span class="btn-spinner" id="spinner" hidden>
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <circle cx="12" cy="12" r="10" stroke-opacity=".25"/>
@@ -100,5 +117,9 @@
       </form>
     </div>
   </div>
+
+  <script id="i18n-data" type="application/json">{{ client_i18n | tojson }}</script>
+  <script src="{{ url_for('static', filename='scripts/i18n.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts/auth.js') }}"></script>
 </body>
 </html>

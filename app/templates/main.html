@@ -1,10 +1,10 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ current_language }}">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Ledger — AI Finance Manager</title>
-  <link rel="stylesheet" href="{{ url_for('static', filename="style.css") }}" />
+  <title>{{ t("landing.title") }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
 </head>
@@ -15,95 +15,161 @@
       <span class="logo-text">Ledger</span>
     </div>
     <nav class="nav">
-      <a href="#features" class="nav-link">Features</a>
-      <a href="#how" class="nav-link">How it works</a>
-      <a href="#pricing" class="nav-link">Pricing</a>
+      <a href="#features" class="nav-link">{{ t("landing.features") }}</a>
+      <a href="#how" class="nav-link">{{ t("landing.how_it_works") }}</a>
+      <a href="#pricing" class="nav-link">{{ t("landing.pricing") }}</a>
     </nav>
     <div class="sidebar-footer">
-      <a href="{{ url_for('auth.login') }}" class="btn-ghost">Sign in</a>
+      {% include "partials/language_switcher.html" %}
+      <a href="{{ url_for('auth.login') }}" class="btn-ghost">{{ t("landing.sign_in") }}</a>
     </div>
   </aside>
 
   <main class="main">
     <div class="hero">
-      <p class="eyebrow">AI-Powered Personal Finance · 2026</p>
-      <h1 class="hero-title">
-        Control<br />over your money<br /><em>starts here</em>
-      </h1>
-      <p class="hero-sub">
-        Ledger is a minimalist, AI-driven finance manager. Track wealth, 
-        automate categorisation, and receive predictive insights.
-      </p>
-      <a href="{{ url_for('register.register') }}" class="btn-primary">Get started</a>
+      <p class="eyebrow">{{ t("landing.eyebrow") }}</p>
+      <h1 class="hero-title">{{ t("landing.hero_title") | safe }}</h1>
+      <p class="hero-sub">{{ t("landing.hero_sub") }}</p>
+      <a href="{{ url_for('register.register') }}" class="btn-primary">{{ t("landing.get_started") }}</a>
     </div>
 
     <div class="stats" id="features">
       <div class="stat">
         <span class="stat-num">12k+</span>
-        <span class="stat-label">Users</span>
+        <span class="stat-label">{{ t("landing.users") }}</span>
       </div>
       <div class="stat">
         <span class="stat-num">$4.2M</span>
-        <span class="stat-label">Transactions tracked</span>
+        <span class="stat-label">{{ t("landing.transactions_tracked") }}</span>
       </div>
       <div class="stat">
         <span class="stat-num">99.9%</span>
-        <span class="stat-label">Uptime</span>
+        <span class="stat-label">{{ t("landing.uptime") }}</span>
       </div>
     </div>
 
     <section class="features">
       <div class="feature-card">
-        <div class="feature-icon">◎</div>
-        <h3>Smart Dashboard</h3>
-        <p>Balance, income, and expense overview for any period — all on one screen.</p>
+        <div class="feature-icon">L</div>
+        <h3>{{ t("landing.smart_dashboard") }}</h3>
+        <p>{{ t("landing.smart_dashboard_copy") }}</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">✦</div>
-        <h3>AI Insights</h3>
-        <p>Predictive forecasting that spots spending trends before they happen and suggests ways to save.</p>
+        <div class="feature-icon">*</div>
+        <h3>{{ t("landing.ai_insights") }}</h3>
+        <p>{{ t("landing.ai_insights_copy") }}</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">◈</div>
-        <h3>Transaction History</h3>
-        <p>Full ledger with filters, search, and CSV export.</p>
+        <div class="feature-icon">#</div>
+        <h3>{{ t("landing.transaction_history") }}</h3>
+        <p>{{ t("landing.transaction_history_copy") }}</p>
       </div>
       <div class="feature-card">
-        <div class="feature-icon">◑</div>
-        <h3>Analytics</h3>
-        <p>Spending charts by day, week, month. Spot trends — make decisions.</p>
+        <div class="feature-icon">~</div>
+        <h3>{{ t("landing.analytics_title") }}</h3>
+        <p>{{ t("landing.analytics_copy") }}</p>
       </div>
     </section>
 
     <section class="how" id="how">
-      <h2 class="section-title">How it works</h2>
+      <h2 class="section-title">{{ t("landing.how_it_works") }}</h2>
       <div class="steps">
         <div class="step">
           <span class="step-num">01</span>
-          <h4>Create an account</h4>
-          <p>Sign up in 30 seconds — just an email and password.</p>
+          <h4>{{ t("landing.step_1_title") }}</h4>
+          <p>{{ t("landing.step_1_copy") }}</p>
         </div>
-        <div class="step-arrow">→</div>
+        <div class="step-arrow">&rarr;</div>
         <div class="step">
           <span class="step-num">02</span>
-          <h4>AI Smart Sync</h4>
-          <p>Connect your bank and let our neural engine automatically categorize every transaction.</p>
+          <h4>{{ t("landing.step_2_title") }}</h4>
+          <p>{{ t("landing.step_2_copy") }}</p>
         </div>
-        <div class="step-arrow">→</div>
+        <div class="step-arrow">&rarr;</div>
         <div class="step">
           <span class="step-num">03</span>
-          <h4>Analyse</h4>
-          <p>Monitor your balance and make financial decisions backed by real-time data.</p>
+          <h4>{{ t("landing.step_3_title") }}</h4>
+          <p>{{ t("landing.step_3_copy") }}</p>
         </div>
       </div>
     </section>
 
+    <section class="pricing" id="pricing">
+      <p class="eyebrow">{{ t("landing.pricing_eyebrow") }}</p>
+      <div class="section-heading">
+        <h2 class="section-title">{{ t("landing.pricing_title") }}</h2>
+        <p>{{ t("landing.pricing_subtitle") }}</p>
+      </div>
+
+      <div class="pricing-grid">
+        <article class="price-card">
+          <div class="plan-top">
+            <span class="plan-name">Free</span>
+            <span class="plan-price">{{ t("landing.pricing_free_price") }}</span>
+          </div>
+          <p class="plan-copy">{{ t("landing.pricing_free_copy") }}</p>
+          <dl class="plan-specs">
+            <div>
+              <dt>{{ t("landing.pricing_model") }}</dt>
+              <dd>{{ t("landing.pricing_free_model") }}</dd>
+            </div>
+            <div>
+              <dt>{{ t("landing.pricing_analytics") }}</dt>
+              <dd>{{ t("landing.pricing_free_analytics") }}</dd>
+            </div>
+          </dl>
+          <a href="{{ url_for('register.register') }}" class="btn-plan">{{ t("landing.start_free") }}</a>
+        </article>
+
+        <article class="price-card price-card-featured">
+          <div class="plan-badge">{{ t("landing.pricing_popular") }}</div>
+          <div class="plan-top">
+            <span class="plan-name">Pro</span>
+            <span class="plan-price">{{ t("landing.pricing_pro_price") }}</span>
+          </div>
+          <p class="plan-copy">{{ t("landing.pricing_pro_copy") }}</p>
+          <dl class="plan-specs">
+            <div>
+              <dt>{{ t("landing.pricing_model") }}</dt>
+              <dd>{{ t("landing.pricing_pro_model") }}</dd>
+            </div>
+            <div>
+              <dt>{{ t("landing.pricing_analytics") }}</dt>
+              <dd>{{ t("landing.pricing_pro_analytics") }}</dd>
+            </div>
+          </dl>
+          <a href="{{ url_for('register.register') }}" class="btn-plan btn-plan-dark">{{ t("landing.pricing_choose_pro") }}</a>
+        </article>
+
+        <article class="price-card">
+          <div class="plan-top">
+            <span class="plan-name">Max</span>
+            <span class="plan-price">{{ t("landing.pricing_max_price") }}</span>
+          </div>
+          <p class="plan-copy">{{ t("landing.pricing_max_copy") }}</p>
+          <dl class="plan-specs">
+            <div>
+              <dt>{{ t("landing.pricing_model") }}</dt>
+              <dd>{{ t("landing.pricing_max_model") }}</dd>
+            </div>
+            <div>
+              <dt>{{ t("landing.pricing_analytics") }}</dt>
+              <dd>{{ t("landing.pricing_max_analytics") }}</dd>
+            </div>
+          </dl>
+          <a href="{{ url_for('register.register') }}" class="btn-plan">{{ t("landing.pricing_choose_max") }}</a>
+        </article>
+      </div>
+    </section>
+
     <footer class="footer">
-      <p>© 2026 Ledger. All rights reserved.</p>
-      <a href="{{ url_for('register.register') }}" class="btn-primary btn-sm">Start for free</a>
+      <p>{{ t("landing.footer") }}</p>
+      <a href="{{ url_for('register.register') }}" class="btn-primary btn-sm">{{ t("landing.start_free") }}</a>
     </footer>
   </main>
 
+  <script id="i18n-data" type="application/json">{{ client_i18n | tojson }}</script>
+  <script src="{{ url_for('static', filename='scripts/i18n.js') }}"></script>
   <script src="{{ url_for('static', filename='/scripts/mainPage.js') }}"></script>
 </body>
 </html>

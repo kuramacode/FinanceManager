@@ -41,3 +41,22 @@ MAIN_CURRENCIES = ['AED', 'BRL',
                    'KRW', 'NOK',
                    'PLN', 'SEK',
                    'TRY', 'USD']
+
+CURRENCY_CONTINENTS = {
+  'AED': 'asia',
+  'BRL': 'america',
+  'CAD': 'america',
+  'CHF': 'europe',
+  'CNY': 'asia',
+  'CZK': 'europe',
+  'EUR': 'europe',
+  'GBP': 'europe',
+  'HUF': 'europe',
+  'JPY': 'asia',
+  'KRW': 'asia',
+  'NOK': 'europe',
+  'PLN': 'europe',
+  'SEK': 'europe',
+  'TRY': 'asia',
+  'USD': 'america',
+}

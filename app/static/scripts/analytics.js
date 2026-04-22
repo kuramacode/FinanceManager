@@ -16,6 +16,11 @@ const DEFAULT_WIDGET_SLOTS = {
   "slot-3": null,
   "slot-4": null,
 };
+const UI_LOCALE = window.ledgerI18n?.locale || "en-US";
+
+function tr(key, replacements = {}, fallback = "") {
+  return window.ledgerI18n?.t(key, replacements, fallback) || fallback || key;
+}
 
 let analyticsTransactions = [];
 let analyticsCategories = [];
@@ -57,7 +62,7 @@ function normalizeTransaction(transaction) {
     date: transaction?.date ? String(transaction.date) : "",
     type: String(transaction?.type ?? "expense").toLowerCase(),
     category_id: Number(transaction?.category_id),
-    category_name: transaction?.category_name ?? "Unknown category",
+    category_name: transaction?.category_name ?? tr("common.unknown_category"),
     category_emoji: transaction?.category_emoji ?? "#",
     account_id: transaction?.account_id === null || transaction?.account_id === undefined || transaction?.account_id === ""
       ? null
@@ -71,7 +76,7 @@ function normalizeTransaction(transaction) {
 function normalizeCategory(category) {
   return {
     id: Number(category?.id),
-    name: category?.name ?? "Unnamed category",
+    name: category?.name ?? tr("common.unnamed_category"),
     emoji: category?.emoji ?? "#",
     type: String(category?.type ?? "expense").toLowerCase(),
   };
@@ -80,7 +85,7 @@ function normalizeCategory(category) {
 function normalizeAccount(account) {
   return {
     id: Number(account?.id),
-    name: account?.name ?? "Unnamed account",
+    name: account?.name ?? tr("common.unnamed_account"),
     balance: Number(account?.balance ?? 0),
     initial_balance: Number(account?.initial_balance ?? account?.balance ?? 0),
     transactions_delta: Number(account?.transactions_delta ?? 0),
@@ -96,7 +101,7 @@ function normalizeAccount(account) {
 function normalizeBudget(budget) {
   return {
     id: Number(budget?.id),
-    name: budget?.name ?? "Untitled budget",
+    name: budget?.name ?? tr("common.untitled_budget"),
     desc: budget?.desc ?? "",
     amount_limit: Number(budget?.amount_limit ?? 0),
     currency_code: String(budget?.currency_code ?? "UAH").toUpperCase(),
@@ -161,7 +166,7 @@ function dateKey(value) {
 }
 
 function formatShortDate(value) {
-  return value.toLocaleDateString("en-US", {
+  return value.toLocaleDateString(UI_LOCALE, {
     month: "short",
     day: "numeric",
   });
@@ -172,7 +177,7 @@ function formatRangeLabel(start, end) {
   const sameDay = dateKey(start) === dateKey(end);
 
   if (sameDay) {
-    return start.toLocaleDateString("en-US", {
+    return start.toLocaleDateString(UI_LOCALE, {
       month: "short",
       day: "numeric",
       year: "numeric",
@@ -183,7 +188,7 @@ function formatRangeLabel(start, end) {
     ? { month: "short", day: "numeric" }
     : { month: "short", day: "numeric", year: "numeric" };
 
-  return `${start.toLocaleDateString("en-US", startOptions)} - ${end.toLocaleDateString("en-US", {
+  return `${start.toLocaleDateString(UI_LOCALE, startOptions)} - ${end.toLocaleDateString(UI_LOCALE, {
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -194,14 +199,14 @@ function formatMoney(amount, currencyCode) {
   const code = String(currencyCode || "UAH").toUpperCase();
 
   try {
-    return new Intl.NumberFormat("en-US", {
+    return new Intl.NumberFormat(UI_LOCALE, {
       style: "currency",
       currency: code,
       minimumFractionDigits: Math.abs(amount % 1) > 0 ? 2 : 0,
       maximumFractionDigits: 2,
     }).format(amount);
   } catch (_) {
-    const numeric = Number(amount || 0).toLocaleString("en-US", {
+    const numeric = Number(amount || 0).toLocaleString(UI_LOCALE, {
       minimumFractionDigits: Math.abs(amount % 1) > 0 ? 2 : 0,
       maximumFractionDigits: 2,
     });
@@ -388,7 +393,7 @@ function aggregateCategories(list, type) {
 
   const head = items.slice(0, 5);
   const other = items.slice(5).reduce((sum, item) => sum + item.amount, 0);
-  head.push({ name: "Other", emoji: "#", amount: other });
+  head.push({ name: tr("common.more"), emoji: "#", amount: other });
   return head;
 }
 
@@ -429,7 +434,7 @@ function areaPath(points, baselineY) {
 
 function renderLineChartSvg({ labels, series, positiveOnly = false, ySuffix = "" }) {
   if (!labels.length || !series.length) {
-    return createEmptyMarkup("No values in the selected range yet.");
+    return createEmptyMarkup(tr("analytics.no_values"));
   }
 
   const width = 720;
@@ -514,7 +519,7 @@ function renderLineChartSvg({ labels, series, positiveOnly = false, ySuffix = ""
 
 function renderBarChartSvg({ labels, series, ySuffix = "" }) {
   if (!labels.length || !series.length) {
-    return createEmptyMarkup("No values in the selected range yet.");
+    return createEmptyMarkup(tr("analytics.no_values"));
   }
 
   const width = 720;
@@ -525,7 +530,7 @@ function renderBarChartSvg({ labels, series, ySuffix = "" }) {
   const maxValue = Math.max(...series.flatMap(item => item.values), 0);
 
   if (maxValue <= 0) {
-    return createEmptyMarkup("No values in the selected range yet.");
+    return createEmptyMarkup(tr("analytics.no_values"));
   }
 
   const yAt = value => margins.top + plotHeight - (value / maxValue) * plotHeight;
@@ -587,7 +592,7 @@ function createWidgetShell({ title, subtitle, chips = [], content, removable = f
   const removeMarkup = removable
     ? `
       <div class="widget-actions">
-        <button class="widget-action-btn danger" type="button" data-action="remove-widget" aria-label="Remove widget">
+        <button class="widget-action-btn danger" type="button" data-action="remove-widget" aria-label="${escapeHtml(tr("analytics.remove_widget"))}">
           <svg viewBox="0 0 15 15" fill="none">
             <path d="M2.5 4h10M6 2.2h3M5 5.2v6M7.5 5.2v6M10 5.2v6M3.8 4l.6 8c.04.6.54 1 1 1h3.84c.6 0 1.1-.4 1.14-1l.6-8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
           </svg>
@@ -625,24 +630,24 @@ function renderStats() {
 
   container.innerHTML = `
     <div class="card neutral">
-      <div class="card-label">Records</div>
+      <div class="card-label">${escapeHtml(tr("analytics.records"))}</div>
       <div class="card-value">${summary.count}</div>
-      <div class="card-sub">${currentPeriod} day range in ${escapeHtml(currentCurrency)}</div>
+      <div class="card-sub">${escapeHtml(tr("analytics.range_days", { days: currentPeriod, currency: currentCurrency }))}</div>
     </div>
     <div class="card green">
-      <div class="card-label">Income</div>
+      <div class="card-label">${escapeHtml(tr("common.types.income"))}</div>
       <div class="card-value">${escapeHtml(formatMoney(summary.income, currentCurrency))}</div>
-      <div class="card-sub">Posted inflows in the selected period</div>
+      <div class="card-sub">${escapeHtml(tr("analytics.income_sub"))}</div>
     </div>
     <div class="card red">
-      <div class="card-label">Expenses</div>
+      <div class="card-label">${escapeHtml(tr("common.types.expenses"))}</div>
       <div class="card-value">${escapeHtml(formatMoney(summary.expense, currentCurrency))}</div>
-      <div class="card-sub">Tracked outflows in the selected period</div>
+      <div class="card-sub">${escapeHtml(tr("analytics.expenses_sub"))}</div>
     </div>
     <div class="card ${summary.net >= 0 ? "neutral" : "red"}">
-      <div class="card-label">Net Result</div>
+      <div class="card-label">${escapeHtml(tr("analytics.net_result"))}</div>
       <div class="card-value">${escapeHtml(formatSignedMoney(summary.net, currentCurrency))}</div>
-      <div class="card-sub">${accountsCount} accounts, ${budgetsCount} active budgets</div>
+      <div class="card-sub">${escapeHtml(tr("analytics.accounts_budgets", { accounts: accountsCount, budgets: budgetsCount }))}</div>
     </div>
   `;
 }
@@ -679,29 +684,29 @@ function renderCashflowWidget() {
   const content = `
     <div class="widget-summary">
       <div class="summary-pill">
-        <span class="summary-pill-label">Income</span>
+        <span class="summary-pill-label">${escapeHtml(tr("common.types.income"))}</span>
         <span class="summary-pill-value pos">${escapeHtml(formatMoney(summary.income, currentCurrency))}</span>
       </div>
       <div class="summary-pill">
-        <span class="summary-pill-label">Expenses</span>
+        <span class="summary-pill-label">${escapeHtml(tr("common.types.expenses"))}</span>
         <span class="summary-pill-value neg">${escapeHtml(formatMoney(summary.expense, currentCurrency))}</span>
       </div>
       <div class="summary-pill">
-        <span class="summary-pill-label">Net</span>
+        <span class="summary-pill-label">${escapeHtml(tr("transactions.net_result"))}</span>
         <span class="summary-pill-value ${summary.net >= 0 ? "pos" : "neg"}">${escapeHtml(formatSignedMoney(summary.net, currentCurrency))}</span>
       </div>
     </div>
     ${chartMarkup}
     <div class="chart-legend">
-      <span class="chart-legend-item"><span class="legend-swatch" style="background:#3a7a50"></span>Income</span>
-      <span class="chart-legend-item"><span class="legend-swatch" style="background:#b84040"></span>Expenses</span>
+      <span class="chart-legend-item"><span class="legend-swatch" style="background:#3a7a50"></span>${escapeHtml(tr("common.types.income"))}</span>
+      <span class="chart-legend-item"><span class="legend-swatch" style="background:#b84040"></span>${escapeHtml(tr("common.types.expenses"))}</span>
     </div>
   `;
 
   host.innerHTML = createWidgetShell({
-    title: "Cash Flow Trend",
-    subtitle: `Daily income and expense movement for ${currentCurrency}.`,
-    chips: ["Line", currentCurrency],
+    title: tr("analytics.cash_flow_trend"),
+    subtitle: tr("analytics.cash_flow_sub", { currency: currentCurrency }),
+    chips: [tr("analytics.chips.line"), currentCurrency],
     content,
   });
 }
@@ -714,7 +719,7 @@ function renderCategoryWidget() {
   const total = items.reduce((sum, item) => sum + item.amount, 0);
 
   const donutMarkup = !items.length
-    ? createEmptyMarkup(`No ${donutMode} data in ${currentCurrency} for the selected period.`)
+    ? createEmptyMarkup(tr("analytics.no_mode_data", { mode: tr(`common.types.${donutMode}`, {}, donutMode).toLowerCase(), currency: currentCurrency }))
     : (() => {
       let progress = 0;
       const segments = items.map((item, index) => {
@@ -731,7 +736,7 @@ function renderCategoryWidget() {
             <span class="donut-legend-dot" style="background:${ANALYTICS_COLORS[index % ANALYTICS_COLORS.length]}"></span>
             <div class="donut-legend-meta">
               <div class="donut-legend-name">${escapeHtml(`${item.emoji} ${item.name}`)}</div>
-              <div class="donut-legend-sub">${escapeHtml(formatPercent(pct))} of ${escapeHtml(currentCurrency)}</div>
+              <div class="donut-legend-sub">${escapeHtml(formatPercent(pct))} ${escapeHtml(tr("analytics.of_currency", { currency: currentCurrency }))}</div>
             </div>
             <div class="donut-legend-value">${escapeHtml(formatMoney(item.amount, currentCurrency))}</div>
           </li>
@@ -744,7 +749,7 @@ function renderCategoryWidget() {
             <div class="donut-ring" style="background: conic-gradient(${segments});">
               <div class="donut-center">
                 <div class="donut-center-value">${escapeHtml(formatMoney(total, currentCurrency))}</div>
-                <div class="donut-center-label">${escapeHtml(donutMode === "income" ? "Income total" : "Expense total")}</div>
+                <div class="donut-center-label">${escapeHtml(donutMode === "income" ? tr("analytics.income_total") : tr("analytics.expense_total"))}</div>
               </div>
             </div>
           </div>
@@ -755,16 +760,16 @@ function renderCategoryWidget() {
 
   const content = `
     <div class="donut-tabs">
-      <button class="donut-tab ${donutMode === "expense" ? "active" : ""}" type="button" data-action="set-donut-mode" data-mode="expense">Expenses</button>
-      <button class="donut-tab ${donutMode === "income" ? "active" : ""}" type="button" data-action="set-donut-mode" data-mode="income">Income</button>
+      <button class="donut-tab ${donutMode === "expense" ? "active" : ""}" type="button" data-action="set-donut-mode" data-mode="expense">${escapeHtml(tr("common.types.expenses"))}</button>
+      <button class="donut-tab ${donutMode === "income" ? "active" : ""}" type="button" data-action="set-donut-mode" data-mode="income">${escapeHtml(tr("common.types.income"))}</button>
     </div>
     ${donutMarkup}
   `;
 
   host.innerHTML = createWidgetShell({
-    title: "Category Breakdown",
-    subtitle: `Largest ${donutMode} groups built from recorded transactions only.`,
-    chips: ["Donut", currentCurrency],
+    title: tr("analytics.category_breakdown"),
+    subtitle: tr("analytics.category_breakdown_sub", { mode: tr(`common.types.${donutMode}`, {}, donutMode).toLowerCase() }),
+    chips: [tr("analytics.chips.donut"), currentCurrency],
     content,
   });
 }
@@ -778,13 +783,13 @@ function renderBudgetWidget() {
     .slice(0, 6);
 
   const content = !budgets.length
-    ? createEmptyMarkup(`No budgets found in ${currentCurrency}.`)
+    ? createEmptyMarkup(tr("analytics.no_budgets", { currency: currentCurrency }))
     : `
       <div class="budget-list">
         ${budgets.map(budget => {
           const fillClass = budget.percent >= 100 ? "exceeded" : budget.percent >= 80 ? "warning" : "good";
-          const categoryNames = budget.categories.map(category => category.name).join(", ") || "No categories";
-          const errorNote = budget.conversion_error ? ` • ${budget.conversion_error}` : "";
+          const categoryNames = budget.categories.map(category => category.name).join(", ") || tr("common.no_categories");
+          const errorNote = budget.conversion_error ? ` - ${budget.conversion_error}` : "";
           return `
             <div class="budget-row">
               <div class="budget-row-top">
@@ -801,7 +806,7 @@ function renderBudgetWidget() {
                 <div class="budget-fill ${fillClass}" style="width:${Math.min(Math.max(budget.percent, 0), 100)}%"></div>
               </div>
               <div class="budget-sub">
-                ${escapeHtml(formatMoney(budget.spent, budget.currency_code))} of ${escapeHtml(formatMoney(budget.amount_limit, budget.currency_code))}
+                ${escapeHtml(formatMoney(budget.spent, budget.currency_code))} ${escapeHtml(tr("common.of"))} ${escapeHtml(formatMoney(budget.amount_limit, budget.currency_code))}
               </div>
             </div>
           `;
@@ -810,9 +815,9 @@ function renderBudgetWidget() {
     `;
 
   host.innerHTML = createWidgetShell({
-    title: "Budget Utilization",
-    subtitle: "Current usage and thresholds for budgets in the selected currency.",
-    chips: ["Budget", currentCurrency],
+    title: tr("analytics.budget_utilization"),
+    subtitle: tr("analytics.budget_utilization_sub"),
+    chips: [tr("analytics.chips.budget"), currentCurrency],
     content,
   });
 }
@@ -826,10 +831,10 @@ function renderAccountsBalanceWidget() {
 
   if (!accounts.length) {
     return createWidgetShell({
-      title: "Account Balances",
-      subtitle: `Balances across ${currentCurrency} accounts.`,
-      chips: ["Accounts", currentCurrency],
-      content: createEmptyMarkup(`No accounts found in ${currentCurrency}.`),
+      title: tr("analytics.account_balances"),
+      subtitle: tr("analytics.account_balances_sub", { currency: currentCurrency }),
+      chips: [tr("analytics.chips.accounts"), currentCurrency],
+      content: createEmptyMarkup(tr("analytics.no_accounts", { currency: currentCurrency })),
       removable: true,
     });
   }
@@ -862,9 +867,9 @@ function renderAccountsBalanceWidget() {
   `;
 
   return createWidgetShell({
-    title: "Account Balances",
-    subtitle: `Balances across ${currentCurrency} accounts.`,
-    chips: ["Bars", "Accounts"],
+    title: tr("analytics.account_balances"),
+    subtitle: tr("analytics.account_balances_sub", { currency: currentCurrency }),
+    chips: [tr("analytics.chips.bars"), tr("analytics.chips.accounts")],
     content,
     removable: true,
   });
@@ -881,14 +886,14 @@ function renderIncomeExpenseBarsWidget() {
   });
 
   return createWidgetShell({
-    title: "Income vs Expenses",
-    subtitle: "Compressed comparison across the selected period.",
-    chips: ["Bars", currentCurrency],
+    title: tr("analytics.income_vs_expenses"),
+    subtitle: tr("analytics.income_vs_expenses_sub"),
+    chips: [tr("analytics.chips.bars"), currentCurrency],
     content: `
       ${content}
       <div class="chart-legend">
-        <span class="chart-legend-item"><span class="legend-swatch" style="background:#3a7a50"></span>Income</span>
-        <span class="chart-legend-item"><span class="legend-swatch" style="background:#b84040"></span>Expenses</span>
+        <span class="chart-legend-item"><span class="legend-swatch" style="background:#3a7a50"></span>${escapeHtml(tr("common.types.income"))}</span>
+        <span class="chart-legend-item"><span class="legend-swatch" style="background:#b84040"></span>${escapeHtml(tr("common.types.expenses"))}</span>
       </div>
     `,
     removable: true,
@@ -917,9 +922,9 @@ function renderSavingsRateWidget() {
   });
 
   return createWidgetShell({
-    title: "Savings Rate",
-    subtitle: "Daily savings efficiency based on posted income and expenses.",
-    chips: ["Line", "%"],
+    title: tr("analytics.savings_rate"),
+    subtitle: tr("analytics.savings_rate_sub"),
+    chips: [tr("analytics.chips.line"), "%"],
     content,
     removable: true,
   });
@@ -930,7 +935,7 @@ function renderTopCategoriesWidget() {
   const maxValue = Math.max(...items.map(item => item.amount), 0);
 
   const content = !items.length
-    ? createEmptyMarkup(`No expense categories in ${currentCurrency} for the selected range.`)
+    ? createEmptyMarkup(tr("analytics.no_expense_categories", { currency: currentCurrency }))
     : `
       <div class="breakdown-list">
         ${items.map((item, index) => {
@@ -942,7 +947,7 @@ function renderTopCategoriesWidget() {
                   <span class="breakdown-icon">${escapeHtml(item.emoji)}</span>
                   <div>
                     <div class="breakdown-name">${escapeHtml(item.name)}</div>
-                    <div class="breakdown-sub">Expense category</div>
+                    <div class="breakdown-sub">${escapeHtml(tr("common.expense_category"))}</div>
                   </div>
                 </div>
                 <div class="breakdown-value">${escapeHtml(formatMoney(item.amount, currentCurrency))}</div>
@@ -957,9 +962,9 @@ function renderTopCategoriesWidget() {
     `;
 
   return createWidgetShell({
-    title: "Top Categories",
-    subtitle: "Highest expense categories in the active range.",
-    chips: ["Ranking", currentCurrency],
+    title: tr("analytics.top_categories"),
+    subtitle: tr("analytics.top_categories_sub"),
+    chips: [tr("analytics.chips.ranking"), currentCurrency],
     content,
     removable: true,
   });
@@ -985,9 +990,9 @@ function renderNetFlowWidget() {
   });
 
   return createWidgetShell({
-    title: "Net Flow",
-    subtitle: "Cumulative income minus expenses through the selected period.",
-    chips: ["Area", currentCurrency],
+    title: tr("analytics.net_flow"),
+    subtitle: tr("analytics.net_flow_sub"),
+    chips: [tr("analytics.chips.area"), currentCurrency],
     content,
     removable: true,
   });
@@ -1006,9 +1011,9 @@ function renderActivityWidget() {
   });
 
   return createWidgetShell({
-    title: "Transaction Activity",
-    subtitle: "Record counts grouped across the selected range.",
-    chips: ["Activity", "Count"],
+    title: tr("analytics.activity"),
+    subtitle: tr("analytics.activity_sub"),
+    chips: [tr("analytics.chips.activity"), tr("analytics.chips.count")],
     content,
     removable: true,
   });
@@ -1016,8 +1021,8 @@ function renderActivityWidget() {
 
 const WIDGET_CATALOG = {
   "income-expense-bars": {
-    title: "Income vs expenses",
-    description: "Grouped bars for inflows and outflows across the active period.",
+    title: tr("analytics.widgets.income-expense-bars.title"),
+    description: tr("analytics.widgets.income-expense-bars.description"),
     icon: `
       <svg viewBox="0 0 16 16" fill="none">
         <path d="M2 13V8M8 13V3M14 13V6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -1026,8 +1031,8 @@ const WIDGET_CATALOG = {
     render: renderIncomeExpenseBarsWidget,
   },
   "accounts-balance": {
-    title: "Account balances",
-    description: "Compare balances for accounts that use the selected currency.",
+    title: tr("analytics.widgets.accounts-balance.title"),
+    description: tr("analytics.widgets.accounts-balance.description"),
     icon: `
       <svg viewBox="0 0 16 16" fill="none">
         <rect x="2" y="4" width="12" height="8" rx="1.6" stroke="currentColor" stroke-width="1.4" />
@@ -1037,8 +1042,8 @@ const WIDGET_CATALOG = {
     render: renderAccountsBalanceWidget,
   },
   "savings-rate": {
-    title: "Savings rate",
-    description: "Track how efficiently income turns into retained value day by day.",
+    title: tr("analytics.widgets.savings-rate.title"),
+    description: tr("analytics.widgets.savings-rate.description"),
     icon: `
       <svg viewBox="0 0 16 16" fill="none">
         <path d="M2 12l3.5-4 2.5 2 6-6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
@@ -1047,8 +1052,8 @@ const WIDGET_CATALOG = {
     render: renderSavingsRateWidget,
   },
   "top-categories": {
-    title: "Top categories",
-    description: "Highlight the expense categories carrying the most weight right now.",
+    title: tr("analytics.widgets.top-categories.title"),
+    description: tr("analytics.widgets.top-categories.description"),
     icon: `
       <svg viewBox="0 0 16 16" fill="none">
         <path d="M3 4.5h10M3 8h7M3 11.5h5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
@@ -1057,8 +1062,8 @@ const WIDGET_CATALOG = {
     render: renderTopCategoriesWidget,
   },
   "net-flow": {
-    title: "Net flow",
-    description: "See how cumulative income minus expenses moved through the range.",
+    title: tr("analytics.widgets.net-flow.title"),
+    description: tr("analytics.widgets.net-flow.description"),
     icon: `
       <svg viewBox="0 0 16 16" fill="none">
         <path d="M2 11.5c2-4.3 4.2-6.4 6.6-6.4 1.8 0 3 1 5.4 3.9V13H2v-1.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round" />
@@ -1067,8 +1072,8 @@ const WIDGET_CATALOG = {
     render: renderNetFlowWidget,
   },
   "activity-count": {
-    title: "Transaction activity",
-    description: "Monitor posting frequency across the active range.",
+    title: tr("analytics.widgets.activity-count.title"),
+    description: tr("analytics.widgets.activity-count.description"),
     icon: `
       <svg viewBox="0 0 16 16" fill="none">
         <circle cx="4" cy="8" r="1.4" fill="currentColor" />
@@ -1111,8 +1116,8 @@ function renderDynamicSlots() {
                 <path d="M6 1v10M1 6h10" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" />
               </svg>
             </div>
-            <div class="empty-title">Add widget</div>
-            <div class="empty-sub">Choose another chart or graph for this analytics slot.</div>
+            <div class="empty-title">${escapeHtml(tr("analytics.add_widget"))}</div>
+            <div class="empty-sub">${escapeHtml(tr("analytics.add_widget_copy"))}</div>
           </div>
         </button>
       `;

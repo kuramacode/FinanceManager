@@ -1,6 +1,8 @@
 from flask import Flask
 from flask_login import LoginManager
 from app.config import Config
+from app.i18n import register_i18n
+from app.utils.app_shell import get_app_shell_context
 from app.utils.jinja_filters import color_change, format_date_for_website,category_name, category_emoji, currency_flag, get_difference_percentage, get_difference
 from app.utils.database import (
     default_sqlite_path,
@@ -9,7 +11,8 @@ from app.utils.database import (
     sqlite_path_from_uri,
 )
 from app.utils.main_scripts import get_username
-from app.models import db, User
+from app.models import db
+from app.models.user import User
 import os
 
 login_manager = LoginManager()
@@ -38,6 +41,7 @@ def create_app(config_overrides=None):
         app.config.update(config_overrides)
 
     _configure_database_uri_for_testing(app)
+    register_i18n(app)
 
     app.jinja_env.filters['color'] = color_change
     app.jinja_env.filters['format_date'] = format_date_for_website
@@ -53,6 +57,10 @@ def create_app(config_overrides=None):
     
     login_manager.init_app(app)
     login_manager.login_view = 'auth.login'
+
+    @app.context_processor
+    def inject_app_shell():
+        return get_app_shell_context()
     
     db.init_app(app)
     blueprints = []
@@ -67,7 +75,9 @@ def create_app(config_overrides=None):
     from app.content.manage.currency import _currency; blueprints.append(_currency)
     from app.content.manage.category import _categories; blueprints.append(_categories)
     from app.api.routes import _api
+    from app.api.ai.ai import _ai
     app.register_blueprint(_api, url_prefix="/api")
+    app.register_blueprint(_ai)
     for br in blueprints:
         app.register_blueprint(br)
     

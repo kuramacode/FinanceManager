@@ -1,5 +1,10 @@
 const PAGE_SIZE = 7;
 const TRANSACTION_TYPES = ["all", "income", "expense", "transfer"];
+const UI_LOCALE = window.ledgerI18n?.locale || "en-US";
+
+function tr(key, replacements = {}, fallback = "") {
+  return window.ledgerI18n?.t(key, replacements, fallback) || fallback || key;
+}
 
 let transactions = [];
 let categories = [];
@@ -33,7 +38,7 @@ function escapeHtml(value) {
 function normalizeCategory(category) {
   return {
     id: Number(category?.id),
-    name: category?.name ?? "Unnamed category",
+    name: category?.name ?? tr("common.unnamed_category"),
     desc: category?.desc ?? "",
     emoji: category?.emoji ?? "#",
     type: String(category?.type ?? "expense").toLowerCase(),
@@ -44,7 +49,7 @@ function normalizeCategory(category) {
 function normalizeAccount(account) {
   return {
     id: Number(account?.id),
-    name: account?.name ?? "Unnamed account",
+    name: account?.name ?? tr("common.unnamed_account"),
     emoji: account?.emoji ?? "#",
     status: String(account?.status ?? "active").toLowerCase(),
     currency_code: String(account?.currency_code ?? "UAH").toUpperCase(),
@@ -62,7 +67,7 @@ function normalizeTransaction(transaction) {
     date: transaction?.date ? String(transaction.date) : "",
     type: String(transaction?.type ?? "expense").toLowerCase(),
     category_id: Number(transaction?.category_id),
-    category_name: transaction?.category_name ?? "Unknown category",
+    category_name: transaction?.category_name ?? tr("common.unknown_category"),
     category_emoji: transaction?.category_emoji ?? "#",
     account_id: transaction?.account_id === null || transaction?.account_id === undefined || transaction?.account_id === ""
       ? null
@@ -111,7 +116,7 @@ function toInputTime(value = new Date()) {
 
 function formatDateTime(value) {
   const parsed = parseLocalDateTime(value);
-  if (!parsed) return "Unknown date";
+  if (!parsed) return tr("common.unknown_date");
 
   const options = {
     month: "short",
@@ -124,12 +129,12 @@ function formatDateTime(value) {
     options.year = "numeric";
   }
 
-  return parsed.toLocaleString("en-US", options);
+  return parsed.toLocaleString(UI_LOCALE, options);
 }
 
 function formatMoney(amount, currencyCode) {
   const value = Number(amount || 0);
-  const abs = Math.abs(value).toLocaleString("en-US", {
+  const abs = Math.abs(value).toLocaleString(UI_LOCALE, {
     minimumFractionDigits: 0,
     maximumFractionDigits: 2,
   });
@@ -152,24 +157,24 @@ function amountDisplay(transaction) {
 function typeMeta(type) {
   if (type === "income") {
     return {
-      label: "Income",
+      label: tr("common.types.income"),
       className: "income",
-      helper: "Income transactions add value to the selected account and category.",
+      helper: tr("transactions.type_income_helper"),
     };
   }
 
   if (type === "transfer") {
     return {
-      label: "Transfer",
+      label: tr("common.types.transfer"),
       className: "transfer",
-      helper: "Transfers help track internal moves while still keeping the currency and source account visible.",
+      helper: tr("transactions.type_transfer_helper"),
     };
   }
 
   return {
-    label: "Expense",
+    label: tr("common.types.expense"),
     className: "expense",
-    helper: "Expense transactions reduce available budget in the selected category.",
+    helper: tr("transactions.type_expense_helper"),
   };
 }
 
@@ -190,7 +195,7 @@ function buildCurrencyBreakdown(list) {
 
 function transactionTitle(transaction) {
   if (transaction.description) return transaction.description;
-  return `${typeMeta(transaction.type).label} in ${transaction.category_name}`;
+  return `${typeMeta(transaction.type).label} ${tr("common.in")} ${transaction.category_name}`;
 }
 
 function filteredTransactions() {
@@ -285,7 +290,7 @@ function buildTransactionCard(transaction) {
   const meta = typeMeta(transaction.type);
   const accountMarkup = transaction.account_name
     ? `<span class="tx-account">${escapeHtml(transaction.account_name)}</span>`
-    : `<span class="tx-account">No account</span>`;
+    : `<span class="tx-account">${escapeHtml(tr("transactions.no_account"))}</span>`;
   const title = transactionTitle(transaction);
   const amountClass = transaction.type === "income"
     ? "pos"
@@ -312,12 +317,12 @@ function buildTransactionCard(transaction) {
         ${escapeHtml(amountDisplay(transaction))}
       </div>
       <div class="tx-actions">
-        <button type="button" class="tx-action-btn" data-action="edit" data-id="${transaction.id}" title="Edit transaction">
+        <button type="button" class="tx-action-btn" data-action="edit" data-id="${transaction.id}" title="${escapeHtml(tr("transactions.edit_title"))}">
           <svg viewBox="0 0 15 15" fill="none">
             <path d="M10.9 2.2a1.5 1.5 0 112.1 2.1l-7.8 7.8-3 .7.7-3 8-7.6z" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round" />
           </svg>
         </button>
-        <button type="button" class="tx-action-btn danger" data-action="delete" data-id="${transaction.id}" title="Delete transaction">
+        <button type="button" class="tx-action-btn danger" data-action="delete" data-id="${transaction.id}" title="${escapeHtml(tr("transactions.delete_action_title"))}">
           <svg viewBox="0 0 15 15" fill="none">
             <path d="M2.5 4h10M6 2.2h3M5 5.2v6M7.5 5.2v6M10 5.2v6M3.8 4l.6 8c.04.6.54 1 1 1h3.84c.6 0 1.1-.4 1.14-1l.6-8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
           </svg>
@@ -335,14 +340,14 @@ function renderPagination(totalItems) {
   container.innerHTML = "";
 
   if (!totalItems) {
-    pageInfo.textContent = "No results";
+    pageInfo.textContent = tr("transactions.no_results");
     return;
   }
 
   const totalPages = Math.ceil(totalItems / PAGE_SIZE);
   const start = (currentPage - 1) * PAGE_SIZE + 1;
   const end = Math.min(currentPage * PAGE_SIZE, totalItems);
-  pageInfo.textContent = `${start}-${end} of ${totalItems}`;
+  pageInfo.textContent = tr("transactions.page_range", { start, end, total: totalItems }, `${start}-${end} of ${totalItems}`);
 
   if (totalPages <= 1) return;
 
@@ -384,13 +389,13 @@ function renderEmptyState(list) {
   empty.hidden = false;
   if (pagination) pagination.hidden = true;
   if (!transactions.length) {
-    title.textContent = "No transactions yet";
-    copy.textContent = "Add your first transaction to start tracking movement across categories, accounts, and currencies.";
+    title.textContent = tr("transactions.no_transactions_title");
+    copy.textContent = tr("transactions.no_transactions_copy");
     return;
   }
 
-  title.textContent = "No matching transactions";
-  copy.textContent = "Try another type filter or widen the search terms to bring transactions back into view.";
+  title.textContent = tr("transactions.no_matching_title");
+  copy.textContent = tr("transactions.no_matching_copy");
 }
 
 function renderTransactions() {
@@ -409,8 +414,8 @@ function renderTransactions() {
   const pageItems = list.slice(start, start + PAGE_SIZE);
 
   const filterLabel = activeFilter === "all"
-    ? "All transactions"
-    : `${typeMeta(activeFilter).label} transactions`;
+    ? tr("transactions.all_transactions")
+    : tr("transactions.type_transactions", { type: typeMeta(activeFilter).label }, `${typeMeta(activeFilter).label} transactions`);
   resultsCopy.textContent = `${filterLabel} (${list.length})`;
   container.innerHTML = pageItems.map(buildTransactionCard).join("");
 
@@ -450,9 +455,9 @@ function renderAccountOptions(selectedId = "") {
     ? ""
     : String(selectedId);
   const options = [
-    `<option value="">No account selected</option>`,
+    `<option value="">${escapeHtml(tr("transactions.no_account_selected"))}</option>`,
     ...sortedAccounts().map(account => {
-      const statusLabel = account.status !== "active" ? ` - ${account.status}` : "";
+      const statusLabel = account.status !== "active" ? ` - ${tr(`common.status.${account.status}`, {}, account.status)}` : "";
       return `<option value="${account.id}">${escapeHtml(account.emoji)} ${escapeHtml(account.name)} - ${escapeHtml(account.currency_code)}${escapeHtml(statusLabel)}</option>`;
     }),
   ];
@@ -473,18 +478,19 @@ function renderCategoryOptions(type, selectedId = "") {
     : String(selectedId);
 
   if (!available.length) {
-    select.innerHTML = `<option value="">No categories available for ${escapeHtml(typeMeta(type).label.toLowerCase())}</option>`;
+    const typeLabel = typeMeta(type).label.toLowerCase();
+    select.innerHTML = `<option value="">${escapeHtml(tr("transactions.no_categories_for_type", { type: typeLabel }, `No categories available for ${typeLabel}`))}</option>`;
     select.disabled = true;
     submit.disabled = true;
     hint.classList.add("is-error");
-    hint.textContent = `Create at least one ${typeMeta(type).label.toLowerCase()} category before saving this transaction.`;
+    hint.textContent = tr("transactions.create_category_before_save", { type: typeLabel }, `Create at least one ${typeLabel} category before saving this transaction.`);
     return;
   }
 
   select.disabled = false;
   submit.disabled = false;
   hint.classList.remove("is-error");
-  hint.textContent = "Choose a category that matches the selected transaction type.";
+  hint.textContent = tr("transactions.category_hint");
   select.innerHTML = available
     .map(category => `<option value="${category.id}">${escapeHtml(category.emoji)} ${escapeHtml(category.name)}</option>`)
     .join("");
@@ -532,9 +538,9 @@ function resetTransactionForm() {
   const form = document.getElementById("transactionForm");
   if (form) form.reset();
 
-  setText("transactionModalTitle", "New Transaction");
-  setText("transactionModalSubtitle", "Record category, account, currency, and timestamp in one place.");
-  setText("transactionSubmitBtn", "Create Transaction");
+  setText("transactionModalTitle", tr("transactions.modal_new_title_text"));
+  setText("transactionModalSubtitle", tr("transactions.modal_new_subtitle"));
+  setText("transactionSubmitBtn", tr("transactions.create_submit"));
 
   const now = new Date();
   document.getElementById("transactionFormAction").value = "create";
@@ -566,9 +572,9 @@ function openEditTransactionModal(id) {
   const parsedDate = parseLocalDateTime(transaction.date) || new Date();
   const type = resolveFormType(transaction.type);
 
-  setText("transactionModalTitle", "Edit Transaction");
-  setText("transactionModalSubtitle", "Adjust the amount, account, category, currency, or timestamp.");
-  setText("transactionSubmitBtn", "Save Changes");
+  setText("transactionModalTitle", tr("transactions.modal_edit_title"));
+  setText("transactionModalSubtitle", tr("transactions.modal_edit_subtitle"));
+  setText("transactionSubmitBtn", tr("common.buttons.save_changes"));
 
   document.getElementById("transactionFormAction").value = "update";
   document.getElementById("transactionId").value = String(transaction.id);
@@ -626,7 +632,7 @@ function initPageDate() {
   const pageDate = document.getElementById("pageDate");
   if (!pageDate) return;
 
-  pageDate.textContent = new Date().toLocaleDateString("en-US", {
+  pageDate.textContent = new Date().toLocaleDateString(UI_LOCALE, {
     weekday: "long",
     month: "long",
     day: "numeric",
@@ -693,14 +699,14 @@ function initTransactionsPage() {
 
     if (!categorySelect || categorySelect.disabled || !categorySelect.value) {
       event.preventDefault();
-      showFeedback("Choose a category that matches the selected transaction type.");
+      showFeedback(tr("transactions.category_hint"));
       return;
     }
 
     currencyInput.value = currencyInput.value.trim().toUpperCase();
     if (!/^[A-Z]{3}$/.test(currencyInput.value)) {
       event.preventDefault();
-      showFeedback("Currency code must be a 3-letter code.");
+      showFeedback(tr("errors.currency_code"));
       currencyInput.focus();
     }
   });

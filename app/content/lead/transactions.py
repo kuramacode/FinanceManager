@@ -3,7 +3,9 @@ from datetime import datetime
 from flask import Blueprint, redirect, render_template, request, url_for
 from flask_login import login_required
 
-from app.models import Transactions, db
+from app.i18n import format_date_range, translate as t
+from app.models import db
+from app.models.transactions import Transactions
 from app.services.accounts import AccountService
 from app.services.category import Category_Service
 from app.utils.main_scripts import get_userid, get_username
@@ -61,7 +63,7 @@ def _normalize_transaction(transaction, category_map: dict[int, dict], account_m
         "description": transaction.description or "",
         "type": (transaction.type or "expense").strip().lower(),
         "category_id": transaction.category_id,
-        "category_name": category.get("name") or "Unknown category",
+        "category_name": category.get("name") or t("common.unknown_category"),
         "category_emoji": category.get("emoji") or "#",
         "account_id": transaction.account_id,
         "account_name": account.get("name") or "",
@@ -76,18 +78,18 @@ def _parse_datetime(date_value: str | None, time_value: str | None) -> datetime:
     time_value = (time_value or "").strip()
 
     if not date_value:
-        raise ValueError("Date is required")
+        raise ValueError(t("errors.date_required"))
 
     try:
         parsed_date = datetime.strptime(date_value, "%Y-%m-%d").date()
     except ValueError as exc:
-        raise ValueError("Date must use the YYYY-MM-DD format") from exc
+        raise ValueError(t("errors.date_format")) from exc
 
     if time_value:
         try:
             parsed_time = datetime.strptime(time_value, "%H:%M").time()
         except ValueError as exc:
-            raise ValueError("Time must use the HH:MM format") from exc
+            raise ValueError(t("errors.time_format")) from exc
     else:
         parsed_time = datetime.min.time()
 
@@ -99,31 +101,31 @@ def _parse_transaction_payload(user_id: int, form):
     categories, accounts, category_map, account_map = _load_reference_data(user_id)
 
     if not categories:
-        raise ValueError("Create at least one category before adding transactions")
+        raise ValueError(t("errors.create_category_first"))
 
     try:
         amount = float(form.get("amount") or 0)
     except (TypeError, ValueError) as exc:
-        raise ValueError("Amount must be a valid number") from exc
+        raise ValueError(t("errors.amount_number")) from exc
 
     if amount <= 0:
-        raise ValueError("Amount must be greater than 0")
+        raise ValueError(t("errors.amount_positive"))
 
     description = (form.get("description") or "").strip()
     type_ = (form.get("type") or "").strip().lower()
     if type_ not in TRANSACTION_TYPES:
-        raise ValueError("Transaction type must be income, expense, or transfer")
+        raise ValueError(t("errors.transaction_type"))
 
     try:
         category_id = int(form.get("category_id") or 0)
     except (TypeError, ValueError) as exc:
-        raise ValueError("Select a valid category") from exc
+        raise ValueError(t("errors.valid_category")) from exc
 
     category = category_map.get(category_id)
     if category is None:
-        raise ValueError("Selected category is not available")
+        raise ValueError(t("errors.category_unavailable"))
     if (category.get("type") or "").strip().lower() != type_:
-        raise ValueError("Selected category does not match the chosen transaction type")
+        raise ValueError(t("errors.category_type_mismatch"))
 
     account_id = None
     account_raw = (form.get("account_id") or "").strip()
@@ -131,10 +133,10 @@ def _parse_transaction_payload(user_id: int, form):
         try:
             account_id = int(account_raw)
         except ValueError as exc:
-            raise ValueError("Select a valid account") from exc
+            raise ValueError(t("errors.valid_account")) from exc
 
         if account_id not in account_map:
-            raise ValueError("Selected account is not available")
+            raise ValueError(t("errors.account_unavailable"))
 
     currency_code = (form.get("currency_code") or "").strip().upper()
     if not currency_code and account_id is not None:
@@ -142,7 +144,7 @@ def _parse_transaction_payload(user_id: int, form):
     if not currency_code:
         currency_code = "UAH"
     if len(currency_code) != 3 or not currency_code.isalpha():
-        raise ValueError("Currency code must be a 3-letter code")
+        raise ValueError(t("errors.currency_code"))
 
     date_value = _parse_datetime(form.get("date"), form.get("time"))
 
@@ -193,13 +195,13 @@ def _build_date_range_label(transactions_data: list[dict]) -> str:
             continue
 
     if not dates:
-        return "No dates yet"
+        return t("transactions.no_dates")
 
     start = min(dates)
     end = max(dates)
     if start.date() == end.date():
-        return start.strftime("%b %d, %Y")
-    return f"{start.strftime('%b %d, %Y')} - {end.strftime('%b %d, %Y')}"
+        return format_date_range(start, start)
+    return format_date_range(start, end)
 
 
 @_transactions.route("/transactions", methods=["GET", "POST"])
@@ -217,14 +219,14 @@ def transactions():
                 transaction_id = int(request.form.get("transaction_id") or 0)
                 transaction = db.session.get(Transactions, transaction_id)
                 if transaction is None or transaction.user_id != user_id:
-                    raise ValueError("Transaction not found or access denied")
+                    raise ValueError(t("errors.transaction_not_found"))
 
                 db.session.delete(transaction)
                 db.session.commit()
-                return _redirect_with_feedback("success", "Transaction deleted.", return_filter)
+                return _redirect_with_feedback("success", t("errors.transaction_deleted"), return_filter)
 
             if action not in {"create", "update"}:
-                raise ValueError("Unsupported transaction action")
+                raise ValueError(t("errors.unsupported_transaction_action"))
 
             payload = _parse_transaction_payload(user_id, request.form)
 
@@ -232,18 +234,18 @@ def transactions():
                 transaction = Transactions(user_id=user_id, **payload)
                 db.session.add(transaction)
                 db.session.commit()
-                return _redirect_with_feedback("success", "Transaction created.", return_filter)
+                return _redirect_with_feedback("success", t("errors.transaction_created"), return_filter)
 
             transaction_id = int(request.form.get("transaction_id") or 0)
             transaction = db.session.get(Transactions, transaction_id)
             if transaction is None or transaction.user_id != user_id:
-                raise ValueError("Transaction not found or access denied")
+                raise ValueError(t("errors.transaction_not_found"))
 
             for field, value in payload.items():
                 setattr(transaction, field, value)
 
             db.session.commit()
-            return _redirect_with_feedback("success", "Transaction updated.", return_filter)
+            return _redirect_with_feedback("success", t("errors.transaction_updated"), return_filter)
         except ValueError as exc:
             db.session.rollback()
             return _redirect_with_feedback("error", str(exc), return_filter)

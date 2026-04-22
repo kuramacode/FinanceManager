@@ -4,6 +4,7 @@ from flask import Blueprint, render_template
 from flask_login import login_required
 
 from app.content.lead.dashboard_service import get_last_transactions, get_sum_expense, get_sum_income
+from app.i18n import format_month_year, translate as t
 from app.services.accounts import AccountService
 from app.services.budget_services.budgets import BudgetService
 from app.utils.main_scripts import get_categories_lookup, get_userid, get_username
@@ -24,16 +25,16 @@ def _build_dashboard_insights(balance, income_sum, budgets, transactions):
             insights.append(
                 {
                     "icon": "↑",
-                    "title": "Income is covering spending",
-                    "text": f"Your current net result is positive with an estimated savings rate of {savings_rate}%.",
+                    "title": t("dashboard.insight_income_covering_title"),
+                    "text": t("dashboard.insight_income_covering_text", rate=savings_rate),
                 }
             )
         else:
             insights.append(
                 {
                     "icon": "!",
-                    "title": "Expenses are ahead of income",
-                    "text": f"Your current net result is negative and the estimated savings rate is {savings_rate}%.",
+                    "title": t("dashboard.insight_expenses_ahead_title"),
+                    "text": t("dashboard.insight_expenses_ahead_text", rate=savings_rate),
                 }
             )
 
@@ -42,10 +43,12 @@ def _build_dashboard_insights(balance, income_sum, budgets, transactions):
         insights.append(
             {
                 "icon": "!",
-                "title": f"{exceeded_budget['name']} is over budget",
-                "text": (
-                    f"Spent {exceeded_budget['spent']:.2f} {exceeded_budget['currency_code']} "
-                    f"against a limit of {exceeded_budget['amount_limit']:.2f} {exceeded_budget['currency_code']}."
+                "title": t("dashboard.insight_budget_over_title", name=exceeded_budget["name"]),
+                "text": t(
+                    "dashboard.insight_budget_over_text",
+                    spent=f"{exceeded_budget['spent']:.2f}",
+                    limit=f"{exceeded_budget['amount_limit']:.2f}",
+                    currency=exceeded_budget["currency_code"],
                 ),
             }
         )
@@ -55,19 +58,25 @@ def _build_dashboard_insights(balance, income_sum, budgets, transactions):
             insights.append(
                 {
                     "icon": "•",
-                    "title": f"{warning_budget['name']} is close to the limit",
-                    "text": f"{warning_budget['percent']:.0f}% of that budget has already been used in the active period.",
+                    "title": t("dashboard.insight_budget_warning_title", name=warning_budget["name"]),
+                    "text": t("dashboard.insight_budget_warning_text", percent=f"{warning_budget['percent']:.0f}"),
                 }
             )
 
     expense_transactions = [tx for tx in transactions if (tx["type"] or "").lower() == "expense"]
     if expense_transactions:
         largest_expense = max(expense_transactions, key=lambda tx: abs(float(tx["amount"] or 0)))
+        largest_expense_currency = (largest_expense["currency_code"] or "UAH").upper()
         insights.append(
             {
-                "icon": "$",
-                "title": "Largest recent expense",
-                "text": f"{largest_expense['description'] or 'Recent expense'} for {abs(float(largest_expense['amount'] or 0)):.2f}.",
+                "icon": "\u20b4" if largest_expense_currency == "UAH" else largest_expense_currency,
+                "title": t("dashboard.insight_largest_expense_title"),
+                "text": t(
+                    "dashboard.insight_largest_expense_text",
+                    description=largest_expense["description"] or t("dashboard.recent_expense"),
+                    amount=f"{abs(float(largest_expense['amount'] or 0)):.2f}",
+                    currency=largest_expense_currency,
+                ),
             }
         )
 
@@ -98,6 +107,7 @@ def dashboard():
         income_sum=income_sum,
         expense_sum=expense_sum,
         balance=balance,
+        dashboard_currency="UAH",
         userID=user_id,
         categories_lookup=categories_lookup,
         accounts=accounts,
@@ -105,6 +115,6 @@ def dashboard():
         active_budgets=active_budgets,
         dashboard_insights=dashboard_insights,
         savings_rate=savings_rate,
-        current_month_label=datetime.now().strftime("%B %Y"),
+        current_month_label=format_month_year(datetime.now()),
         active_page="dashboard",
     )

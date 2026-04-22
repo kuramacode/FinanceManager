@@ -1,4 +1,5 @@
 from app.utils.consts import CURRENT_YEAR, MONTHS
+from app.i18n import format_month as format_i18n_month
 from app.utils.main_scripts import _db_path
 from app.utils.formatting import format_day, format_month, format_time
 import sqlite3
@@ -44,7 +45,7 @@ def format_date_for_website(date: str) -> str:
     date_part, time_part = subdates[0], subdates[1]
 
     year, month, day = date_part.split('-')
-    day, month, time = format_day(day), format_month(month), format_time(time_part)
+    day, month, time = format_day(day), format_i18n_month(month, short=True), format_time(time_part)
     if int(year) != CURRENT_YEAR:
         return f"{month} {day} {year} {time}"
     return f"{month} {day} {time}"
