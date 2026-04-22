@@ -4,21 +4,22 @@
 BUDGET_GENERATION_PROMPT = """
 {base}
 
-Задача:
-Сформуй рекомендований бюджет по категоріях.
+Task:
+Generate practical budget recommendations for the selected scenario.
 
-Що потрібно зробити:
-1. Розподіли ліміти по категоріях
-2. Дай коротке пояснення для кожної категорії
-3. Не додавай категорії, яких немає у вхідних даних, якщо це не виправдано
+What to do:
+1. Suggest category limits when the data supports them.
+2. Explain each recommendation briefly.
+3. Do not add categories that are not present in the input unless the data clearly justifies a new category suggestion.
 
-Правила:
-- не вигадуй дані
-- спирайся тільки на історію витрат, доходів і категорій
-- якщо даних недостатньо, поверни порожній список і пояснення
-- формат відповіді строго JSON
+Rules:
+- Do not invent numbers.
+- Rely only on income, expenses, budgets, accounts, and categories from the input data.
+- If the data is insufficient, return an empty budget list and explain why.
+- Every user-facing string value must follow the response language instruction from the base prompt.
+- The response format must be strict JSON.
 
-Формат відповіді:
+Response format:
 {{
   "budget": [
     {{
@@ -26,7 +27,8 @@ BUDGET_GENERATION_PROMPT = """
       "limit": 0,
       "reason": "string"
     }}
-  ]
+  ],
+  "note": "string"
 }}
 """
 
@@ -34,27 +36,24 @@ BUDGET_GENERATION_PROMPT = """
 UI_INSIGHTS_PROMPT = """
 {base}
 
-Задача:
-Згенеруй 5 коротких інсайтів для дашборду.
+Task:
+Generate concise user-facing insights for the selected page or scenario.
 
-Вимоги:
-- кожен інсайт короткий
-- максимум 100 символів
-- інсайти мають бути корисними для користувача
-- без води і загальних фраз
+Requirements:
+- Produce 3-5 useful insights.
+- Keep each insight short and specific.
+- Avoid generic filler.
+- Use only the provided data.
 
-Правила:
-- не вигадуй дані
-- якщо даних недостатньо, поверни 1 простий інсайт про нестачу даних
-- формат відповіді строго JSON
+Rules:
+- Do not invent data.
+- If there is not enough data, return one clear insight about the data gap.
+- Every user-facing string value must follow the response language instruction from the base prompt.
+- The response format must be strict JSON.
 
-Формат відповіді:
+Response format:
 {{
   "insights": [
-    "string",
-    "string",
-    "string",
-    "string",
     "string"
   ]
 }}

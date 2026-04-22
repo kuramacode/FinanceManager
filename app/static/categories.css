@@ -105,7 +105,14 @@ nav a svg { width: 15px; height: 15px; flex-shrink: 0; }
   border-top: 1px solid rgba(255,255,255,0.08);
 }
 
-.user { display: flex; align-items: center; gap: 10px; }
+.user-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.user { display: flex; align-items: center; gap: 10px; min-width: 0; }
 
 .user-avatar {
   width: 32px; height: 32px;
@@ -120,6 +127,31 @@ nav a svg { width: 15px; height: 15px; flex-shrink: 0; }
 
 .user-name { font-size: 0.78rem; font-weight: 600; color: #fdfaf4; }
 .user-role { font-size: 0.67rem; color: var(--sidebar-muted); margin-top: 1px; }
+
+.logout-button {
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: var(--sidebar-muted);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  text-decoration: none;
+  transition: background 0.14s, border-color 0.14s, color 0.14s;
+}
+
+.logout-button:hover {
+  background: var(--sidebar-hover);
+  border-color: rgba(255,255,255,0.24);
+  color: #fdfaf4;
+}
+
+.logout-button svg {
+  width: 15px;
+  height: 15px;
+}
 
 /* ── MAIN ── */
 main {

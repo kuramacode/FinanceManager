@@ -70,7 +70,9 @@
   const drawerTitle = document.getElementById("aiEntrypointDrawerTitle");
   const drawerSubtitle = document.getElementById("aiEntrypointDrawerSubtitle");
   const pagePill = document.getElementById("aiEntrypointPagePill");
+  const actionPill = document.getElementById("aiEntrypointActionPill");
   const statusPill = document.getElementById("aiEntrypointStatusPill");
+  const switchAction = document.getElementById("aiEntrypointSwitchAction");
 
   const state = {
     modalOpen: false,
@@ -164,12 +166,81 @@
     return `${title}\n${lines.join("\n")}`;
   }
 
-  function formatExpenseAnalysis(data) {
+  function formatAIActionResponse(data) {
+    if (typeof data?.message === "string" && data.message.trim()) {
+      return data.message.trim();
+    }
+
+    if (data?.raw && typeof data.raw === "object") {
+      return formatAIActionResponse(data.raw);
+    }
+
     const sections = [
       formatSection(tr("ai.sections.insights"), data?.insights),
       formatSection(tr("ai.sections.problems"), data?.problems),
       formatSection(tr("ai.sections.recommendations"), data?.recommendations),
+      formatSection(tr("ai.sections.problem_categories", {}, "Problem categories"), data?.problem_categories),
+      formatSection(tr("ai.sections.advice", {}, "Advice"), data?.advice),
+      formatSection(tr("ai.sections.top_categories", {}, "Top categories"), data?.top_categories),
     ].filter(Boolean);
+
+    if (typeof data?.answer === "string" && data.answer.trim()) {
+      sections.unshift(data.answer.trim());
+    }
+
+    if (Array.isArray(data?.anomalies) && data.anomalies.length) {
+      const anomalies = data.anomalies.map(item => {
+        if (!item || typeof item !== "object") return String(item || "");
+        return Object.entries(item)
+          .filter(([, value]) => value !== null && value !== undefined && String(value).trim())
+          .map(([key, value]) => `${key}: ${value}`)
+          .join("; ");
+      });
+      sections.push(formatSection(tr("ai.sections.anomalies", {}, "Anomalies"), anomalies));
+    }
+
+    if (Array.isArray(data?.budget) && data.budget.length) {
+      const budget = data.budget.map(item => {
+        if (!item || typeof item !== "object") return String(item || "");
+        return Object.entries(item)
+          .filter(([, value]) => value !== null && value !== undefined && String(value).trim())
+          .map(([key, value]) => `${key}: ${value}`)
+          .join("; ");
+      });
+      sections.push(formatSection(tr("ai.sections.budget", {}, "Budget"), budget));
+    }
+
+    if (typeof data?.top_category === "string" && data.top_category.trim()) {
+      sections.unshift(`${tr("ai.sections.top_category", {}, "Top category")}\n${data.top_category.trim()}`);
+    }
+
+    const forecast = [];
+    if (Object.prototype.hasOwnProperty.call(data || {}, "expected_total")) {
+      forecast.push(`${tr("ai.sections.expected_total", {}, "Expected total")}: ${data.expected_total}`);
+    }
+    if (data?.trend) {
+      forecast.push(`${tr("ai.sections.trend", {}, "Trend")}: ${data.trend}`);
+    }
+    if (data?.note) {
+      forecast.push(String(data.note));
+    }
+    if (forecast.length) {
+      sections.push(`${tr("ai.sections.forecast", {}, "Forecast")}\n${forecast.join("\n")}`);
+    }
+
+    const score = [];
+    if (Object.prototype.hasOwnProperty.call(data || {}, "score")) {
+      score.push(`${tr("ai.sections.score", {}, "Score")}: ${data.score}`);
+    }
+    if (data?.status) {
+      score.push(`${tr("ai.sections.status", {}, "Status")}: ${data.status}`);
+    }
+    if (data?.explanation) {
+      score.push(String(data.explanation));
+    }
+    if (score.length) {
+      sections.push(`${tr("ai.sections.financial_score", {}, "Financial score")}\n${score.join("\n")}`);
+    }
 
     return sections.join("\n\n") || tr("ai.response_empty");
   }
@@ -182,7 +253,17 @@
     return fallback;
   }
 
-  async function runConnectedAction(action) {
+  function setSending(isSending) {
+    const sendButton = form?.querySelector(".ai-entrypoint__send");
+    if (sendButton instanceof HTMLButtonElement) {
+      sendButton.disabled = isSending;
+    }
+    if (input) {
+      input.disabled = isSending;
+    }
+  }
+
+  async function runConnectedAction(action, userMessage = "") {
     if (!action?.endpoint) {
       return;
     }
@@ -191,14 +272,20 @@
     if (statusPill) {
       statusPill.textContent = tr("ai.analyzing");
     }
+    setSending(true);
 
     try {
       const response = await fetch(endpointForLanguage(action.endpoint), {
-        method: action.method || "GET",
+        method: action.method || "POST",
         headers: {
           Accept: "application/json",
+          "Content-Type": "application/json",
           "X-Ledger-Language": currentLanguage(),
         },
+        body: JSON.stringify({
+          page_key: config.key || root.dataset.pageKey || "generic",
+          message: userMessage || "",
+        }),
       });
 
       let payload = null;
@@ -216,7 +303,7 @@
         return;
       }
 
-      appendMessage("assistant", formatExpenseAnalysis(payload.data), { roleLabel: "AI" });
+      appendMessage("assistant", formatAIActionResponse(payload.data), { roleLabel: "AI" });
       if (statusPill) {
         statusPill.textContent = tr("ai.analysis_ready");
       }
@@ -234,6 +321,11 @@
       if (statusPill) {
         statusPill.textContent = tr("ai.ai_unavailable");
       }
+    } finally {
+      if (currentRequestId === state.requestId) {
+        setSending(false);
+        input?.focus();
+      }
     }
   }
 
@@ -242,30 +334,14 @@
 
     chat.innerHTML = "";
 
-    if (action.endpoint) {
-      appendMessage(
-        "assistant",
-        tr("ai.running_action", { title: action.title }),
-        {
-          note: true,
-        },
-      );
-      runConnectedAction(action);
-      return;
-    }
-
     appendMessage(
       "assistant",
-      tr("ai.ready_preview", { title: action.title }),
+      tr("ai.running_action", { title: action.title }),
       {
         note: true,
-        prompt: action.prompt,
       },
     );
-    appendMessage(
-      "assistant",
-      tr("ai.future_backend"),
-    );
+    runConnectedAction(action);
   }
 
   function openModal() {
@@ -331,14 +407,10 @@
       descriptionKey: actionButton.dataset.aiActionDescriptionKey || "",
       prompt: localizedField(actionButton.dataset, "prompt", ""),
       promptKey: actionButton.dataset.aiActionPromptKey || "",
+      promptType: actionButton.dataset.aiActionPromptType || "",
       endpoint: actionButton.dataset.aiActionEndpoint || "",
-      method: actionButton.dataset.aiActionMethod || "GET",
+      method: actionButton.dataset.aiActionMethod || "POST",
     };
-  }
-
-  function getConnectedDefaultAction() {
-    const actions = Array.isArray(config.actions) ? config.actions : [];
-    return actions.find(action => action?.endpoint) || null;
   }
 
   function selectAction(action) {
@@ -352,8 +424,9 @@
       descriptionKey: action.description_key || action.descriptionKey || "",
       prompt: localizedField(action, "prompt", ""),
       promptKey: action.prompt_key || action.promptKey || "",
+      promptType: action.prompt_type || action.promptType || "",
       endpoint: action.endpoint || "",
-      method: action.method || "GET",
+      method: action.method || "POST",
     };
 
     if (drawerTitle) {
@@ -368,6 +441,14 @@
       pagePill.textContent = config.label;
     }
 
+    if (actionPill) {
+      actionPill.textContent = state.selectedAction.title;
+    }
+
+    actionGrid?.querySelectorAll("[data-ai-action-id]").forEach(button => {
+      button.classList.toggle("is-selected", button.dataset.aiActionId === state.selectedAction.id);
+    });
+
     renderInitialConversation(state.selectedAction);
     closeModal({ returnFocus: false });
     openDrawer();
@@ -378,19 +459,16 @@
   }
 
   function handleLauncherClick() {
-    const connectedAction = getConnectedDefaultAction();
-    if (config.key === "dashboard" && connectedAction) {
-      state.lastFocusedElement = document.activeElement;
-      selectAction(connectedAction);
-      return;
-    }
-
     openModal();
   }
 
   launcher?.addEventListener("click", handleLauncherClick);
   modalClose?.addEventListener("click", () => closeModal());
   drawerClose?.addEventListener("click", () => closeDrawer());
+  switchAction?.addEventListener("click", () => {
+    state.lastFocusedElement = switchAction;
+    openModal();
+  });
 
   modalBackdrop?.addEventListener("click", event => {
     if (event.target === modalBackdrop) {
@@ -421,14 +499,15 @@
     }
 
     appendMessage("user", message);
-    appendMessage(
-      "assistant",
-      state.selectedAction?.endpoint
-        ? tr("ai.followup_not_connected")
-        : tr("ai.preview_mode"),
-    );
-
     input.value = "";
+
+    if (state.selectedAction?.endpoint) {
+      appendMessage("assistant", tr("ai.followup_not_connected"), { note: true });
+      runConnectedAction(state.selectedAction, message);
+      return;
+    }
+
+    appendMessage("assistant", tr("ai.preview_mode"), { note: true });
     input.focus();
   });
 

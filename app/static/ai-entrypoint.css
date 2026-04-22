@@ -223,6 +223,38 @@ body.ai-entrypoint-lock {
   background: var(--tag-bg);
 }
 
+.ai-entrypoint__pill--action {
+  color: var(--text);
+  border-color: rgba(42, 37, 32, 0.16);
+  background: rgba(42, 37, 32, 0.05);
+  max-width: 100%;
+}
+
+.ai-entrypoint__switch-action {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 30px;
+  padding: 7px 10px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--paper);
+  color: var(--text);
+  font-family: "Epilogue", sans-serif;
+  font-size: 0.68rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+}
+
+.ai-entrypoint__switch-action:hover,
+.ai-entrypoint__switch-action:focus-visible {
+  background: var(--tag-bg);
+  border-color: #cdbfa9;
+  transform: translateY(-1px);
+  outline: none;
+}
+
 .ai-entrypoint__action-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -247,7 +279,8 @@ body.ai-entrypoint-lock {
 }
 
 .ai-entrypoint__action-card:hover,
-.ai-entrypoint__action-card:focus-visible {
+.ai-entrypoint__action-card:focus-visible,
+.ai-entrypoint__action-card.is-selected {
   transform: translateY(-2px);
   border-color: #cbbca2;
   background: linear-gradient(180deg, #f8f1e4, #fefaf3);
@@ -448,6 +481,12 @@ body.ai-entrypoint-lock {
 .ai-entrypoint__send:hover {
   opacity: 0.9;
   transform: translateY(-1px);
+}
+
+.ai-entrypoint__send:disabled,
+.ai-entrypoint__composer-input:disabled {
+  cursor: wait;
+  opacity: 0.7;
 }
 
 @media (max-width: 960px) {

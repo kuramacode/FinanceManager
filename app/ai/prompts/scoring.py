@@ -4,23 +4,25 @@
 FINANCIAL_SCORE_PROMPT = """
 {base}
 
-Задача:
-Оціни фінансовий стан користувача.
+Task:
+Estimate the user's financial health score for the selected scenario.
 
-Критерії:
-- співвідношення доходів і витрат
-- стабільність витрат
-- наявність ознак перевитрат
-- загальна структура фінансової поведінки
+Criteria:
+- income versus expenses;
+- expense stability;
+- overspending or budget pressure;
+- balance and account distribution;
+- availability and quality of the provided data.
 
-Правила:
-- не вигадуй дані
-- якщо даних недостатньо, вкажи це явно
-- score має бути числом від 0 до 100
-- status має бути одним із: good, medium, bad, unknown
-- формат відповіді строго JSON
+Rules:
+- Do not invent data.
+- If there is not enough data, explain that clearly.
+- score must be a number from 0 to 100.
+- status must be one of: good, medium, bad, unknown.
+- Every user-facing string value must follow the response language instruction from the base prompt.
+- The response format must be strict JSON.
 
-Формат відповіді:
+Response format:
 {{
   "score": 0,
   "status": "good|medium|bad|unknown",

@@ -24,8 +24,65 @@ cards.forEach(card => {
             <span>${changeSign}${change.toFixed(2)}%</span>
         `;
     }
-    const code = card.dataset.code;
 });
+
+// Continent filters
+const chipWrap = document.getElementById('chipWrap');
+const emptyRates = document.getElementById('emptyRates');
+
+function getFilterLabel(key, fallback) {
+    const label = chipWrap?.dataset[`${key}Label`];
+    return label && !label.startsWith('currency.continents.') ? label : fallback;
+}
+
+function buildContinentFilters() {
+    if (!chipWrap) return;
+
+    const availableContinents = new Set(Array.from(cards).map(card => card.dataset.continent || 'other'));
+    const filters = [
+        { key: 'all', label: getFilterLabel('all', 'All') },
+        { key: 'europe', label: getFilterLabel('europe', 'Europe') },
+        { key: 'asia', label: getFilterLabel('asia', 'Asia') },
+        { key: 'america', label: getFilterLabel('america', 'Americas') },
+        { key: 'other', label: getFilterLabel('other', 'Other') },
+    ];
+
+    chipWrap.innerHTML = '';
+    filters
+        .filter(filter => filter.key === 'all' || availableContinents.has(filter.key))
+        .forEach((filter, index) => {
+            const chip = document.createElement('button');
+            chip.type = 'button';
+            chip.className = `chip${index === 0 ? ' active' : ''}`;
+            chip.dataset.filter = filter.key;
+            chip.setAttribute('aria-pressed', index === 0 ? 'true' : 'false');
+            chip.textContent = filter.label;
+            chip.addEventListener('click', () => applyContinentFilter(filter.key));
+            chipWrap.appendChild(chip);
+        });
+}
+
+function applyContinentFilter(filter) {
+    let visibleCount = 0;
+
+    cards.forEach(card => {
+        const isVisible = filter === 'all' || card.dataset.continent === filter;
+        card.hidden = !isVisible;
+        if (isVisible) visibleCount += 1;
+    });
+
+    chipWrap?.querySelectorAll('.chip').forEach(chip => {
+        const isActive = chip.dataset.filter === filter;
+        chip.classList.toggle('active', isActive);
+        chip.setAttribute('aria-pressed', isActive ? 'true' : 'false');
+    });
+
+    if (emptyRates) {
+        emptyRates.style.display = visibleCount ? 'none' : 'block';
+    }
+}
+
+buildContinentFilters();
 
 // ── CONVERTER SELECTS ──
 const CURRENCIES = ['UAH', ...Array.from(cards).map(c => c.dataset.code)];

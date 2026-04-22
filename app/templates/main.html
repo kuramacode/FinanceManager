@@ -94,6 +94,74 @@
       </div>
     </section>
 
+    <section class="pricing" id="pricing">
+      <p class="eyebrow">{{ t("landing.pricing_eyebrow") }}</p>
+      <div class="section-heading">
+        <h2 class="section-title">{{ t("landing.pricing_title") }}</h2>
+        <p>{{ t("landing.pricing_subtitle") }}</p>
+      </div>
+
+      <div class="pricing-grid">
+        <article class="price-card">
+          <div class="plan-top">
+            <span class="plan-name">Free</span>
+            <span class="plan-price">{{ t("landing.pricing_free_price") }}</span>
+          </div>
+          <p class="plan-copy">{{ t("landing.pricing_free_copy") }}</p>
+          <dl class="plan-specs">
+            <div>
+              <dt>{{ t("landing.pricing_model") }}</dt>
+              <dd>{{ t("landing.pricing_free_model") }}</dd>
+            </div>
+            <div>
+              <dt>{{ t("landing.pricing_analytics") }}</dt>
+              <dd>{{ t("landing.pricing_free_analytics") }}</dd>
+            </div>
+          </dl>
+          <a href="{{ url_for('register.register') }}" class="btn-plan">{{ t("landing.start_free") }}</a>
+        </article>
+
+        <article class="price-card price-card-featured">
+          <div class="plan-badge">{{ t("landing.pricing_popular") }}</div>
+          <div class="plan-top">
+            <span class="plan-name">Pro</span>
+            <span class="plan-price">{{ t("landing.pricing_pro_price") }}</span>
+          </div>
+          <p class="plan-copy">{{ t("landing.pricing_pro_copy") }}</p>
+          <dl class="plan-specs">
+            <div>
+              <dt>{{ t("landing.pricing_model") }}</dt>
+              <dd>{{ t("landing.pricing_pro_model") }}</dd>
+            </div>
+            <div>
+              <dt>{{ t("landing.pricing_analytics") }}</dt>
+              <dd>{{ t("landing.pricing_pro_analytics") }}</dd>
+            </div>
+          </dl>
+          <a href="{{ url_for('register.register') }}" class="btn-plan btn-plan-dark">{{ t("landing.pricing_choose_pro") }}</a>
+        </article>
+
+        <article class="price-card">
+          <div class="plan-top">
+            <span class="plan-name">Max</span>
+            <span class="plan-price">{{ t("landing.pricing_max_price") }}</span>
+          </div>
+          <p class="plan-copy">{{ t("landing.pricing_max_copy") }}</p>
+          <dl class="plan-specs">
+            <div>
+              <dt>{{ t("landing.pricing_model") }}</dt>
+              <dd>{{ t("landing.pricing_max_model") }}</dd>
+            </div>
+            <div>
+              <dt>{{ t("landing.pricing_analytics") }}</dt>
+              <dd>{{ t("landing.pricing_max_analytics") }}</dd>
+            </div>
+          </dl>
+          <a href="{{ url_for('register.register') }}" class="btn-plan">{{ t("landing.pricing_choose_max") }}</a>
+        </article>
+      </div>
+    </section>
+
     <footer class="footer">
       <p>{{ t("landing.footer") }}</p>
       <a href="{{ url_for('register.register') }}" class="btn-primary btn-sm">{{ t("landing.start_free") }}</a>

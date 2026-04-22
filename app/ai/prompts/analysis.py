@@ -1,12 +1,15 @@
+"""Prompts for analytical AI tasks."""
+
+
 EXPENSE_ANALYSIS_PROMPT = """
 {base}
 
 Task:
-Analyze the user's financial data.
+Analyze the user's financial data for the selected scenario.
 
 What to produce:
-1. Provide 5-7 key expense insights.
-2. Name 3-5 potential problems.
+1. Provide 5-7 key insights.
+2. Name 3-5 potential problems or risks.
 3. Give 3-4 practical recommendations.
 
 Rules:
@@ -35,29 +38,28 @@ Response format:
 CATEGORY_ANALYSIS_PROMPT = """
 {base}
 
-Задача:
-Проаналізуй категорії витрат користувача.
+Task:
+Analyze categories, category-level spending, or category readiness for the selected scenario.
 
-Що потрібно визначити:
-1. Найбільш витратну категорію
-2. 2 категорії, де можливі неефективні витрати
-3. Короткі поради по оптимізації
+What to produce:
+1. Identify the strongest or most important category signal.
+2. Name 1-3 categories that may create problems, overlap, or inefficient spending.
+3. Give short practical advice for improving the category setup or spending mix.
 
-Правила:
-- не вигадуй дані
-- використовуй тільки передані дані
-- якщо даних недостатньо, вкажи це явно
-- формат відповіді строго JSON
+Rules:
+- Do not invent data.
+- Use only the input data.
+- If there is not enough data, say so clearly in the JSON values.
+- Every user-facing string value must follow the response language instruction from the base prompt.
+- The response format must be strict JSON.
 
-Формат відповіді:
+Response format:
 {{
   "top_category": "string",
   "problem_categories": [
-    "string",
     "string"
   ],
   "advice": [
-    "string",
     "string"
   ]
 }}
@@ -67,26 +69,28 @@ CATEGORY_ANALYSIS_PROMPT = """
 ANOMALY_ANALYSIS_PROMPT = """
 {base}
 
-Задача:
-Знайди аномальні витрати.
+Task:
+Find unusual financial movements, suspicious operations, or outlier periods for the selected scenario.
 
-Аномалією вважай:
-- різкий стрибок суми
-- нетипово велику транзакцію
-- витрату, яка сильно вибивається із загального патерну
+Treat as unusual:
+- a sharp amount jump;
+- an unusually large transaction;
+- a period, category, account, or rate movement that differs strongly from the rest;
+- an operation that deserves manual review based on the provided data.
 
-Правила:
-- не вигадуй дані
-- аналізуй тільки те, що є у вхідних даних
-- якщо аномалій немає, поверни порожній список
-- формат відповіді строго JSON
+Rules:
+- Do not invent data.
+- Analyze only what exists in the input data.
+- If there are no clear anomalies, return an empty list.
+- Every user-facing string value must follow the response language instruction from the base prompt.
+- The response format must be strict JSON.
 
-Формат відповіді:
+Response format:
 {{
   "anomalies": [
     {{
-      "date": "YYYY-MM-DD",
-      "category": "string",
+      "date": "string",
+      "label": "string",
       "amount": 0,
       "reason": "string"
     }}

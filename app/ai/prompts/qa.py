@@ -4,17 +4,18 @@
 QA_PROMPT = """
 {base}
 
-Запитання:
+Question:
 {question}
 
-Правила:
-- відповідай лише за даними
-- не вигадуй
-- якщо даних немає, напиши: "недостатньо даних"
-- не виходь за межі питання
-- формат відповіді строго JSON
+Rules:
+- Answer only from the provided data.
+- Do not invent facts, numbers, categories, accounts, budgets, or rates.
+- If the data is insufficient, say so directly.
+- Stay within the selected AI scenario.
+- Every user-facing string value must follow the response language instruction from the base prompt.
+- The response format must be strict JSON.
 
-Формат відповіді:
+Response format:
 {{
   "answer": "string"
 }}

@@ -25,3 +25,23 @@ def expense_analysis():
         return jsonify(result.model_dump()), 400
     
     return jsonify(result.model_dump()), 200
+
+
+@_ai.route("/actions/<action_id>", methods=["POST"])
+@login_required
+def run_action(action_id):
+    payload = request.get_json(silent=True) or {}
+
+    service = AIService()
+    result = service.run_action(
+        user_id=current_user.id,
+        action_id=action_id,
+        page_key=payload.get("page_key") or request.args.get("page"),
+        message=payload.get("message"),
+        language=get_current_language(),
+    )
+
+    if not result.ok:
+        return jsonify(result.model_dump()), 400
+
+    return jsonify(result.model_dump()), 200

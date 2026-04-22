@@ -253,6 +253,18 @@ body {
   transition: color .2s;
 }
 .toggle-pass:hover { color: var(--text); }
+.toggle-pass.is-visible { color: var(--text); }
+.toggle-pass.is-visible::after {
+  content: '';
+  position: absolute;
+  left: 6px;
+  top: 50%;
+  width: 18px;
+  height: 1.5px;
+  background: currentColor;
+  transform: rotate(-35deg);
+  transform-origin: center;
+}
 
 .field-error {
   font-size: 12px;

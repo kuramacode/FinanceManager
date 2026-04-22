@@ -67,6 +67,7 @@
             data-ai-action-description-key="{{ action.description_key|default('', true) }}"
             data-ai-action-prompt="{{ action.prompt }}"
             data-ai-action-prompt-key="{{ action.prompt_key|default('', true) }}"
+            data-ai-action-prompt-type="{{ action.prompt_type|default('', true) }}"
             data-ai-action-endpoint="{{ action.endpoint|default('', true) }}"
             data-ai-action-method="{{ action.method|default('GET', true) }}"
           >
@@ -103,9 +104,13 @@
 
     <div class="ai-entrypoint__drawer-meta">
       <span class="ai-entrypoint__pill" id="aiEntrypointPagePill">{{ ai_entrypoint.label }}</span>
+      <span class="ai-entrypoint__pill ai-entrypoint__pill--action" id="aiEntrypointActionPill">{{ t("ai.choose_action_short") }}</span>
       <span class="ai-entrypoint__pill ai-entrypoint__pill--muted" id="aiEntrypointStatusPill">
         {{ t("ai.model_connected") if ai_connected else t("ai.no_model_connected") }}
       </span>
+      <button class="ai-entrypoint__switch-action" id="aiEntrypointSwitchAction" type="button">
+        {{ t("ai.change_action") }}
+      </button>
     </div>
 
     <div class="ai-entrypoint__chat" id="aiEntrypointChat" aria-live="polite"></div>

@@ -41,8 +41,15 @@
         <div class="field">
           <label for="password">{{ t("common.fields.password") }}</label>
           <div class="input-wrap">
-            <input type="password" name="password" placeholder="{{ t('common.fields.password') }}" required />
-            <button type="button" class="toggle-pass" id="togglePass" aria-label="{{ t('auth.show_password') }}">
+            <input id="password" type="password" name="password" placeholder="{{ t('common.fields.password') }}" required />
+            <button
+              type="button"
+              class="toggle-pass"
+              data-password-toggle
+              aria-controls="password"
+              aria-pressed="false"
+              aria-label="{{ t('auth.show_password') }}"
+            >
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
                 <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
                 <circle cx="12" cy="12" r="3"/>
@@ -75,5 +82,6 @@
 
   <script id="i18n-data" type="application/json">{{ client_i18n | tojson }}</script>
   <script src="{{ url_for('static', filename='scripts/i18n.js') }}"></script>
+  <script src="{{ url_for('static', filename='scripts/auth.js') }}"></script>
 </body>
 </html>
