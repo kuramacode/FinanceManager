@@ -1,36 +1,61 @@
 # FinanceManager
-A web application for personal finance tracking: incomes, expenses, categories, and current balance.
 
-> Stack: **Flask + SQLAlchemy + SQLite + Jinja2 + Flask-Login**
+FinanceManager is a Flask web application for personal finance tracking. It helps manage income, expenses, transfers, accounts, categories, budgets, exchange rates, analytics, and optional AI-powered financial insights.
 
----
+> Stack: **Flask 3 + SQLAlchemy + SQLite + Jinja2 + Flask-Login + OpenRouter AI (optional)**
 
 ## Features
 
-- User registration and login
-- Income/expense transaction tracking
-- Category-based transactions (with emoji)
-- Dashboard with:
-  - total income
-  - total expenses
-  - current balance
-  - latest transactions
-- Transaction filtering by type (`all`, `income`, `expense`)
+- User registration, login, logout, and protected finance pages.
+- Transaction management for `income`, `expense`, and `transfer` operations.
+- Account management with balances, currency, status, type, subtitle, note, and emoji.
+- Category management for income, expense, and transfer categories.
+- Budget management with limits, periods, category links, progress, and status detection.
+- Dashboard with period filters, income/expense totals, balance, latest transactions, accounts, budgets, and short insights.
+- Transaction history timeline with search, type filters, grouping, summaries, and pagination.
+- Analytics page built from real transactions, categories, accounts, budgets, and available currencies.
+- Currency page with NBU exchange-rate data and conversion support.
+- Internationalization for English and Ukrainian UI text.
+- Optional AI assistant actions for dashboard, transactions, budgets, accounts, analytics, history, categories, and currency pages.
+- JSON API for categories, accounts, budgets, currency conversion, and AI actions.
 
----
+## Pages And Routes
 
-## Pages / Routes
+Main UI:
 
-Current app routes:
+- `/` - public landing page.
+- `/register` - user registration.
+- `/login` - user authentication.
+- `/logout` - logout.
+- `/dashboard` - finance dashboard.
+- `/transactions` - create, update, delete, filter, and summarize transactions.
+- `/history` - transaction history timeline.
+- `/analytics` - analytics view.
+- `/accounts` - account management page.
+- `/budgets` - budget management page.
+- `/category` - category management page.
+- `/currency` - exchange-rate and currency page.
+- `/language/<language>` - language switch endpoint.
 
-- `/` — landing page
-- `/register` — user registration
-- `/login` — authentication
-- `/dashboard` — finance dashboard
-- `/transactions` — list/create transactions
-- `/logout` — logout
+JSON API:
 
----
+- `GET /api/convert?from=USD&to=UAH&amount=10`
+- `GET /api/category`
+- `POST /api/category`
+- `PUT /api/category/<category_id>`
+- `DELETE /api/category/<category_id>`
+- `GET /api/accounts`
+- `POST /api/accounts`
+- `PUT /api/accounts/<account_id>`
+- `DELETE /api/accounts/<account_id>`
+- `GET /api/budgets`
+- `POST /api/budgets`
+- `PUT /api/budgets/<budget_id>`
+- `DELETE /api/budgets/<budget_id>`
+- `GET /api/ai/expense-analysis`
+- `POST /api/ai/actions/<action_id>`
+
+Most API routes require an authenticated user session.
 
 ## Tech Stack
 
@@ -40,58 +65,117 @@ Current app routes:
 - Flask-Login
 - Jinja2
 - SQLite
+- Requests
+- Pydantic
+- python-dotenv
 - unittest
-
----
 
 ## Quick Start
 
-### 1) Clone the repository
+### 1. Clone The Repository
 
 ```bash
 git clone <your-repo-url>
 cd FinanceManager
 ```
 
-### 2) Create and activate a virtual environment
+### 2. Create And Activate A Virtual Environment
 
-**Linux / macOS**
+Linux / macOS:
+
 ```bash
 python -m venv .venv
 source .venv/bin/activate
 ```
 
-**Windows (PowerShell)**
+Windows PowerShell:
+
 ```powershell
 python -m venv .venv
-.venv\Scripts\Activate.ps1
+.\.venv\Scripts\Activate.ps1
 ```
 
-### 3) Install dependencies
+The current local workspace also has an `env/` virtual environment. New setups can use either `env/` or `.venv/`; keep the chosen folder out of git.
+
+### 3. Install Dependencies
 
 ```bash
-pip install -r requirements.txt
+python -m pip install --upgrade pip
+python -m pip install -r requirements.txt
 ```
 
-### 4) Configure environment variables
+### 4. Configure Environment Variables
 
-Create a `.env` file in the project root:
+Create `.env` in the project root or `app/.env`. Both locations are loaded.
+
+Minimum local config:
 
 ```env
-SECRET_KEY=your-super-secret-key
+SECRET_KEY=change-me
 ```
 
-> SQLite database is created automatically at `instance/users.db`.
+Optional database override:
 
-### 5) Run the app
+```env
+SQLALCHEMY_DATABASE_URI=sqlite:///users.db
+```
+
+or:
+
+```env
+DATABASE_URL=sqlite:///users.db
+```
+
+If no database URL is provided, the app uses:
+
+```text
+instance/users.db
+```
+
+Optional AI config:
+
+```env
+OPENROUTER_API_KEY=your-openrouter-key
+OPENROUTER_MODEL=inclusionai/ling-2.6-flash:free
+OPENROUTER_BASE_URL=https://openrouter.ai/api/v1
+AI_TIMEOUT_SECONDS=60
+AI_MAX_COMPLETION_TOKENS=800
+AI_TEMPERATURE=0.2
+OPENROUTER_SITE_URL=http://127.0.0.1:5000
+OPENROUTER_APP_TITLE=Finance Manager
+```
+
+AI features are optional. Without `OPENROUTER_API_KEY`, the core finance app still runs, but AI endpoints cannot call the provider.
+
+### 5. Run The App
 
 ```bash
-python app.py
+python run.py
 ```
 
-Open: `http://127.0.0.1:5000`
+Open:
 
----
+```text
+http://127.0.0.1:5000
+```
+
+The Flask app is created through `app.create_app()`. On startup it ensures the SQLite directory exists and runs `db.create_all()`.
+
+## Seed Data
+
+Seed supported currencies:
+
+```bash
+python -m app.utils.seed_currencies
+```
+
+Import NBU exchange rates for configured currencies:
+
+```bash
+python -m app.utils.seed_exchange_rates_nbu --start 2026-03-21 --end 2026-04-21
+```
+
+The exchange-rate importer calls the public NBU API and writes rates into the configured SQLite database.
 
 ## Testing
 
@@ -101,90 +185,56 @@ Run all tests:
 python -m unittest discover -s tests -v
 ```
 
----
-
-## VS Code debug troubleshooting (Windows)
-
-If VS Code fails to start debugging with:
-
-`AttributeError: module 'sys' has no attribute 'real_prefix'`
-
-this is usually caused by a mismatch between the selected Python interpreter and
-the environment that `debugpy` expects.
-
-### Fix checklist
-
-1. Select the project virtual environment in VS Code:
-   - `Ctrl+Shift+P` → **Python: Select Interpreter** → choose `.venv\Scripts\python.exe`.
-2. Recreate the virtual environment (if needed):
-
-   ```powershell
-   rmdir /s /q .venv
-   py -3 -m venv .venv
-   .venv\Scripts\python -m pip install --upgrade pip
-   .venv\Scripts\python -m pip install -r requirements.txt
-   ```
-
-3. Ensure no local file is shadowing Python stdlib modules:
-   - there should be no `sys.py` in your workspace.
-4. Update the Python extension in VS Code and restart the editor.
-5. If the issue persists, pin `debugpy` in your environment and try again:
-
-   ```powershell
-   .venv\Scripts\python -m pip install "debugpy>=1.8.0"
-   ```
-
----
+The tests create isolated temporary SQLite databases instead of using `instance/users.db`.
 
 ## Project Structure
 
 ```text
 FinanceManager/
-├── app.py
-├── config.py
-├── models.py
-├── requirements.txt
-├── templates/
-├── static/
-├── utils/
-└── tests/
+|-- run.py
+|-- requirements.txt
+|-- README.md
+|-- app/
+|   |-- __init__.py              # app factory, blueprints, extensions
+|   |-- config.py                # dotenv and database configuration
+|   |-- ai/                      # AI config, provider client, prompts, actions
+|   |-- api/                     # JSON API and AI API routes
+|   |-- auth/                    # login/logout routes
+|   |-- register/                # registration routes
+|   |-- main/                    # landing and language routes
+|   |-- content/
+|   |   |-- lead/                # dashboard, transactions, history, analytics
+|   |   |-- money/               # accounts and budgets pages
+|   |   `-- manage/              # categories and currency pages
+|   |-- models/                  # SQLAlchemy models
+|   |-- services/                # domain services
+|   |-- clients/                 # external clients, including NBU
+|   |-- i18n/                    # translations and language helpers
+|   |-- static/                  # CSS and browser scripts
+|   |-- templates/               # Jinja templates
+|   `-- utils/                   # database, periods, formatting, seed scripts
+|-- instance/
+|   `-- users.db                 # local SQLite database, generated locally
+`-- tests/
 ```
 
----
+## Data Model Overview
 
-## Data Models
+- `User` - registered application users.
+- `Transactions` - income, expense, and transfer records.
+- `Categories` - user-scoped transaction categories with emoji, description, type, and built-in flag.
+- `Accounts` - user accounts with balances, currency, status, type, subtitle, and note.
+- `Budget` - budget limits with period dates and currency.
+- `BudgetCategory` - links budgets to categories.
+- `Currency` - supported currencies.
+- `ExchangeRate` - historical rates, currently seeded from NBU.
 
-### `User`
-- `id`
-- `username` (unique)
-- `email` (unique)
-- `password` (hashed)
+## Notes For Development
 
-### `Transactions`
-- `id`
-- `amount`
-- `date`
-- `description`
-- `user_id` (FK -> users.id)
-- `category_id` (FK -> categories.id)
-- `type` (`income` or `expense`)
+- The app uses an application factory: import `create_app` from `app`.
+- Blueprints are registered in `app/__init__.py`.
+- Local SQLite files live in `instance/`.
+- Root `.env` and `app/.env` are both supported.
+- Keep secrets, virtual environments, generated databases, caches, and logs out of git.
+- Some existing source comments/text may still contain mojibake from older encoding issues; README is updated to clean UTF-8 text.
 
-### `Categories`
-- `id`
-- `name`
-- `user_id` (FK -> users.id)
-- `emoji`
-
----
-
-## Roadmap
-
-- [ ] REST API (JSON endpoints)
-- [ ] Transaction pagination
-- [ ] CSV export
-- [ ] Income/expense charts
-- [ ] Docker setup
-- [ ] CI (GitHub Actions)
-- [ ] AI integration
-- [ ] Analytics
-- [ ] Categories and Budget systems
