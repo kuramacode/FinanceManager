@@ -272,9 +272,11 @@ function updateReturnFilterInputs() {
   const current = activeFilter || "all";
   const formInput = document.getElementById("transactionReturnFilter");
   const deleteInput = document.getElementById("deleteTransactionReturnFilter");
+  const periodFilterInput = document.getElementById("transactionsPeriodFilter");
 
   if (formInput) formInput.value = current;
   if (deleteInput) deleteInput.value = current;
+  if (periodFilterInput) periodFilterInput.value = current;
 }
 
 function setText(id, value) {

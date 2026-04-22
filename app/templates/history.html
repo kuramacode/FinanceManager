@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block head %}
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>{{ t("history.title") }}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,400&family=Epilogue:wght@300;400;500;600&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="{{ url_for('static', filename='dashboard.css') }}" />
+  <link rel="stylesheet" href="{{ url_for('static', filename='history.css') }}" />
+{% endblock %}
+
+{% block body %}
+  <main class="history-page">
+    <h1 class="page-title">{{ t("history.heading") | safe }}</h1>
+    <p class="page-sub">{{ t("history.subtitle") }}</p>
+
+    <section class="history-summary">
+      <div class="card neutral">
+        <div class="card-label">{{ t("history.records") }}</div>
+        <div class="card-value">{{ summary.count }}</div>
+        <div class="card-sub">{{ t("history.records_sub") }}</div>
+      </div>
+
+      <div class="card green">
+        <div class="card-label">{{ t("common.types.income") }}</div>
+        <div class="card-value">+{{ "%.2f"|format(summary.income_total) }}</div>
+        <div class="card-sub">{{ t("history.income_sub") }}</div>
+      </div>
+
+      <div class="card red">
+        <div class="card-label">{{ t("common.types.expenses") }}</div>
+        <div class="card-value">-{{ "%.2f"|format(summary.expense_total) }}</div>
+        <div class="card-sub">{{ t("history.expenses_sub") }}</div>
+      </div>
+
+      <div class="card neutral">
+        <div class="card-label">{{ t("history.net_result") }}</div>
+        <div class="card-value">{% if summary.net_total >= 0 %}+{% endif %}{{ "%.2f"|format(summary.net_total) }}</div>
+        <div class="card-sub">{{ t("history.net_result_sub") }}</div>
+      </div>
+    </section>
+
+    <div class="toolbar">
+      <div class="filter-tabs">
+        {% for type_key in ["all", "income", "expense", "transfer"] %}
+          <a
+            class="filter-tab {% if selected_type == type_key %}active{% endif %}"
+            href="{{ url_for('history.history', type=type_key, q=search_query) if search_query else url_for('history.history', type=type_key) }}"
+          >
+            {{ t("common.types." ~ type_key) }}
+          </a>
+        {% endfor %}
+      </div>
+
+      <form class="toolbar-right" action="{{ url_for('history.history') }}" method="get">
+        {% if selected_type != "all" %}
+          <input type="hidden" name="type" value="{{ selected_type }}" />
+        {% endif %}
+
+        <label class="search-wrap" for="historySearch">
+          <svg viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.4" />
+            <path d="M10.5 10.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+          <input id="historySearch" name="q" type="text" value="{{ search_query }}" placeholder="{{ t('history.search_placeholder') }}" autocomplete="off" />
+        </label>
+
+        <button class="history-search-button" type="submit">{{ t("history.search") }}</button>
+
+        <div class="date-range">
+          <svg viewBox="0 0 15 15" fill="none" aria-hidden="true">
+            <rect x="2" y="3" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+            <path d="M4 1.8v2.4M11 1.8v2.4M2 6h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+          </svg>
+          {{ date_range_label }}
+        </div>
+      </form>
+    </div>
+
+    <section class="history-panel">
+      <div class="panel-head">
+        <div class="panel-title">{{ t("history.timeline") }}</div>
+        <div class="page-info">{{ t("history.sorted_newest") }}</div>
+      </div>
+
+      {% if history_groups %}
+        <div class="history-groups">
+          {% for group in history_groups %}
+            <div class="history-group">
+              <div class="history-group-head">
+                <div>
+                  <div class="history-date">{{ group.date.title }}</div>
+                  <div class="history-date-sub">{{ group.date.subtitle }}</div>
+                </div>
+                <div class="history-total">
+                  <div class="history-total-label">{{ t("history.day_result") }}</div>
+                  <div class="history-total-value {{ group.total_class }}">{{ group.total_text }}</div>
+                </div>
+              </div>
+
+              <div class="history-list">
+                {% for item in group.records %}
+                  <article class="history-item">
+                    <div class="item-main">
+                      <div class="item-icon">{{ item.emoji }}</div>
+                      <div class="item-title-wrap">
+                        <div class="item-title">{{ item.description }}</div>
+                        <div class="item-sub">
+                          <span class="item-time">{{ item.date.strftime("%H:%M") if item.date else "" }}</span>
+                          <span class="item-account">{{ item.account_name }}</span>
+                          <span class="item-category">{{ item.category_name }}</span>
+                        </div>
+                      </div>
+                    </div>
+                    <div class="item-type">{{ item.type_label }}</div>
+                    <div class="item-currency">{{ item.currency_code }}</div>
+                    <div><span class="item-status done">{{ item.status }}</span></div>
+                    <div class="item-amount {{ item.amount_class }}">{{ item.amount_text }}</div>
+                  </article>
+                {% endfor %}
+              </div>
+            </div>
+          {% endfor %}
+        </div>
+
+        <div class="history-pagination">
+          <div class="page-info">
+            {{ t("history.page_range", start=page_start, end=page_end, total=total_records) }}
+          </div>
+          <div class="page-btns">
+            {% if page > 1 %}
+              <a class="page-btn" href="{{ page_url(page - 1) }}" aria-label="{{ t('history.previous_page') }}">&lsaquo;</a>
+            {% else %}
+              <span class="page-btn disabled" aria-hidden="true">&lsaquo;</span>
+            {% endif %}
+
+            {% for number in range(1, total_pages + 1) %}
+              <a class="page-btn {% if number == page %}active{% endif %}" href="{{ page_url(number) }}">{{ number }}</a>
+            {% endfor %}
+
+            {% if page < total_pages %}
+              <a class="page-btn" href="{{ page_url(page + 1) }}" aria-label="{{ t('history.next_page') }}">&rsaquo;</a>
+            {% else %}
+              <span class="page-btn disabled" aria-hidden="true">&rsaquo;</span>
+            {% endif %}
+          </div>
+        </div>
+      {% else %}
+        <section class="history-empty">
+          <svg viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="1.4" />
+            <path d="M12 7v5l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" />
+          </svg>
+          <h3>{{ t("history.no_history_title") }}</h3>
+          <p>{{ t("history.no_history_copy") }}</p>
+        </section>
+      {% endif %}
+    </section>
+  </main>
+{% endblock %}

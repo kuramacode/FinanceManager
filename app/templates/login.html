@@ -34,14 +34,35 @@
       <form class="form" action="{{ url_for('auth.login') }}" method="post">
         <div class="field">
           <label for="username">{{ t("common.fields.username") }}</label>
-          <input type="text" name="username" placeholder="{{ t('common.fields.username') }}" required />
-          <span class="field-error" id="emailError"></span>
+          <input
+            id="username"
+            type="text"
+            name="username"
+            value="{{ form_data.username if form_data else '' }}"
+            placeholder="{{ t('common.fields.username') }}"
+            autocomplete="username"
+            required
+            class="{{ 'is-error' if errors and errors.username else '' }}"
+            aria-invalid="{{ 'true' if errors and errors.username else 'false' }}"
+            aria-describedby="usernameError"
+          />
+          <span class="field-error" id="usernameError">{{ errors.username if errors and errors.username else '' }}</span>
         </div>
 
         <div class="field">
           <label for="password">{{ t("common.fields.password") }}</label>
           <div class="input-wrap">
-            <input id="password" type="password" name="password" placeholder="{{ t('common.fields.password') }}" required />
+            <input
+              id="password"
+              type="password"
+              name="password"
+              placeholder="{{ t('common.fields.password') }}"
+              autocomplete="current-password"
+              required
+              class="{{ 'is-error' if errors and errors.password else '' }}"
+              aria-invalid="{{ 'true' if errors and errors.password else 'false' }}"
+              aria-describedby="passwordError"
+            />
             <button
               type="button"
               class="toggle-pass"
@@ -56,7 +77,7 @@
               </svg>
             </button>
           </div>
-          <span class="field-error" id="passwordError"></span>
+          <span class="field-error" id="passwordError">{{ errors.password if errors and errors.password else '' }}</span>
         </div>
 
         <div class="field-row">

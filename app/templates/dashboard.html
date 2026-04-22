@@ -32,6 +32,14 @@
       flex-wrap: wrap;
     }
 
+    .period-picker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin: 0;
+    }
+
     .period-chip {
       display: inline-flex;
       align-items: center;
@@ -42,6 +50,30 @@
       padding: 9px 12px;
       font-size: 0.74rem;
       color: var(--text);
+    }
+
+    .period-chip select,
+    .period-chip input {
+      border: none;
+      background: transparent;
+      color: var(--text);
+      font-family: "Epilogue", sans-serif;
+      font-size: 0.74rem;
+      outline: none;
+    }
+
+    .period-chip input[type="date"] {
+      width: 128px;
+    }
+
+    .period-custom-fields {
+      display: none;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .period-picker.is-custom .period-custom-fields {
+      display: inline-flex;
     }
 
     .period-chip svg {
@@ -443,6 +475,16 @@
         justify-content: space-between;
       }
 
+      .period-picker,
+      .period-chip {
+        width: 100%;
+      }
+
+      .period-custom-fields {
+        width: 100%;
+        flex-wrap: wrap;
+      }
+
       .hero-metrics,
       .stat-cards,
       .quick-actions {
@@ -462,13 +504,27 @@
       </div>
 
       <div class="topbar-actions">
-        <div class="period-chip">
-          <svg viewBox="0 0 15 15" fill="none">
-            <rect x="2" y="3" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" />
-            <path d="M4 1.8v2.4M11 1.8v2.4M2 6h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
-          </svg>
-          {{ current_month_label }}
-        </div>
+        <form class="period-picker {% if period.key == 'custom' %}is-custom{% endif %}" action="{{ url_for('dashboard.dashboard') }}" method="get">
+          <label class="period-chip" for="dashboardPeriod">
+            <svg viewBox="0 0 15 15" fill="none" aria-hidden="true">
+              <rect x="2" y="3" width="11" height="10" rx="1.5" stroke="currentColor" stroke-width="1.2" />
+              <path d="M4 1.8v2.4M11 1.8v2.4M2 6h11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" />
+            </svg>
+            <select id="dashboardPeriod" name="period" onchange="this.form.submit()">
+              {% for option in period_options %}
+                <option value="{{ option }}" {% if period.key == option %}selected{% endif %}>{{ t("periods." ~ option) }}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <span class="period-custom-fields">
+            <label class="period-chip" for="dashboardPeriodStart">
+              <input id="dashboardPeriodStart" type="date" name="start" value="{{ period.start_value }}" onchange="this.form.submit()" />
+            </label>
+            <label class="period-chip" for="dashboardPeriodEnd">
+              <input id="dashboardPeriodEnd" type="date" name="end" value="{{ period.end_value }}" onchange="this.form.submit()" />
+            </label>
+          </span>
+        </form>
 
         <a class="btn-primary" href="{{ url_for('transactions.transactions') }}">
           <svg viewBox="0 0 12 12" fill="none">
