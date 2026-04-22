@@ -90,7 +90,14 @@ def currency_flag(target_code: str) -> str:
 
 def get_difference_percentage(date: datetime, code: str):
     """Повертає відсоткову зміну курсу відносно попереднього дня."""
-    date = datetime.strptime(date, "%d.%m.%Y")
+    if not date or not code:
+        return 0
+
+    if not isinstance(date, datetime):
+        try:
+            date = datetime.strptime(str(date), "%d.%m.%Y")
+        except ValueError:
+            return 0
     yesterday = date - timedelta(days=1)
 
     with sqlite3.connect(_db_path()) as database:
@@ -98,10 +105,16 @@ def get_difference_percentage(date: datetime, code: str):
         cur = database.cursor()
 
         cur.execute('''SELECT rate FROM exchange_rates WHERE date=? AND target_code=?''', (date.strftime("%d.%m.%Y"), code,))
-        today_rate = cur.fetchall()[0][0]
+        today_row = cur.fetchone()
 
         cur.execute('''SELECT rate FROM exchange_rates WHERE date=? AND target_code=?''', (yesterday.strftime("%d.%m.%Y"), code,))
-        yesterday_rate = cur.fetchall()[0][0]
+        yesterday_row = cur.fetchone()
+
+        if not today_row or not yesterday_row or not yesterday_row[0]:
+            return 0
+
+        today_rate = today_row[0]
+        yesterday_rate = yesterday_row[0]
 
         difference_percentage = ((today_rate - yesterday_rate) / yesterday_rate) * 100
 

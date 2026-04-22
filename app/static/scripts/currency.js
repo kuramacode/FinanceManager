@@ -85,7 +85,24 @@ function applyContinentFilter(filter) {
 buildContinentFilters();
 
 // ── CONVERTER SELECTS ──
-const CURRENCIES = ['UAH', ...Array.from(cards).map(c => c.dataset.code)];
+function readCurrencyOptions() {
+    const element = document.getElementById('currency-options-data');
+    if (!element) return [];
+
+    try {
+        const parsed = JSON.parse(element.textContent || '[]');
+        return Array.isArray(parsed) ? parsed : [];
+    } catch (error) {
+        console.error('Currency options are invalid:', error);
+        return [];
+    }
+}
+
+const CURRENCIES = Array.from(new Set([
+    'UAH',
+    ...readCurrencyOptions(),
+    ...Array.from(cards).map(c => c.dataset.code),
+].map(code => String(code || '').trim().toUpperCase()).filter(Boolean)));
 
 function populateSelects() {
     const selFrom = document.getElementById('convFrom');
@@ -128,17 +145,22 @@ async function convertFrom() {
     const from   = document.getElementById('convFrom').value;
     const to     = document.getElementById('convTo').value;
 
-    if (!amount || !from || !to) return;
+    if (Number.isNaN(amount) || !from || !to) return;
     if (from === to) {
         document.getElementById('convResult').value = amount.toFixed(2);
         return;
     }
 
     try {
-        const res  = await fetch(`/api/convert?from=${from}&to=${to}&amount=${amount}`);
+        const params = new URLSearchParams({ from, to, amount: String(amount) });
+        const res  = await fetch(`/api/convert?${params.toString()}`);
         const data = await res.json();
+        if (!res.ok) {
+            throw new Error(data.error || 'Conversion failed');
+        }
         document.getElementById('convResult').value = data.result ?? data.amount ?? '';
     } catch (e) {
+        document.getElementById('convResult').value = '';
         console.error('Conversion failed:', e);
     }
 }
