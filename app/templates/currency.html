@@ -176,6 +176,7 @@
       </div>
     </section>
 
+    <script id="currency-options-data" type="application/json">{{ currency_options | tojson }}</script>
     <script id="currency-analytics-data" type="application/json">{{ currency_analytics | tojson }}</script>
     <script src="{{ url_for('static', filename='scripts/currency.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>

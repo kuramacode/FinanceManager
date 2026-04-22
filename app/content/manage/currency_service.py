@@ -1,44 +1,56 @@
-import sqlite3
-from app.utils.main_scripts import _db_path
 from datetime import datetime, timedelta
 
+import sqlite3
+
+from app.services.exchange_rates import (
+    fetch_latest_rates,
+    load_latest_rate_records,
+    load_rate_records_for_date,
+    parse_rate_date,
+)
+from app.utils.main_scripts import _db_path
+
+
+def _preferred_rate_date(value: str):
+    nbu_publish_time = datetime(
+        datetime.now().year,
+        datetime.now().month,
+        datetime.now().day,
+        15,
+        30,
+    )
+    current_time = datetime.strptime(value, "%d.%m.%Y %H:%M:%S")
+
+    if nbu_publish_time > current_time:
+        return (datetime.now() - timedelta(days=1)).date()
+    return current_time.date()
+
+
 def get_rates(date: str, currencies: list):
-    """Повертає дані у функції `get_rates`."""
-    with sqlite3.connect(_db_path()) as database:
-        database.row_factory = sqlite3.Row
-        cur = database.cursor()
-        
-        nbu_time = datetime(datetime.now().year, datetime.now().month, datetime.now().day, 15, 30)
-        date_time = datetime.strptime(date, "%d.%m.%Y %H:%M:%S")
-        
-        placeholders = ",".join(["?"] * len(currencies))
-        query = f'''SELECT * FROM exchange_rates
-            WHERE date = ? AND target_code IN ({placeholders})
-            '''
-            
-        if nbu_time > date_time:
-            yesterday = datetime.now() - timedelta(days=1)
-            date = yesterday.strftime("%d.%m.%Y")
-            params = [date] + currencies
-            
-            cur.execute(query, params)
-            
-        else:
-            date = date_time.strftime("%d.%m.%Y")
-            params = [date] + currencies
-            
-            cur.execute(query, params)
-        
-        return cur.fetchall(), date
-    
+    preferred_date = _preferred_rate_date(date)
+    rates = load_rate_records_for_date(preferred_date, currencies)
+    actual_date = preferred_date
+
+    if not rates:
+        try:
+            fetch_latest_rates(currencies=currencies, persist=True)
+            rates, actual_date = load_latest_rate_records(currencies)
+        except Exception:
+            rates, actual_date = load_latest_rate_records(currencies)
+
+    if actual_date is None:
+        actual_date = preferred_date
+
+    return rates, actual_date.strftime("%d.%m.%Y")
+
+
 def get_nows_date():
-    """Повертає дані у функції `get_nows_date`."""
     now = datetime.now()
     return now.strftime("%d.%m.%Y %H:%M:%S")
 
 
 def get_currency_analytics_data(currencies: list, source: str = "nbu") -> dict:
-    """Повертає історію курсів для графіків валютної аналітики."""
+    """Returns NBU rate history for the currency analytics charts."""
     if not currencies:
         return {"base_code": "UAH", "currencies": [], "rates": [], "latest_date": None}
 
@@ -57,9 +69,8 @@ def get_currency_analytics_data(currencies: list, source: str = "nbu") -> dict:
         cur.execute(query, [source] + currencies)
 
         for row in cur.fetchall():
-            try:
-                parsed_date = datetime.strptime(row["date"], "%d.%m.%Y").date()
-            except (TypeError, ValueError):
+            parsed_date = parse_rate_date(row["date"])
+            if parsed_date is None:
                 continue
 
             points.append(
@@ -81,4 +92,3 @@ def get_currency_analytics_data(currencies: list, source: str = "nbu") -> dict:
         "rates": points,
         "latest_date": latest_date,
     }
-
